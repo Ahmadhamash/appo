@@ -20,6 +20,10 @@ interval using the Organization IANA timezone. Empty denominators return `null`,
 | Revenue estimate     | Completed appointment branch price, falling back to service default. `null` if any completed appointment lacks reliable pricing.                            |
 | AI usage and cost    | Input tokens, output tokens and estimated cost micros, grouped by recorded channel.                                                                         |
 
+Operational report results carry the Organization currency with reliable revenue so the owner UI can
+format minor units correctly. The report screen presents typed business metrics and grouped rows; it
+does not expose the stored report JSON as an owner-facing interface.
+
 Platform aggregates are explicitly labelled lifetime counts and are not cross-timezone date reports.
 
 ## CSV contracts

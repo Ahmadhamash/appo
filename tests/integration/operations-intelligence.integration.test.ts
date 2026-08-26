@@ -307,6 +307,7 @@ describe("Phase 7 operations intelligence", () => {
     expect(report.cancellationRate).toBeCloseTo(1 / 3);
     expect(report.noShowRate).toBeCloseTo(1 / 3);
     expect(report.revenueEstimateMinor).toBe(1000);
+    expect(report.currency).toBe("JOD");
     expect(
       report.conversionsByChannel.find(({ source }) => source === "PUBLIC_BOOKING")?.rate,
     ).toBe(0.5);

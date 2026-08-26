@@ -11,21 +11,26 @@ import { SubmitButton } from "./submit-button";
 type InvitationRole = Readonly<{ id: string; nameAr: string; nameEn: string }>;
 
 export function StaffInvitationForm({
+  embedded = false,
   locale,
   roles,
-}: Readonly<{ locale: SupportedLocale; roles: readonly InvitationRole[] }>) {
+}: Readonly<{
+  embedded?: boolean;
+  locale: SupportedLocale;
+  roles: readonly InvitationRole[];
+}>) {
   const [state, action] = useActionState(createInvitationAction, {});
   const messages = phaseOneMessages[locale];
   const successful = state.code === "INVITATION_CREATED";
   return (
-    <div className="page-stack">
+    <div className={embedded ? "embedded-action-stack" : "page-stack"}>
       <Feedback
         error={!successful ? state.code : undefined}
         invitation={state.invitationUrl}
         locale={locale}
         notice={successful ? state.code : undefined}
       />
-      <form action={action} className="panel inline-form">
+      <form action={action} className={embedded ? "form-grid workspace-form" : "panel inline-form"}>
         <input name="locale" type="hidden" value={locale} />
         <label className="field">
           <span className="field-label">{messages.email}</span>

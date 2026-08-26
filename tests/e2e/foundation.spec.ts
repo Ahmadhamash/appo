@@ -97,6 +97,50 @@ test("owner can use the sector-specific gym trainee workflow in English and Arab
   await expect(page.getByRole("heading", { level: 1, name: "المتدربون" })).toBeVisible();
 });
 
+test("every primary gym owner workspace is organized, localized and mobile-safe", async ({
+  page,
+}) => {
+  const seedPassword = process.env.DEV_SEED_PASSWORD;
+  test.skip(!seedPassword, "DEV_SEED_PASSWORD is required for the authenticated browser test.");
+  await page.goto("/ar/login");
+  await page.getByLabel("البريد الإلكتروني").fill("gym-owner@example.invalid");
+  await page.getByLabel("كلمة المرور").fill(seedPassword ?? "");
+  await page.getByRole("button", { name: "تسجيل الدخول" }).click();
+
+  const workspaces = [
+    ["/ar/dashboard/today", "عمليات اليوم"],
+    ["/ar/dashboard/calendar", "التقويم"],
+    ["/ar/dashboard/gym/trainees", "المتدربون"],
+    ["/ar/dashboard/communications", "الاتصالات"],
+    ["/ar/dashboard/services", "الاشتراكات والبرامج"],
+    ["/ar/dashboard/staff", "المدربون"],
+    ["/ar/dashboard/reports", "التقارير والإسناد"],
+    ["/ar/dashboard/settings", "إعدادات المؤسسة"],
+  ] as const;
+
+  for (const [path] of workspaces) {
+    await expect(page.locator(`main a[href="${path}"]`)).toHaveCount(1);
+  }
+
+  await page.setViewportSize({ height: 844, width: 390 });
+  for (const [path, heading] of workspaces) {
+    await page.goto(path);
+    await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+    await expect(page.getByRole("heading", { level: 1, name: heading })).toBeVisible();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1),
+    ).toBe(true);
+  }
+
+  await page.goto("/ar/dashboard/services");
+  await expect(page.locator("details.workspace-action")).not.toHaveAttribute("open", "");
+  await page.locator("details.workspace-action > summary").click();
+  await expect(page.getByRole("button", { name: "إضافة خدمة" })).toBeVisible();
+
+  await page.goto("/ar/dashboard/reports");
+  await expect(page.locator("pre.code-block")).toHaveCount(0);
+});
+
 test("trainee login opens the private mobile-ready training portal without staff controls", async ({
   page,
 }) => {
@@ -156,6 +200,7 @@ test("owner can use the Phase 4 inbox and queue a consented mock message", async
   await page.goto("/en/dashboard/communications");
   await expect(page.getByRole("heading", { level: 1, name: "Communications" })).toBeVisible();
   await expect(page.getByText(/Local mock adapters only/)).toBeVisible();
+  await page.locator("summary").filter({ hasText: "Send a message" }).click();
   await page.getByLabel("Customer").selectOption({ label: "Leila Development" });
   await page.locator('select[name="appointmentId"]').selectOption("");
   await page.getByRole("button", { name: "Send template" }).click();

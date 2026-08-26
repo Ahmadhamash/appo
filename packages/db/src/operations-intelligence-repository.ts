@@ -1013,6 +1013,7 @@ export class OperationsIntelligenceRepository {
         calls,
         conversionsByChannel,
         cancellationRate: ratio(cancelled, total),
+        currency: trace?.currency ?? "JOD",
         messageFailureRate: ratio(messageFailures, messageTotal),
         noShowRate: ratio(noShows, total),
         revenueEstimateMinor:
