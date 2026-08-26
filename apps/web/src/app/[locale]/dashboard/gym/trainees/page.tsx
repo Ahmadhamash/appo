@@ -31,13 +31,24 @@ export default async function GymTraineesPage({
   );
   const messages = sectorMessages[locale];
   const phaseOne = phaseOneMessages[locale];
+  const summary = {
+    activePlans: trainees.filter((trainee) => trainee.workoutPlans.length > 0).length,
+    assigned: trainees.filter((trainee) => trainee.trainer !== null).length,
+    progress: trainees.filter((trainee) => trainee.progressEntries.length > 0).length,
+  };
 
   return (
     <section className="page-stack gym-workspace" aria-labelledby="gym-trainees-title">
-      <header className="page-heading">
-        <p className="eyebrow">{messages.gym}</p>
-        <h1 id="gym-trainees-title">{messages.gymTrainees}</h1>
-        <p className="page-description">{messages.gymDescription}</p>
+      <header className="page-heading trainee-directory-heading">
+        <div>
+          <p className="eyebrow">{messages.gym}</p>
+          <h1 id="gym-trainees-title">{messages.gymTrainees}</h1>
+          <p className="page-description">{messages.gymDescription}</p>
+        </div>
+        <div className="directory-visual" aria-hidden="true">
+          <span>◎</span>
+          <small>GYM</small>
+        </div>
       </header>
       <Feedback
         error={typeof query.error === "string" ? query.error : undefined}
@@ -45,9 +56,36 @@ export default async function GymTraineesPage({
         notice={typeof query.notice === "string" ? query.notice : undefined}
       />
 
+      <dl className="trainee-summary-grid">
+        <SummaryMetric
+          icon="◎"
+          label={locale === "ar" ? "إجمالي المتدرّبين" : "Total trainees"}
+          value={trainees.length}
+        />
+        <SummaryMetric
+          icon="✓"
+          label={locale === "ar" ? "عندهم خطة نشطة" : "Active plans"}
+          value={summary.activePlans}
+        />
+        <SummaryMetric
+          icon="♙"
+          label={locale === "ar" ? "مربوطين بمدرب" : "Assigned to coach"}
+          value={summary.assigned}
+        />
+        <SummaryMetric
+          icon="↗"
+          label={locale === "ar" ? "سجّلوا تقدّم" : "Progress recorded"}
+          value={summary.progress}
+        />
+      </dl>
+
       {canManage ? (
-        <section className="panel" aria-labelledby="add-trainee-title">
-          <div className="section-heading">
+        <details
+          className="panel action-disclosure trainee-add-disclosure"
+          open={trainees.length === 0}
+        >
+          <summary>{messages.addTrainee}</summary>
+          <div className="section-heading trainee-add-heading">
             <div>
               <p className="eyebrow">{messages.traineeProfile}</p>
               <h2 id="add-trainee-title">{messages.addTrainee}</h2>
@@ -125,7 +163,7 @@ export default async function GymTraineesPage({
           ) : (
             <p className="muted">{messages.noTrainees}</p>
           )}
-        </section>
+        </details>
       ) : null}
 
       {trainees.length === 0 ? (
@@ -156,7 +194,7 @@ export default async function GymTraineesPage({
                     </p>
                   </div>
                 </div>
-                <dl className="compact-details">
+                <dl className="compact-details trainee-card-details">
                   <div>
                     <dt>{locale === "ar" ? "الهدف" : "Goal"}</dt>
                     <dd>{sectorValueLabel(locale, trainee.goal)}</dd>
@@ -176,6 +214,13 @@ export default async function GymTraineesPage({
                     <dd>{progress ? `${progress.bodyWeightKg.toString()} kg` : "—"}</dd>
                   </div>
                 </dl>
+                <div className="trainee-card-progress" aria-hidden="true">
+                  <span
+                    style={{
+                      inlineSize: `${cardProgress(trainee.startingWeightKg?.toNumber(), progress?.bodyWeightKg.toNumber(), trainee.targetWeightKg?.toNumber())}%`,
+                    }}
+                  />
+                </div>
                 <span className="text-link">
                   {locale === "ar" ? "فتح الملف ←" : "Open profile →"}
                 </span>
@@ -187,6 +232,30 @@ export default async function GymTraineesPage({
       <p className="muted">{phaseOne.portalDescription}</p>
     </section>
   );
+}
+
+function SummaryMetric({
+  icon,
+  label,
+  value,
+}: Readonly<{ icon: string; label: string; value: number }>) {
+  return (
+    <div>
+      <span aria-hidden="true">{icon}</span>
+      <dt>{label}</dt>
+      <dd>{value}</dd>
+    </div>
+  );
+}
+
+function cardProgress(
+  start: number | undefined,
+  current: number | undefined,
+  target: number | undefined,
+): number {
+  if (start === undefined || current === undefined || target === undefined || start === target)
+    return 0;
+  return Math.round(Math.min(100, Math.max(0, ((current - start) / (target - start)) * 100)));
 }
 
 function NumberField({

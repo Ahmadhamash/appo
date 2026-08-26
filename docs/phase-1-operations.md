@@ -15,12 +15,13 @@ Use local-only values; never reuse a production or personal password. The seed r
 6. Run `pnpm dev` and open `http://localhost:3000/en/login` or `http://localhost:3000/ar/login`.
 
 The seed creates `superadmin@example.invalid`, `owner@example.invalid`,
-`beauty-owner@example.invalid`, `gym-owner@example.invalid`, `secretary@example.invalid`, and
-`provider@example.invalid`. All use the locally supplied seed password. Each development owner
-belongs to only its matching Clinic, Beauty Center, or Gym fixture. A single active membership is
-selected on the server after sign-in and the tenant switcher is hidden; it is shown only for a user
-who has been explicitly granted more than one active membership. Development Clinic A also receives
-an Amman branch, a configured service/provider, a local-only customer, and a sample appointment.
+`beauty-owner@example.invalid`, `gym-owner@example.invalid`, `gym-trainer@example.invalid`,
+`trainee@example.invalid`, `secretary@example.invalid`, and `provider@example.invalid`. All use the
+locally supplied seed password. Each development owner belongs to only its matching Clinic, Beauty
+Center, or Gym fixture. A single active membership is selected on the server after sign-in and the
+tenant switcher is hidden; it is shown only for a user who has been explicitly granted more than one
+active membership. Development Clinic A also receives an Amman branch, a configured
+service/provider, a local-only customer, and a sample appointment.
 
 ## Exact manual checks
 

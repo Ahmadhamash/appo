@@ -1,10 +1,14 @@
 import { DomainError } from "@jormall/domain/errors";
 import {
   assertExercisePrescription,
+  assertGymAvatarAppearance,
   assertGymTraineeMetrics,
   assertNutritionTargets,
   assertWorkoutPerformance,
   type GymExperienceLevelValue,
+  type GymAvatarFrameValue,
+  type GymAvatarHairStyleValue,
+  type GymAvatarSkinToneValue,
   type GymGoalValue,
 } from "@jormall/domain/gym";
 import type {
@@ -15,6 +19,8 @@ import type {
 
 import {
   BusinessSector,
+  GymPortalAccessStatus,
+  InvitationStatus,
   MembershipStatus,
   OrganizationStatus,
   PlatformRole,
@@ -22,6 +28,7 @@ import {
   type PrismaClient,
   type Weekday,
 } from "./generated/prisma/client";
+import { createInvitationToken, hashInvitationToken } from "./invitation-token";
 import { runInTenant, type TenantTransaction } from "./tenant-context";
 
 type GymPermission = Extract<
@@ -110,6 +117,22 @@ export type CreateGymTraineeInput = Readonly<{
   startingWeightKg?: number | undefined;
   targetWeightKg?: number | undefined;
   trainerStaffProfileId?: string | undefined;
+}>;
+
+export type GymPortalInvitationPreview = Readonly<{
+  email: string;
+  expiresAt: Date;
+  organizationNameAr: string;
+  organizationNameEn: string;
+  status: InvitationStatus;
+  traineeName: string;
+}>;
+
+export type GymAvatarAppearanceInput = Readonly<{
+  frame: GymAvatarFrameValue;
+  hairStyle: GymAvatarHairStyleValue;
+  shirtColor: string;
+  skinTone: GymAvatarSkinToneValue;
 }>;
 
 export class GymRepository {
@@ -658,5 +681,526 @@ export class GymRepository {
       await audit(transaction, access, "GYM_PROGRESS_RECORDED", "GymProgressEntry", progress.id);
       return progress;
     });
+  }
+
+  async createPortalInvitation(
+    access: TenantAccessSnapshot,
+    input: Readonly<{ email: string; traineeProfileId: string }>,
+  ): Promise<string> {
+    permissionScope(access, "gym.trainees.manage");
+    const email = input.email.trim().toLowerCase();
+    if (!/^\S+@\S+\.\S+$/.test(email) || email.length > 320) {
+      throw new DomainError({ code: "VALIDATION_FAILED", message: "Invalid email address." });
+    }
+    const token = createInvitationToken();
+    return this.runWithAccess(access, async (transaction) => {
+      const trainee = await transaction.gymTraineeProfile.findFirst({
+        select: { id: true, portalAccess: { select: { id: true } } },
+        where: { id: input.traineeProfileId, organizationId: access.organizationId },
+      });
+      if (!trainee) {
+        throw new DomainError({ code: "NOT_FOUND", message: "Gym trainee not found." });
+      }
+      if (trainee.portalAccess) {
+        throw new DomainError({
+          code: "CONFLICT",
+          message: "The trainee already has portal access.",
+        });
+      }
+      await transaction.gymTraineeInvitation.updateMany({
+        data: { status: InvitationStatus.REVOKED },
+        where: {
+          organizationId: access.organizationId,
+          status: InvitationStatus.PENDING,
+          traineeProfileId: trainee.id,
+        },
+      });
+      const invitation = await transaction.gymTraineeInvitation.create({
+        data: {
+          email,
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          invitedByUserId: access.actorUserId,
+          organizationId: access.organizationId,
+          tokenHash: hashInvitationToken(token),
+          traineeProfileId: trainee.id,
+        },
+      });
+      await audit(
+        transaction,
+        access,
+        "GYM_TRAINEE_PORTAL_INVITED",
+        "GymTraineeInvitation",
+        invitation.id,
+      );
+      return token;
+    });
+  }
+
+  async portalProvisioning(access: TenantAccessSnapshot, traineeProfileId: string) {
+    permissionScope(access, "gym.trainees.manage");
+    return this.runWithAccess(access, async (transaction) => {
+      const trainee = await transaction.gymTraineeProfile.findFirst({
+        select: {
+          portalAccess: {
+            select: { status: true, user: { select: { email: true } } },
+          },
+          portalInvitations: {
+            orderBy: { createdAt: "desc" },
+            select: { email: true, expiresAt: true, status: true },
+            take: 1,
+          },
+        },
+        where: { id: traineeProfileId, organizationId: access.organizationId },
+      });
+      if (!trainee) {
+        throw new DomainError({ code: "NOT_FOUND", message: "Gym trainee not found." });
+      }
+      return trainee;
+    });
+  }
+
+  async setPortalAccessStatus(
+    access: TenantAccessSnapshot,
+    traineeProfileId: string,
+    status: GymPortalAccessStatus,
+  ): Promise<void> {
+    permissionScope(access, "gym.trainees.manage");
+    await this.runWithAccess(access, async (transaction) => {
+      const updated = await transaction.gymTraineePortalAccess.updateMany({
+        data: { status },
+        where: { organizationId: access.organizationId, traineeProfileId },
+      });
+      if (updated.count !== 1) {
+        throw new DomainError({ code: "NOT_FOUND", message: "Trainee portal access not found." });
+      }
+      await audit(
+        transaction,
+        access,
+        status === GymPortalAccessStatus.ACTIVE
+          ? "GYM_TRAINEE_PORTAL_ACTIVATED"
+          : "GYM_TRAINEE_PORTAL_SUSPENDED",
+        "GymTraineePortalAccess",
+        traineeProfileId,
+      );
+    });
+  }
+
+  async previewPortalInvitation(token: string): Promise<GymPortalInvitationPreview> {
+    const invitation = await this.client.gymTraineeInvitation.findUnique({
+      select: {
+        email: true,
+        expiresAt: true,
+        organization: { select: { nameAr: true, nameEn: true, status: true } },
+        status: true,
+        trainee: { select: { customer: { select: { displayName: true } } } },
+      },
+      where: { tokenHash: hashInvitationToken(token) },
+    });
+    if (!invitation) {
+      throw new DomainError({ code: "INVITATION_INVALID", message: "Invitation is invalid." });
+    }
+    if (invitation.status !== InvitationStatus.PENDING) {
+      throw new DomainError({
+        code: "INVITATION_ALREADY_USED",
+        message: "Invitation has already been used.",
+      });
+    }
+    if (invitation.expiresAt <= new Date()) {
+      throw new DomainError({ code: "INVITATION_EXPIRED", message: "Invitation has expired." });
+    }
+    if (invitation.organization.status !== OrganizationStatus.ACTIVE) {
+      throw new DomainError({
+        code: "ORGANIZATION_SUSPENDED",
+        message: "The organization is not active.",
+      });
+    }
+    return {
+      email: invitation.email,
+      expiresAt: invitation.expiresAt,
+      organizationNameAr: invitation.organization.nameAr,
+      organizationNameEn: invitation.organization.nameEn,
+      status: invitation.status,
+      traineeName: invitation.trainee.customer.displayName,
+    };
+  }
+
+  async acceptPortalInvitation(userId: string, userEmail: string, token: string): Promise<void> {
+    const tokenHash = hashInvitationToken(token);
+    const invitation = await this.client.gymTraineeInvitation.findUnique({
+      select: {
+        email: true,
+        expiresAt: true,
+        id: true,
+        organizationId: true,
+        status: true,
+        traineeProfileId: true,
+      },
+      where: { tokenHash },
+    });
+    if (!invitation || invitation.email !== userEmail.trim().toLowerCase()) {
+      throw new DomainError({ code: "INVITATION_INVALID", message: "Invitation is invalid." });
+    }
+    if (invitation.status !== InvitationStatus.PENDING) {
+      throw new DomainError({
+        code: "INVITATION_ALREADY_USED",
+        message: "Invitation has already been used.",
+      });
+    }
+    if (invitation.expiresAt <= new Date()) {
+      throw new DomainError({ code: "INVITATION_EXPIRED", message: "Invitation has expired." });
+    }
+    const [membership, existingAccess] = await Promise.all([
+      this.client.organizationMembership.findFirst({ select: { id: true }, where: { userId } }),
+      this.client.gymTraineePortalAccess.findUnique({ select: { id: true }, where: { userId } }),
+    ]);
+    if (membership || existingAccess) {
+      throw new DomainError({
+        code: "CONFLICT",
+        message: "Staff and trainee identities must use separate accounts.",
+      });
+    }
+    await runInTenant(
+      this.client,
+      { actorUserId: userId, organizationId: invitation.organizationId },
+      async (transaction) => {
+        const organization = await transaction.organization.findUnique({
+          select: { settings: { select: { businessSector: true } }, status: true },
+          where: { id: invitation.organizationId },
+        });
+        if (
+          organization?.status !== OrganizationStatus.ACTIVE ||
+          organization.settings?.businessSector !== BusinessSector.GYM
+        ) {
+          throw new DomainError({ code: "FORBIDDEN", message: "The gym is not active." });
+        }
+        const consumed = await transaction.gymTraineeInvitation.updateMany({
+          data: {
+            acceptedAt: new Date(),
+            acceptedByUserId: userId,
+            status: InvitationStatus.ACCEPTED,
+          },
+          where: {
+            expiresAt: { gt: new Date() },
+            id: invitation.id,
+            organizationId: invitation.organizationId,
+            status: InvitationStatus.PENDING,
+            tokenHash,
+          },
+        });
+        if (consumed.count !== 1) {
+          throw new DomainError({
+            code: "INVITATION_ALREADY_USED",
+            message: "Invitation has already been used.",
+          });
+        }
+        const portalAccess = await transaction.gymTraineePortalAccess.create({
+          data: {
+            organizationId: invitation.organizationId,
+            traineeProfileId: invitation.traineeProfileId,
+            userId,
+          },
+        });
+        await transaction.auditEvent.create({
+          data: {
+            action: "GYM_TRAINEE_PORTAL_INVITATION_ACCEPTED",
+            actorUserId: userId,
+            organizationId: invitation.organizationId,
+            targetId: portalAccess.id,
+            targetType: "GymTraineePortalAccess",
+          },
+        });
+      },
+    );
+  }
+
+  async hasActivePortalAccess(userId: string): Promise<boolean> {
+    const access = await this.client.gymTraineePortalAccess.findUnique({
+      select: { organization: { select: { status: true } }, status: true },
+      where: { userId },
+    });
+    return (
+      access?.status === GymPortalAccessStatus.ACTIVE &&
+      access.organization.status === OrganizationStatus.ACTIVE
+    );
+  }
+
+  private async activePortalAccess(userId: string) {
+    const access = await this.client.gymTraineePortalAccess.findUnique({
+      select: { id: true, organizationId: true, status: true, traineeProfileId: true },
+      where: { userId },
+    });
+    if (!access || access.status !== GymPortalAccessStatus.ACTIVE) {
+      throw new DomainError({
+        code: "FORBIDDEN",
+        message: "Active trainee portal access is required.",
+      });
+    }
+    return access;
+  }
+
+  async getOwnPortal(userId: string) {
+    const access = await this.activePortalAccess(userId);
+    return runInTenant(
+      this.client,
+      { actorUserId: userId, organizationId: access.organizationId },
+      async (transaction) => {
+        const portal = await transaction.gymTraineePortalAccess.findFirst({
+          select: {
+            organization: {
+              select: {
+                nameAr: true,
+                nameEn: true,
+                settings: { select: { businessSector: true, timezone: true } },
+                status: true,
+              },
+            },
+            status: true,
+            trainee: {
+              select: {
+                avatarFrame: true,
+                avatarHairStyle: true,
+                avatarShirtColor: true,
+                avatarSkinTone: true,
+                currency: true,
+                customer: { select: { displayName: true, preferredLocale: true } },
+                experienceLevel: true,
+                goal: true,
+                heightCm: true,
+                id: true,
+                monthlyFoodBudgetMinor: true,
+                nutritionPlans: {
+                  orderBy: { startsOn: "desc" },
+                  select: {
+                    carbohydratesGrams: true,
+                    currency: true,
+                    dailyBudgetMinor: true,
+                    dailyCalories: true,
+                    fatGrams: true,
+                    id: true,
+                    meals: {
+                      orderBy: { sortOrder: "asc" },
+                      select: {
+                        calories: true,
+                        estimatedCostMinor: true,
+                        id: true,
+                        nameAr: true,
+                        nameEn: true,
+                        proteinGrams: true,
+                        timingLabelAr: true,
+                        timingLabelEn: true,
+                      },
+                    },
+                    proteinGrams: true,
+                    titleAr: true,
+                    titleEn: true,
+                  },
+                  take: 1,
+                  where: { status: "ACTIVE" },
+                },
+                progressEntries: {
+                  orderBy: { measuredAt: "desc" },
+                  select: {
+                    bodyFatPercent: true,
+                    bodyWeightKg: true,
+                    id: true,
+                    measuredAt: true,
+                    waistCm: true,
+                  },
+                  take: 12,
+                },
+                startingWeightKg: true,
+                targetWeightKg: true,
+                trainer: { select: { displayNameAr: true, displayNameEn: true } },
+                workoutLogs: {
+                  orderBy: { performedAt: "desc" },
+                  select: {
+                    actualReps: true,
+                    actualSets: true,
+                    actualWeightKg: true,
+                    exercise: { select: { nameAr: true, nameEn: true } },
+                    id: true,
+                    performedAt: true,
+                  },
+                  take: 20,
+                },
+                workoutPlans: {
+                  orderBy: { startsOn: "desc" },
+                  select: {
+                    exercises: {
+                      orderBy: [{ weekday: "asc" }, { sortOrder: "asc" }],
+                      select: {
+                        id: true,
+                        instructionsAr: true,
+                        instructionsEn: true,
+                        nameAr: true,
+                        nameEn: true,
+                        repsMax: true,
+                        repsMin: true,
+                        restSeconds: true,
+                        sets: true,
+                        targetWeightKg: true,
+                        weekday: true,
+                      },
+                    },
+                    id: true,
+                    titleAr: true,
+                    titleEn: true,
+                  },
+                  take: 1,
+                  where: { status: "ACTIVE" },
+                },
+              },
+            },
+          },
+          where: {
+            id: access.id,
+            organizationId: access.organizationId,
+            status: GymPortalAccessStatus.ACTIVE,
+            traineeProfileId: access.traineeProfileId,
+            userId,
+          },
+        });
+        if (
+          !portal ||
+          portal.organization.status !== OrganizationStatus.ACTIVE ||
+          portal.organization.settings?.businessSector !== BusinessSector.GYM
+        ) {
+          throw new DomainError({
+            code: "FORBIDDEN",
+            message: "The trainee portal is unavailable.",
+          });
+        }
+        return portal;
+      },
+    );
+  }
+
+  async recordOwnWorkout(
+    userId: string,
+    input: Readonly<{
+      actualReps: number;
+      actualSets: number;
+      actualWeightKg?: number | undefined;
+      perceivedEffort?: number | undefined;
+      workoutExerciseId: string;
+    }>,
+  ): Promise<void> {
+    assertWorkoutPerformance(input);
+    const access = await this.activePortalAccess(userId);
+    await runInTenant(
+      this.client,
+      { actorUserId: userId, organizationId: access.organizationId },
+      async (transaction) => {
+        const exercise = await transaction.gymWorkoutExercise.findFirst({
+          select: { id: true },
+          where: {
+            id: input.workoutExerciseId,
+            organizationId: access.organizationId,
+            workoutPlan: { traineeProfileId: access.traineeProfileId },
+          },
+        });
+        if (!exercise) {
+          throw new DomainError({ code: "NOT_FOUND", message: "Workout exercise not found." });
+        }
+        const log = await transaction.gymWorkoutLog.create({
+          data: {
+            actualReps: input.actualReps,
+            actualSets: input.actualSets,
+            actualWeightKg: input.actualWeightKg ?? null,
+            organizationId: access.organizationId,
+            perceivedEffort: input.perceivedEffort ?? null,
+            traineeProfileId: access.traineeProfileId,
+            workoutExerciseId: exercise.id,
+          },
+        });
+        await transaction.auditEvent.create({
+          data: {
+            action: "GYM_TRAINEE_WORKOUT_RECORDED",
+            actorUserId: userId,
+            organizationId: access.organizationId,
+            targetId: log.id,
+            targetType: "GymWorkoutLog",
+          },
+        });
+      },
+    );
+  }
+
+  async recordOwnProgress(
+    userId: string,
+    input: Readonly<{
+      bodyWeightKg: number;
+      bodyFatPercent?: number | undefined;
+      waistCm?: number | undefined;
+    }>,
+  ): Promise<void> {
+    if (
+      !Number.isFinite(input.bodyWeightKg) ||
+      input.bodyWeightKg < 20 ||
+      input.bodyWeightKg > 400 ||
+      (input.bodyFatPercent !== undefined &&
+        (input.bodyFatPercent < 1 || input.bodyFatPercent > 80)) ||
+      (input.waistCm !== undefined && (input.waistCm < 20 || input.waistCm > 300))
+    ) {
+      throw new DomainError({ code: "VALIDATION_FAILED", message: "Invalid progress values." });
+    }
+    const access = await this.activePortalAccess(userId);
+    await runInTenant(
+      this.client,
+      { actorUserId: userId, organizationId: access.organizationId },
+      async (transaction) => {
+        const progress = await transaction.gymProgressEntry.create({
+          data: {
+            bodyFatPercent: input.bodyFatPercent ?? null,
+            bodyWeightKg: input.bodyWeightKg,
+            organizationId: access.organizationId,
+            traineeProfileId: access.traineeProfileId,
+            waistCm: input.waistCm ?? null,
+          },
+        });
+        await transaction.auditEvent.create({
+          data: {
+            action: "GYM_TRAINEE_PROGRESS_RECORDED",
+            actorUserId: userId,
+            organizationId: access.organizationId,
+            targetId: progress.id,
+            targetType: "GymProgressEntry",
+          },
+        });
+      },
+    );
+  }
+
+  async updateOwnAvatar(userId: string, input: GymAvatarAppearanceInput): Promise<void> {
+    assertGymAvatarAppearance({ shirtColor: input.shirtColor });
+    const access = await this.activePortalAccess(userId);
+    await runInTenant(
+      this.client,
+      { actorUserId: userId, organizationId: access.organizationId },
+      async (transaction) => {
+        const updated = await transaction.gymTraineeProfile.updateMany({
+          data: {
+            avatarFrame: input.frame,
+            avatarHairStyle: input.hairStyle,
+            avatarShirtColor: input.shirtColor.toLowerCase(),
+            avatarSkinTone: input.skinTone,
+            version: { increment: 1 },
+          },
+          where: { id: access.traineeProfileId, organizationId: access.organizationId },
+        });
+        if (updated.count !== 1) {
+          throw new DomainError({ code: "NOT_FOUND", message: "Gym trainee not found." });
+        }
+        await transaction.auditEvent.create({
+          data: {
+            action: "GYM_TRAINEE_AVATAR_UPDATED",
+            actorUserId: userId,
+            organizationId: access.organizationId,
+            targetId: access.traineeProfileId,
+            targetType: "GymTraineeProfile",
+          },
+        });
+      },
+    );
   }
 }

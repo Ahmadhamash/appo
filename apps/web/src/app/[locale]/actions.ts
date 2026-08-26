@@ -39,6 +39,7 @@ import {
   crmAppointmentRepository,
   communicationRepository,
   copilotRepository,
+  gymRepository,
   identityRepository,
   requireTenantAccess,
   requireTenantPermission,
@@ -85,6 +86,7 @@ export async function loginAction(formData: FormData): Promise<never> {
   if (!result.success) {
     redirect(destination(`/${locale}/login`, "error", "INVALID_CREDENTIALS"));
   }
+  let resolvedReturnTo = returnTo;
   try {
     const signedIn = await auth.api.signInEmail({ body: result.data, headers: await headers() });
     const memberships = await identityRepository.listMembershipChoices(signedIn.user.id);
@@ -107,11 +109,17 @@ export async function loginAction(formData: FormData): Promise<never> {
         },
         where: { token: signedIn.token, userId: signedIn.user.id },
       });
+    } else if (
+      activeMemberships.length === 0 &&
+      returnTo === `/${locale}/dashboard` &&
+      (await gymRepository.hasActivePortalAccess(signedIn.user.id))
+    ) {
+      resolvedReturnTo = `/${locale}/trainee`;
     }
   } catch {
     redirect(destination(`/${locale}/login`, "error", "INVALID_CREDENTIALS"));
   }
-  redirect(returnTo);
+  redirect(resolvedReturnTo);
 }
 
 export async function logoutAction(formData: FormData): Promise<never> {

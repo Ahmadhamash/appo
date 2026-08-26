@@ -9,6 +9,24 @@ export type GymGoalValue = (typeof gymGoals)[number];
 export const gymExperienceLevels = ["BEGINNER", "INTERMEDIATE", "ADVANCED"] as const;
 export type GymExperienceLevelValue = (typeof gymExperienceLevels)[number];
 
+export const gymAvatarSkinTones = ["LIGHT", "MEDIUM", "TAN", "DARK"] as const;
+export type GymAvatarSkinToneValue = (typeof gymAvatarSkinTones)[number];
+
+export const gymAvatarFrames = ["SLIM", "ATHLETIC", "BROAD"] as const;
+export type GymAvatarFrameValue = (typeof gymAvatarFrames)[number];
+
+export const gymAvatarHairStyles = ["SHORT", "CURLY", "COVERED", "BALD"] as const;
+export type GymAvatarHairStyleValue = (typeof gymAvatarHairStyles)[number];
+
+export function assertGymAvatarAppearance(input: Readonly<{ shirtColor: string }>): void {
+  if (!/^#[0-9A-Fa-f]{6}$/.test(input.shirtColor)) {
+    throw new DomainError({
+      code: "VALIDATION_FAILED",
+      message: "The avatar shirt color must be a six-digit hexadecimal color.",
+    });
+  }
+}
+
 export type GymTraineeMetrics = Readonly<{
   heightCm?: number | undefined;
   monthlyFoodBudgetMinor?: number | undefined;

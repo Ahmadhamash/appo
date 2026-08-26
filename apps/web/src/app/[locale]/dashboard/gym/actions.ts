@@ -1,6 +1,6 @@
 "use server";
 
-import { Weekday } from "@jormall/db/generated/enums";
+import { GymPortalAccessStatus, Weekday } from "@jormall/db/generated/enums";
 import { DomainError } from "@jormall/domain/errors";
 import { gymExperienceLevels, gymGoals } from "@jormall/domain/gym";
 import { revalidatePath } from "next/cache";
@@ -363,4 +363,59 @@ export async function recordGymProgressAction(formData: FormData): Promise<never
     redirect(destination(path, "error", errorCode(error)));
   }
   redirect(destination(path, "notice", "GYM_PROGRESS_RECORDED"));
+}
+
+export type GymPortalInvitationState = Readonly<{
+  error?: string;
+  invitationUrl?: string;
+}>;
+
+export async function createGymPortalInvitationAction(
+  _previousState: GymPortalInvitationState,
+  formData: FormData,
+): Promise<GymPortalInvitationState> {
+  const locale = localeFrom(formData);
+  const parsed = z
+    .object({ email: z.email().trim().toLowerCase(), traineeProfileId: uuidSchema })
+    .safeParse({
+      email: value(formData, "email"),
+      traineeProfileId: value(formData, "traineeProfileId"),
+    });
+  if (!parsed.success) return { error: "VALIDATION_FAILED" };
+  try {
+    const token = await gymRepository.createPortalInvitation(
+      await requireTenantAccess(locale),
+      parsed.data,
+    );
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+    if (!appUrl) return { error: "INTERNAL_ERROR" };
+    revalidatePath(traineePath(locale, parsed.data.traineeProfileId));
+    return { invitationUrl: `${appUrl}/${locale}/trainee-invitations/${token}` };
+  } catch (error) {
+    return { error: errorCode(error) };
+  }
+}
+
+export async function setGymPortalAccessStatusAction(formData: FormData): Promise<never> {
+  const locale = localeFrom(formData);
+  const parsed = z
+    .object({ status: z.enum(GymPortalAccessStatus), traineeProfileId: uuidSchema })
+    .safeParse({
+      status: value(formData, "status"),
+      traineeProfileId: value(formData, "traineeProfileId"),
+    });
+  const fallback = `/${locale}/dashboard/gym/trainees`;
+  if (!parsed.success) redirect(destination(fallback, "error", "VALIDATION_FAILED"));
+  const path = traineePath(locale, parsed.data.traineeProfileId);
+  try {
+    await gymRepository.setPortalAccessStatus(
+      await requireTenantAccess(locale),
+      parsed.data.traineeProfileId,
+      parsed.data.status,
+    );
+    revalidatePath(path);
+  } catch (error) {
+    redirect(destination(path, "error", errorCode(error)));
+  }
+  redirect(destination(path, "notice", "GYM_PORTAL_ACCESS_UPDATED"));
 }

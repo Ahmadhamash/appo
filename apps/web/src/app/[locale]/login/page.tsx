@@ -5,6 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import { Feedback } from "../../../components/feedback";
 import { SubmitButton } from "../../../components/submit-button";
 import { phaseOneMessages } from "../../../messages/phase-one";
+import { gymRepository } from "../../../server/identity";
 import { getSession } from "../../../server/session";
 import { loginAction } from "../actions";
 
@@ -13,8 +14,13 @@ export default async function LoginPage({ params, searchParams }: PageProps<"/[l
   if (!isSupportedLocale(locale)) {
     notFound();
   }
-  if (await getSession()) {
-    redirect(`/${locale}/dashboard`);
+  const session = await getSession();
+  if (session) {
+    redirect(
+      (await gymRepository.hasActivePortalAccess(session.user.id))
+        ? `/${locale}/trainee`
+        : `/${locale}/dashboard`,
+    );
   }
   const query = await searchParams;
   const messages = phaseOneMessages[locale];

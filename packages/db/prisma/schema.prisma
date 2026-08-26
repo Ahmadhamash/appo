@@ -77,6 +77,31 @@ enum GymPlanStatus {
   ARCHIVED
 }
 
+enum GymPortalAccessStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum GymAvatarSkinTone {
+  LIGHT
+  MEDIUM
+  TAN
+  DARK
+}
+
+enum GymAvatarFrame {
+  SLIM
+  ATHLETIC
+  BROAD
+}
+
+enum GymAvatarHairStyle {
+  SHORT
+  CURLY
+  COVERED
+  BALD
+}
+
 enum Weekday {
   SUNDAY
   MONDAY
@@ -588,6 +613,8 @@ model User {
   copilotInsights      CopilotInsight[]           @relation("CopilotInsightActor")
   copilotFeedback      CopilotFeedback[]          @relation("CopilotFeedbackActor")
   analyticsSnapshots   AnalyticsSnapshot[]        @relation("AnalyticsSnapshotActor")
+  gymPortalAccess      GymTraineePortalAccess?
+  gymInvitationsSent   GymTraineeInvitation[]     @relation("GymTraineeInvitationSender")
 
   @@map("users")
 }
@@ -756,6 +783,8 @@ model Organization {
   gymNutritionPlans           GymNutritionPlan[]
   gymNutritionMeals           GymNutritionMeal[]
   gymProgressEntries          GymProgressEntry[]
+  gymTraineePortalAccesses    GymTraineePortalAccess[]
+  gymTraineeInvitations       GymTraineeInvitation[]
 
   @@map("organizations")
 }
@@ -1199,22 +1228,71 @@ model GymTraineeProfile {
   monthlyFoodBudgetMinor Int?               @map("monthly_food_budget_minor")
   currency               String             @default("JOD") @db.Char(3)
   notes                  String?            @db.Text
+  avatarSkinTone         GymAvatarSkinTone  @default(MEDIUM) @map("avatar_skin_tone")
+  avatarFrame            GymAvatarFrame     @default(ATHLETIC) @map("avatar_frame")
+  avatarHairStyle        GymAvatarHairStyle @default(SHORT) @map("avatar_hair_style")
+  avatarShirtColor       String             @default("#d6a63c") @map("avatar_shirt_color") @db.VarChar(7)
   version                Int                @default(1)
   createdAt              DateTime           @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt              DateTime           @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  organization    Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  customer        Customer           @relation(fields: [organizationId, customerId], references: [organizationId, id], onDelete: Restrict)
-  trainer         StaffProfile?      @relation("GymTrainer", fields: [organizationId, trainerStaffProfileId], references: [organizationId, id], onDelete: Restrict)
-  workoutPlans    GymWorkoutPlan[]
-  workoutLogs     GymWorkoutLog[]
-  nutritionPlans  GymNutritionPlan[]
-  progressEntries GymProgressEntry[]
+  organization      Organization            @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customer          Customer                @relation(fields: [organizationId, customerId], references: [organizationId, id], onDelete: Restrict)
+  trainer           StaffProfile?           @relation("GymTrainer", fields: [organizationId, trainerStaffProfileId], references: [organizationId, id], onDelete: Restrict)
+  workoutPlans      GymWorkoutPlan[]
+  workoutLogs       GymWorkoutLog[]
+  nutritionPlans    GymNutritionPlan[]
+  progressEntries   GymProgressEntry[]
+  portalAccess      GymTraineePortalAccess?
+  portalInvitations GymTraineeInvitation[]
 
   @@unique([organizationId, id])
   @@unique([organizationId, customerId])
   @@index([organizationId, trainerStaffProfileId])
   @@map("gym_trainee_profiles")
+}
+
+model GymTraineePortalAccess {
+  id               String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId   String                @map("organization_id") @db.Uuid
+  traineeProfileId String                @map("trainee_profile_id") @db.Uuid
+  userId           String                @unique @map("user_id") @db.Uuid
+  status           GymPortalAccessStatus @default(ACTIVE)
+  createdAt        DateTime              @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime              @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  trainee      GymTraineeProfile @relation(fields: [organizationId, traineeProfileId], references: [organizationId, id], onDelete: Cascade)
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, traineeProfileId])
+  @@index([organizationId, status])
+  @@map("gym_trainee_portal_accesses")
+}
+
+model GymTraineeInvitation {
+  id               String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId   String           @map("organization_id") @db.Uuid
+  traineeProfileId String           @map("trainee_profile_id") @db.Uuid
+  email            String           @db.VarChar(320)
+  tokenHash        String           @unique @map("token_hash") @db.Char(64)
+  status           InvitationStatus @default(PENDING)
+  invitedByUserId  String           @map("invited_by_user_id") @db.Uuid
+  expiresAt        DateTime         @map("expires_at") @db.Timestamptz(3)
+  acceptedAt       DateTime?        @map("accepted_at") @db.Timestamptz(3)
+  acceptedByUserId String?          @map("accepted_by_user_id") @db.Uuid
+  createdAt        DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  trainee      GymTraineeProfile @relation(fields: [organizationId, traineeProfileId], references: [organizationId, id], onDelete: Cascade)
+  invitedBy    User              @relation("GymTraineeInvitationSender", fields: [invitedByUserId], references: [id], onDelete: Restrict)
+
+  @@unique([organizationId, id])
+  @@index([organizationId, traineeProfileId, status])
+  @@index([organizationId, email, status])
+  @@map("gym_trainee_invitations")
 }
 
 model GymWorkoutPlan {

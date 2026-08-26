@@ -22,18 +22,26 @@ managers, or the assigned provider can create workout/nutrition plans and record
 - `GymNutritionPlan` and `GymNutritionMeal`: goal, daily budget, calories/macros, and bilingual meal
   options with estimated costs.
 - `GymProgressEntry`: append-oriented weight, body fat, waist, timestamp, and notes.
+- `GymTraineeInvitation` and `GymTraineePortalAccess`: single-use account provisioning and immediate
+  access lifecycle for a private trainee portal.
 
 All records carry `organization_id`, use tenant-aware foreign keys, have bounded list projections,
 and use forced RLS. Every mutation appends an AuditEvent. Date-only plan windows are PostgreSQL
 `date`; workout and measurement events are UTC instants and display in `Asia/Amman` in the current
 UI.
 
-## Explicit limitations
+## Trainee portal and explicit limitations
 
-The Customer-based trainee profile is not a customer login account. Membership subscriptions,
-billing, automatic period-based plan replacement, automated nutrition recommendations, allergy or
-medical screening, and clinical records are not included. Nutrition content is operational guidance
-only and requires a qualified professional for medical diets or conditions.
+An owner or manager can create a single-use invitation from a trainee profile. The resulting Better
+Auth identity is linked to that trainee only and never receives an OrganizationMembership. The
+portal shows a safe projection of the assigned workout/nutrition plan and lets the trainee append
+their performed weights and measurements. Staff/internal notes and customer contacts are excluded.
+
+One identity can currently link to one gym trainee profile, so no implicit organization switch is
+offered. Membership subscriptions, billing, automatic period-based plan replacement, automated
+nutrition recommendations, allergy or medical screening, and clinical records are not included.
+Nutrition content is operational guidance only and requires a qualified professional for medical
+diets or conditions.
 
 ## Local verification
 
@@ -47,3 +55,7 @@ only and requires a qualified professional for medical diets or conditions.
 7. Add a budget/macronutrient nutrition plan and a meal option.
 8. Switch to English and verify layout direction and translations.
 9. Sign in as an assigned provider and verify only that provider's trainees are returned.
+10. From a trainee profile, create and copy a portal invitation, register with the invited email,
+    and verify the account opens `/trainee` rather than the owner dashboard.
+11. Record a workout and body weight, then suspend portal access from the owner profile and verify
+    the trainee loses access immediately.

@@ -5,6 +5,7 @@ import { CrmAppointmentRepository } from "@jormall/db/crm-appointment-repository
 import { CommunicationRepository } from "@jormall/db/communication-repository";
 import { BusinessSector, OrganizationStatus, PlatformRole } from "@jormall/db/generated/enums";
 import { IdentityRepository } from "@jormall/db/identity-repository";
+import { GymRepository } from "@jormall/db/gym-repository";
 import { runInTenant } from "@jormall/db/tenant-context";
 import { SchedulingRepository } from "@jormall/db/scheduling-repository";
 import { hashPassword } from "better-auth/crypto";
@@ -26,6 +27,7 @@ const communicationRepository = new CommunicationRepository(prisma);
 const schedulingRepository = new SchedulingRepository(prisma);
 const aiFoundationRepository = new AIFoundationRepository(prisma);
 const aiChannelRepository = new AIChannelRepository(prisma);
+const gymRepository = new GymRepository(prisma);
 const seedWeekdays = [
   "SUNDAY",
   "MONDAY",
@@ -115,14 +117,17 @@ async function ensureOrganization(
 }
 
 async function main(): Promise<void> {
-  const [superAdmin, owner, beautyOwner, gymOwner, secretary, provider] = await Promise.all([
-    ensureUser("superadmin@example.invalid", "Development Super Admin"),
-    ensureUser("owner@example.invalid", "Development Clinic Owner"),
-    ensureUser("beauty-owner@example.invalid", "Development Beauty Owner"),
-    ensureUser("gym-owner@example.invalid", "Development Gym Owner"),
-    ensureUser("secretary@example.invalid", "Development Secretary"),
-    ensureUser("provider@example.invalid", "Development Provider"),
-  ]);
+  const [superAdmin, owner, beautyOwner, gymOwner, secretary, provider, gymTrainer, traineeUser] =
+    await Promise.all([
+      ensureUser("superadmin@example.invalid", "Development Super Admin"),
+      ensureUser("owner@example.invalid", "Development Clinic Owner"),
+      ensureUser("beauty-owner@example.invalid", "Development Beauty Owner"),
+      ensureUser("gym-owner@example.invalid", "Development Gym Owner"),
+      ensureUser("secretary@example.invalid", "Development Secretary"),
+      ensureUser("provider@example.invalid", "Development Provider"),
+      ensureUser("gym-trainer@example.invalid", "Development Gym Trainer"),
+      ensureUser("trainee@example.invalid", "Development Gym Trainee"),
+    ]);
   await prisma.user.update({
     data: { platformRole: PlatformRole.JORMALL_SUPER_ADMIN },
     where: { id: superAdmin.id },
@@ -177,6 +182,232 @@ async function main(): Promise<void> {
     if ((await repository.getBusinessSector(sectorAccess)) !== businessSector) {
       await repository.setBusinessSector(sectorAccess, businessSector);
     }
+  }
+
+  const gymOwnerMembership = await prisma.organizationMembership.findUnique({
+    where: { organizationId_userId: { organizationId: organizationC.id, userId: gymOwner.id } },
+  });
+  if (!gymOwnerMembership) throw new Error("Seed gym owner membership was not created.");
+  const gymAccess = await repository.loadTenantAccess(
+    gymOwner.id,
+    {
+      activeMembershipId: gymOwnerMembership.id,
+      activeOrganizationId: organizationC.id,
+    },
+    {},
+  );
+  const gymRoles = await repository.listRoles(gymAccess);
+  let gymTrainerMembership = await prisma.organizationMembership.findUnique({
+    where: {
+      organizationId_userId: { organizationId: organizationC.id, userId: gymTrainer.id },
+    },
+  });
+  if (!gymTrainerMembership) {
+    const providerRole = gymRoles.find(({ systemKey }) => systemKey === "PROVIDER");
+    if (!providerRole) throw new Error("Gym provider role is missing.");
+    const token = await repository.createInvitation(gymAccess, gymTrainer.email, providerRole.id);
+    const accepted = await repository.acceptInvitation(gymTrainer.id, gymTrainer.email, token);
+    gymTrainerMembership = await prisma.organizationMembership.findUnique({
+      where: { id: accepted.membershipId },
+    });
+  }
+  if (!gymTrainerMembership) throw new Error("Gym trainer membership is missing.");
+  if ((await repository.listBranches(gymAccess)).length === 0) {
+    await repository.createBranch(gymAccess, {
+      nameAr: "فرع النادي الرئيسي",
+      nameEn: "Main Gym Branch",
+      timezone: "Asia/Amman",
+    });
+  }
+  if ((await repository.listServices(gymAccess)).length === 0) {
+    await repository.createService(gymAccess, {
+      currency: "JOD",
+      defaultDurationMins: 60,
+      defaultPriceMinor: 3500,
+      nameAr: "جلسة تدريب شخصي",
+      nameEn: "Personal training session",
+    });
+  }
+  const [gymBranch] = await repository.listBranches(gymAccess);
+  const [gymService] = await repository.listServices(gymAccess);
+  if (!gymBranch || !gymService) throw new Error("Gym branch or service is missing.");
+  const gymTrainerProfile = await runInTenant(
+    prisma,
+    { actorUserId: gymOwner.id, organizationId: organizationC.id },
+    async (transaction) => {
+      const profile = await transaction.staffProfile.findFirst({
+        where: { membershipId: gymTrainerMembership.id, organizationId: organizationC.id },
+      });
+      if (!profile) throw new Error("Gym trainer profile is missing.");
+      await transaction.staffProfile.update({
+        data: { isBookable: true },
+        where: { id: profile.id },
+      });
+      await transaction.staffBranchAssignment.upsert({
+        create: {
+          branchId: gymBranch.id,
+          organizationId: organizationC.id,
+          staffProfileId: profile.id,
+        },
+        update: {},
+        where: {
+          organizationId_staffProfileId_branchId: {
+            branchId: gymBranch.id,
+            organizationId: organizationC.id,
+            staffProfileId: profile.id,
+          },
+        },
+      });
+      await transaction.staffService.upsert({
+        create: {
+          isEnabled: true,
+          organizationId: organizationC.id,
+          serviceId: gymService.id,
+          staffProfileId: profile.id,
+        },
+        update: { isEnabled: true },
+        where: {
+          organizationId_staffProfileId_serviceId: {
+            organizationId: organizationC.id,
+            serviceId: gymService.id,
+            staffProfileId: profile.id,
+          },
+        },
+      });
+      const existingRules = await transaction.availabilityRule.findMany({
+        select: { weekday: true },
+        where: {
+          branchId: gymBranch.id,
+          organizationId: organizationC.id,
+          staffProfileId: profile.id,
+        },
+      });
+      const existingWeekdays = new Set(existingRules.map(({ weekday }) => weekday));
+      await transaction.availabilityRule.createMany({
+        data: seedWeekdays
+          .filter((weekday) => !existingWeekdays.has(weekday))
+          .map((weekday) => ({
+            branchId: gymBranch.id,
+            endMinuteLocal: 1440,
+            organizationId: organizationC.id,
+            staffProfileId: profile.id,
+            startMinuteLocal: 0,
+            weekday,
+          })),
+      });
+      return profile;
+    },
+  );
+  await repository.configureServiceBranch(gymAccess, {
+    branchId: gymBranch.id,
+    durationMins: 60,
+    isEnabled: true,
+    priceMinor: 3500,
+    serviceId: gymService.id,
+  });
+  const gymCustomers = await crmRepository.listCustomers(gymAccess, "أحمد المتدرّب");
+  const gymCustomer =
+    gymCustomers.find(({ displayName }) => displayName === "أحمد المتدرّب") ??
+    (
+      await crmRepository.createCustomer(gymAccess, {
+        displayName: "أحمد المتدرّب",
+        phoneOriginal: "0790000123",
+        preferredLocale: "ar",
+      })
+    ).customer;
+  let gymTrainee = (await gymRepository.listTrainees(gymAccess)).find(
+    ({ customerId }) => customerId === gymCustomer.id,
+  );
+  if (!gymTrainee) {
+    gymTrainee = await gymRepository.createTrainee(gymAccess, {
+      currency: "JOD",
+      customerId: gymCustomer.id,
+      experienceLevel: "INTERMEDIATE",
+      goal: "MUSCLE_GAIN",
+      heightCm: 178,
+      monthlyFoodBudgetMinor: 180_000,
+      startingWeightKg: 80,
+      targetWeightKg: 88,
+      trainerStaffProfileId: gymTrainerProfile.id,
+    });
+  }
+  let gymTraineeDetail = await gymRepository.getTrainee(gymAccess, gymTrainee.id);
+  if (gymTraineeDetail.workoutPlans.length === 0) {
+    const plan = await gymRepository.createWorkoutPlan(gymAccess, {
+      startsOn: new Date("2026-01-01T00:00:00.000Z"),
+      traineeProfileId: gymTrainee.id,
+      titleAr: "خطة القوة والبناء",
+      titleEn: "Strength and muscle plan",
+    });
+    for (const [index, weekday] of seedWeekdays.entries()) {
+      await gymRepository.addWorkoutExercise(gymAccess, {
+        nameAr: index % 2 === 0 ? "ضغط صدر بالبار" : "سحب أمامي",
+        nameEn: index % 2 === 0 ? "Barbell bench press" : "Lat pulldown",
+        repsMax: 12,
+        repsMin: 8,
+        restSeconds: 90,
+        sets: 4,
+        sortOrder: 0,
+        targetWeightKg: index % 2 === 0 ? 60 : 45,
+        weekday,
+        workoutPlanId: plan.id,
+      });
+    }
+  }
+  gymTraineeDetail = await gymRepository.getTrainee(gymAccess, gymTrainee.id);
+  if (gymTraineeDetail.progressEntries.length === 0) {
+    await gymRepository.recordProgress(gymAccess, {
+      bodyFatPercent: 18,
+      bodyWeightKg: 83,
+      measuredAt: new Date(),
+      traineeProfileId: gymTrainee.id,
+      waistCm: 86,
+    });
+  }
+  if (gymTraineeDetail.nutritionPlans.length === 0) {
+    const nutrition = await gymRepository.createNutritionPlan(gymAccess, {
+      carbohydratesGrams: 280,
+      currency: "JOD",
+      dailyBudgetMinor: 600,
+      dailyCalories: 2450,
+      fatGrams: 70,
+      goal: "MUSCLE_GAIN",
+      proteinGrams: 165,
+      startsOn: new Date("2026-01-01T00:00:00.000Z"),
+      traineeProfileId: gymTrainee.id,
+      titleAr: "غذاء بناء العضلات ضمن الميزانية",
+      titleEn: "Budget muscle-building nutrition",
+    });
+    await gymRepository.addNutritionMeal(gymAccess, {
+      calories: 620,
+      carbohydratesGrams: 78,
+      estimatedCostMinor: 135,
+      fatGrams: 18,
+      nameAr: "دجاج وأرز وسلطة",
+      nameEn: "Chicken, rice and salad",
+      nutritionPlanId: nutrition.id,
+      proteinGrams: 48,
+      sortOrder: 0,
+      timingLabelAr: "الغداء",
+      timingLabelEn: "Lunch",
+    });
+  }
+  if (!(await gymRepository.hasActivePortalAccess(traineeUser.id))) {
+    const portalToken = await gymRepository.createPortalInvitation(gymAccess, {
+      email: traineeUser.email,
+      traineeProfileId: gymTrainee.id,
+    });
+    await gymRepository.acceptPortalInvitation(traineeUser.id, traineeUser.email, portalToken);
+  }
+  const gymDay = localDateTimeInAmman(new Date()).slice(0, 10);
+  if ((await crmRepository.listAppointments(gymAccess, { day: gymDay })).length === 0) {
+    await crmRepository.createAppointment(gymAccess, {
+      branchId: gymBranch.id,
+      customerId: gymCustomer.id,
+      providerId: gymTrainerProfile.id,
+      serviceId: gymService.id,
+      startsAtLocal: localDateTimeInAmman(new Date(Date.now() + 90 * 60 * 1000)),
+    });
   }
   const roles = await repository.listRoles(access);
   for (const invitee of [

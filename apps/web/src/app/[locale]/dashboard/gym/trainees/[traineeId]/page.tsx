@@ -1,11 +1,13 @@
 import { isSupportedLocale } from "@jormall/contracts/locales";
-import { Weekday } from "@jormall/db/generated/enums";
+import { GymPortalAccessStatus, Weekday } from "@jormall/db/generated/enums";
 import { gymGoals } from "@jormall/domain/gym";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { Feedback } from "../../../../../../components/feedback";
+import { GymPortalInvitationForm } from "../../../../../../components/gym-portal-invitation-form";
 import { SubmitButton } from "../../../../../../components/submit-button";
+import { TrainingAvatar } from "../../../../../../components/training-avatar";
 import { sectorMessages, sectorValueLabel } from "../../../../../../messages/sectors";
 import { gymRepository, requireTenantAccess } from "../../../../../../server/identity";
 import {
@@ -15,6 +17,7 @@ import {
   createWorkoutPlanAction,
   recordGymProgressAction,
   recordWorkoutAction,
+  setGymPortalAccessStatusAction,
 } from "../../actions";
 
 export default async function GymTraineeProfilePage({
@@ -26,10 +29,14 @@ export default async function GymTraineeProfilePage({
   const access = await requireTenantAccess(locale);
   const trainee = await gymRepository.getTrainee(access, traineeId);
   const canManagePlans = access.grants.some((grant) => grant.code === "gym.plans.manage");
+  const canManageTrainees = access.grants.some((grant) => grant.code === "gym.trainees.manage");
   const canRecordProgress = access.grants.some((grant) => grant.code === "gym.progress.write");
   const messages = sectorMessages[locale];
   const today = new Date().toISOString().slice(0, 10);
   const currentProgress = trainee.progressEntries[0];
+  const portalProvisioning = canManageTrainees
+    ? await gymRepository.portalProvisioning(access, trainee.id)
+    : null;
 
   return (
     <section className="page-stack gym-workspace" aria-labelledby="trainee-title">
@@ -39,9 +46,14 @@ export default async function GymTraineeProfilePage({
         </Link>
       </nav>
       <header className="trainee-hero">
-        <div className="trainee-avatar trainee-avatar-large" aria-hidden="true">
-          {trainee.customer.displayName.slice(0, 1).toUpperCase()}
-        </div>
+        <TrainingAvatar
+          frame={trainee.avatarFrame}
+          hairStyle={trainee.avatarHairStyle}
+          label={locale === "ar" ? "شخصية المتدرّب" : "Trainee avatar"}
+          shirtColor={trainee.avatarShirtColor}
+          size="compact"
+          skinTone={trainee.avatarSkinTone}
+        />
         <div>
           <p className="eyebrow">{messages.traineeProfile}</p>
           <h1 id="trainee-title">{trainee.customer.displayName}</h1>
@@ -56,6 +68,76 @@ export default async function GymTraineeProfilePage({
         locale={locale}
         notice={typeof query.notice === "string" ? query.notice : undefined}
       />
+
+      {canManageTrainees ? (
+        <section className="panel owner-portal-access" aria-labelledby="portal-access-title">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">{locale === "ar" ? "دخول المتدرّب" : "Trainee access"}</p>
+              <h2 id="portal-access-title">
+                {locale === "ar" ? "حساب المتدرّب المنفصل" : "Separate trainee account"}
+              </h2>
+              <p className="muted">
+                {locale === "ar"
+                  ? "الحساب يعرض لهذا المتدرّب فقط تمارينه وتغذيته وتقدّمه، ولا يفتح إدارة النادي."
+                  : "This account shows only this trainee's workouts, nutrition and progress. It cannot open gym management."}
+              </p>
+            </div>
+            {portalProvisioning?.portalAccess ? (
+              <span
+                className={
+                  portalProvisioning.portalAccess.status === GymPortalAccessStatus.ACTIVE
+                    ? "status status-active"
+                    : "status status-suspended"
+                }
+              >
+                {portalProvisioning.portalAccess.status === GymPortalAccessStatus.ACTIVE
+                  ? locale === "ar"
+                    ? "الحساب فعّال"
+                    : "Active account"
+                  : locale === "ar"
+                    ? "الحساب معلّق"
+                    : "Suspended account"}
+              </span>
+            ) : null}
+          </div>
+          {portalProvisioning?.portalAccess ? (
+            <div className="portal-access-active">
+              <span dir="ltr">{portalProvisioning.portalAccess.user.email}</span>
+              <form action={setGymPortalAccessStatusAction}>
+                <input name="locale" type="hidden" value={locale} />
+                <input name="traineeProfileId" type="hidden" value={trainee.id} />
+                <input
+                  name="status"
+                  type="hidden"
+                  value={
+                    portalProvisioning.portalAccess.status === GymPortalAccessStatus.ACTIVE
+                      ? GymPortalAccessStatus.SUSPENDED
+                      : GymPortalAccessStatus.ACTIVE
+                  }
+                />
+                <SubmitButton
+                  tone={
+                    portalProvisioning.portalAccess.status === GymPortalAccessStatus.ACTIVE
+                      ? "danger"
+                      : "secondary"
+                  }
+                >
+                  {portalProvisioning.portalAccess.status === GymPortalAccessStatus.ACTIVE
+                    ? locale === "ar"
+                      ? "تعليق الدخول"
+                      : "Suspend access"
+                    : locale === "ar"
+                      ? "إعادة التفعيل"
+                      : "Reactivate access"}
+                </SubmitButton>
+              </form>
+            </div>
+          ) : (
+            <GymPortalInvitationForm locale={locale} traineeProfileId={trainee.id} />
+          )}
+        </section>
+      ) : null}
 
       <dl className="profile-metric-grid">
         <Metric label={messages.trainer} value={trainerName(locale, trainee.trainer)} />

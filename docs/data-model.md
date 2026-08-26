@@ -82,19 +82,22 @@ for the requested purpose and channel.
 
 ### Sector profiles and gym operations
 
-| Entity             | Ownership    | Purpose and invariants                                                                  |
-| ------------------ | ------------ | --------------------------------------------------------------------------------------- |
-| GymTraineeProfile  | Tenant-owned | One Customer profile with goal, metrics, budget and optional tenant-local trainer       |
-| GymWorkoutPlan     | Tenant-owned | Bilingual dated plan with explicit lifecycle and version                                |
-| GymWorkoutExercise | Tenant-owned | Bilingual weekday prescription with sets, repetitions, rest and optional target weight  |
-| GymWorkoutLog      | Tenant-owned | Performed workout result with UTC timestamp, actual weight/repetitions and effort       |
-| GymNutritionPlan   | Tenant-owned | Goal and budget-aware calorie/macronutrient targets; operational, not clinical guidance |
-| GymNutritionMeal   | Tenant-owned | Bilingual meal option, timing, estimated minor-unit cost and macro breakdown            |
-| GymProgressEntry   | Tenant-owned | Timestamped trainee measurements and notes                                              |
+| Entity                 | Ownership    | Purpose and invariants                                                                  |
+| ---------------------- | ------------ | --------------------------------------------------------------------------------------- |
+| GymTraineeProfile      | Tenant-owned | One Customer profile with goal, metrics, budget and optional tenant-local trainer       |
+| GymTraineePortalAccess | Tenant-owned | One authenticated User linked to exactly one tenant-local trainee profile               |
+| GymTraineeInvitation   | Tenant-owned | Hashed, expiring, single-use capability for provisioning trainee access                 |
+| GymWorkoutPlan         | Tenant-owned | Bilingual dated plan with explicit lifecycle and version                                |
+| GymWorkoutExercise     | Tenant-owned | Bilingual weekday prescription with sets, repetitions, rest and optional target weight  |
+| GymWorkoutLog          | Tenant-owned | Performed workout result with UTC timestamp, actual weight/repetitions and effort       |
+| GymNutritionPlan       | Tenant-owned | Goal and budget-aware calorie/macronutrient targets; operational, not clinical guidance |
+| GymNutritionMeal       | Tenant-owned | Bilingual meal option, timing, estimated minor-unit cost and macro breakdown            |
+| GymProgressEntry       | Tenant-owned | Timestamped trainee measurements and notes                                              |
 
 `OrganizationSettings.businessSector` is the typed, audited portal selector. Gym tables use
-composite organization-aware foreign keys and forced RLS. `GymTraineeProfile` does not create an
-independent login; customer identity remains a separate future security decision.
+composite organization-aware foreign keys and forced RLS. `GymTraineePortalAccess` is the reviewed
+independent-login boundary: tenant/profile context is resolved from the authenticated User link,
+never from a browser identifier. See ADR 0016.
 
 ### Scheduling
 

@@ -58,7 +58,8 @@ test("owner can use the Phase 2 customer and calendar screens", async ({ page })
   await expect(page.getByRole("heading", { level: 1 })).toContainText("E2E Customer");
   await page.goto("/en/dashboard/calendar");
   await expect(page.getByRole("heading", { level: 1, name: "Calendar" })).toBeVisible();
-  await expect(page.getByRole("heading", { level: 2, name: "Create appointment" })).toBeVisible();
+  await page.locator("summary").filter({ hasText: "Create appointment" }).click();
+  await expect(page.getByRole("button", { name: "Create appointment" })).toBeVisible();
   await page.goto("/en/dashboard/today");
   await expect(page.getByRole("heading", { level: 1, name: "Today operations" })).toBeVisible();
 });
@@ -84,6 +85,7 @@ test("owner can use the sector-specific gym trainee workflow in English and Arab
   await expect(page.getByRole("heading", { level: 1, name: traineeName })).toBeVisible();
   await page.goto("/en/dashboard/gym/trainees");
   await expect(page.getByRole("heading", { level: 1, name: "Trainees" })).toBeVisible();
+  await page.locator("details.trainee-add-disclosure > summary").click();
   await page.getByLabel("Select customer").selectOption({ label: traineeName });
   await page.getByLabel("Starting weight (kg)").fill("82");
   await page.getByLabel("Target weight (kg)").fill("88");
@@ -93,6 +95,28 @@ test("owner can use the sector-specific gym trainee workflow in English and Arab
   await page.goto("/ar/dashboard/gym/trainees");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   await expect(page.getByRole("heading", { level: 1, name: "المتدربون" })).toBeVisible();
+});
+
+test("trainee login opens the private mobile-ready training portal without staff controls", async ({
+  page,
+}) => {
+  const seedPassword = process.env.DEV_SEED_PASSWORD;
+  test.skip(!seedPassword, "DEV_SEED_PASSWORD is required for the authenticated browser test.");
+  await page.goto("/ar/login");
+  await page.getByLabel("البريد الإلكتروني").fill("trainee@example.invalid");
+  await page.getByLabel("كلمة المرور").fill(seedPassword ?? "");
+  await page.getByRole("button", { name: "تسجيل الدخول" }).click();
+  await expect(page).toHaveURL(/\/ar\/trainee/u);
+  await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+  await expect(page.getByRole("heading", { level: 1, name: "أحمد المتدرّب" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "تمرين اليوم" })).toBeVisible();
+  await expect(page.getByLabel("التنقل الرئيسي")).toHaveCount(0);
+  await expect(page.getByText("إدارة المؤسسة")).toHaveCount(0);
+  await expect(page.getByLabel("وزن الجسم (كغ) +")).toBeVisible();
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByRole("heading", { level: 1, name: "أحمد المتدرّب" })).toBeVisible();
+  await expect(page.getByLabel("شخصيتك التدريبية المتحركة")).toBeVisible();
 });
 
 test("owner can use Phase 3 resource and waitlist screens in English and Arabic RTL", async ({

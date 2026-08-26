@@ -216,3 +216,10 @@ per-channel usage. Deterministic fixtures live in `tests/fixtures/ai-channels`; 
 evidence for a live provider. Unit suites cover domain state machines, structured contracts, AI
 injection/language/chunking/redaction and provider-neutral mocks. Playwright covers the staff
 journeys, AI channel management, and Arabic RTL; provider sandboxes remain production release gates.
+
+## 14. Gym trainee portal tests
+
+Trainee portal coverage includes one-time invitation acceptance, staff/trainee identity separation,
+own-profile projections, suspended access and organization denial, foreign exercise denial, Arabic
+RTL, mobile layout, and the accessible number stepper. PostgreSQL integration tests exercise the
+real unique constraints and forced RLS rather than replacing portal authorization with mocks.

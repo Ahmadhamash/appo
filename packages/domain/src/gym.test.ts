@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   assertExercisePrescription,
+  assertGymAvatarAppearance,
   assertGymTraineeMetrics,
   assertNutritionTargets,
   assertWorkoutPerformance,
@@ -43,6 +44,7 @@ describe("gym operating rules", () => {
         proteinGrams: 170,
       }),
     ).not.toThrow();
+    expect(() => assertGymAvatarAppearance({ shirtColor: "#d6a63c" })).not.toThrow();
   });
 
   it("rejects unsafe or internally inconsistent values", () => {
@@ -62,5 +64,6 @@ describe("gym operating rules", () => {
         proteinGrams: 150,
       }),
     ).toThrowError(/nutrition/);
+    expect(() => assertGymAvatarAppearance({ shirtColor: "gold" })).toThrowError(/hexadecimal/);
   });
 });
