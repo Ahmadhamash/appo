@@ -1,0 +1,199 @@
+export const platformRoleKeys = ["JORMALL_SUPER_ADMIN"] as const;
+
+export const tenantRoleKeys = [
+  "ORGANIZATION_OWNER",
+  "ORGANIZATION_MANAGER",
+  "SECRETARY",
+  "PROVIDER",
+] as const;
+
+export type PlatformRoleKey = (typeof platformRoleKeys)[number];
+export type TenantRoleKey = (typeof tenantRoleKeys)[number];
+
+export const permissionCodes = [
+  "organization.read",
+  "organization.settings.manage",
+  "organization.billing.manage",
+  "branches.read",
+  "branches.manage",
+  "staff.read",
+  "staff.manage",
+  "roles.read",
+  "roles.manage",
+  "services.read",
+  "services.manage",
+  "schedules.read",
+  "schedules.manage",
+  "customers.read",
+  "customers.write",
+  "consent.read",
+  "consent.record",
+  "appointments.read",
+  "appointments.availability.read",
+  "appointments.create",
+  "appointments.reschedule",
+  "appointments.cancel",
+  "appointments.status.transition",
+  "appointments.status.correct",
+  "appointment_records.read",
+  "appointment_records.write",
+  "resources.read",
+  "resources.manage",
+  "waitlist.read",
+  "waitlist.manage",
+  "slot_offers.manage",
+  "messages.read",
+  "messages.send",
+  "messages.retry",
+  "message_templates.manage",
+  "communication_preferences.manage",
+  "provider_credentials.manage",
+  "knowledge.read",
+  "knowledge.manage",
+  "conversations.read",
+  "conversations.handoff",
+  "recordings.read",
+  "ai.configure",
+  "ai.actions.execute",
+  "reports.read",
+  "predictions.read",
+  "predictions.run",
+  "predictions.configure",
+  "predictions.feedback",
+  "audit.read",
+  "imports.manage",
+  "exports.manage",
+] as const;
+
+export type PermissionCode = (typeof permissionCodes)[number];
+export type PermissionScope = "ORGANIZATION" | "ASSIGNED_BRANCHES" | "SELF";
+
+export type PermissionGrant = Readonly<{
+  code: PermissionCode;
+  scope: PermissionScope;
+}>;
+
+export type TenantAccessSnapshot = Readonly<{
+  actorUserId: string;
+  assignedBranchIds: readonly string[];
+  grants: readonly PermissionGrant[];
+  gatewayActionId?: string;
+  membershipId?: string;
+  organizationId: string;
+  staffProfileId?: string;
+  supportAccessId?: string;
+}>;
+
+export const defaultRolePermissions: Readonly<Record<TenantRoleKey, readonly PermissionGrant[]>> = {
+  ORGANIZATION_OWNER: permissionCodes
+    .filter((code) => code !== "ai.actions.execute")
+    .map((code) => ({ code, scope: "ORGANIZATION" })),
+  ORGANIZATION_MANAGER: [
+    { code: "organization.read", scope: "ORGANIZATION" },
+    { code: "branches.read", scope: "ORGANIZATION" },
+    { code: "branches.manage", scope: "ORGANIZATION" },
+    { code: "staff.read", scope: "ORGANIZATION" },
+    { code: "staff.manage", scope: "ORGANIZATION" },
+    { code: "roles.read", scope: "ORGANIZATION" },
+    { code: "services.read", scope: "ORGANIZATION" },
+    { code: "services.manage", scope: "ORGANIZATION" },
+    { code: "schedules.read", scope: "ASSIGNED_BRANCHES" },
+    { code: "schedules.manage", scope: "ASSIGNED_BRANCHES" },
+    { code: "customers.read", scope: "ORGANIZATION" },
+    { code: "customers.write", scope: "ORGANIZATION" },
+    { code: "consent.read", scope: "ORGANIZATION" },
+    { code: "consent.record", scope: "ORGANIZATION" },
+    { code: "appointments.read", scope: "ORGANIZATION" },
+    { code: "appointments.availability.read", scope: "ASSIGNED_BRANCHES" },
+    { code: "appointments.create", scope: "ORGANIZATION" },
+    { code: "appointments.reschedule", scope: "ORGANIZATION" },
+    { code: "appointments.cancel", scope: "ORGANIZATION" },
+    { code: "appointments.status.transition", scope: "ORGANIZATION" },
+    { code: "appointment_records.read", scope: "ORGANIZATION" },
+    { code: "appointment_records.write", scope: "ORGANIZATION" },
+    { code: "resources.read", scope: "ASSIGNED_BRANCHES" },
+    { code: "resources.manage", scope: "ASSIGNED_BRANCHES" },
+    { code: "waitlist.read", scope: "ORGANIZATION" },
+    { code: "waitlist.manage", scope: "ORGANIZATION" },
+    { code: "slot_offers.manage", scope: "ORGANIZATION" },
+    { code: "messages.read", scope: "ORGANIZATION" },
+    { code: "messages.send", scope: "ORGANIZATION" },
+    { code: "messages.retry", scope: "ORGANIZATION" },
+    { code: "communication_preferences.manage", scope: "ORGANIZATION" },
+    { code: "knowledge.read", scope: "ORGANIZATION" },
+    { code: "knowledge.manage", scope: "ORGANIZATION" },
+    { code: "conversations.read", scope: "ORGANIZATION" },
+    { code: "conversations.handoff", scope: "ORGANIZATION" },
+    { code: "recordings.read", scope: "ASSIGNED_BRANCHES" },
+    { code: "ai.configure", scope: "ORGANIZATION" },
+    { code: "reports.read", scope: "ORGANIZATION" },
+    { code: "predictions.read", scope: "ASSIGNED_BRANCHES" },
+    { code: "predictions.run", scope: "ASSIGNED_BRANCHES" },
+    { code: "predictions.feedback", scope: "ASSIGNED_BRANCHES" },
+    { code: "audit.read", scope: "ASSIGNED_BRANCHES" },
+    { code: "imports.manage", scope: "ORGANIZATION" },
+    { code: "exports.manage", scope: "ORGANIZATION" },
+  ],
+  SECRETARY: [
+    { code: "organization.read", scope: "ORGANIZATION" },
+    { code: "branches.read", scope: "ORGANIZATION" },
+    { code: "staff.read", scope: "ORGANIZATION" },
+    { code: "roles.read", scope: "ORGANIZATION" },
+    { code: "services.read", scope: "ORGANIZATION" },
+    { code: "schedules.read", scope: "ASSIGNED_BRANCHES" },
+    { code: "schedules.manage", scope: "ASSIGNED_BRANCHES" },
+    { code: "customers.read", scope: "ORGANIZATION" },
+    { code: "customers.write", scope: "ORGANIZATION" },
+    { code: "consent.read", scope: "ORGANIZATION" },
+    { code: "consent.record", scope: "ORGANIZATION" },
+    { code: "appointments.read", scope: "ORGANIZATION" },
+    { code: "appointments.availability.read", scope: "ASSIGNED_BRANCHES" },
+    { code: "appointments.create", scope: "ORGANIZATION" },
+    { code: "appointments.reschedule", scope: "ORGANIZATION" },
+    { code: "appointments.cancel", scope: "ORGANIZATION" },
+    { code: "appointments.status.transition", scope: "ORGANIZATION" },
+    { code: "resources.read", scope: "ASSIGNED_BRANCHES" },
+    { code: "waitlist.read", scope: "ORGANIZATION" },
+    { code: "waitlist.manage", scope: "ORGANIZATION" },
+    { code: "slot_offers.manage", scope: "ORGANIZATION" },
+    { code: "messages.read", scope: "ORGANIZATION" },
+    { code: "messages.send", scope: "ORGANIZATION" },
+    { code: "messages.retry", scope: "ORGANIZATION" },
+    { code: "communication_preferences.manage", scope: "ORGANIZATION" },
+    { code: "knowledge.read", scope: "ORGANIZATION" },
+    { code: "conversations.read", scope: "ORGANIZATION" },
+    { code: "conversations.handoff", scope: "ORGANIZATION" },
+    { code: "reports.read", scope: "ASSIGNED_BRANCHES" },
+    { code: "predictions.read", scope: "ASSIGNED_BRANCHES" },
+    { code: "predictions.feedback", scope: "ASSIGNED_BRANCHES" },
+  ],
+  PROVIDER: [
+    { code: "organization.read", scope: "ORGANIZATION" },
+    { code: "branches.read", scope: "ASSIGNED_BRANCHES" },
+    { code: "services.read", scope: "ORGANIZATION" },
+    { code: "customers.read", scope: "SELF" },
+    { code: "consent.read", scope: "SELF" },
+    { code: "schedules.read", scope: "SELF" },
+    { code: "schedules.manage", scope: "SELF" },
+    { code: "appointments.read", scope: "SELF" },
+    { code: "appointments.availability.read", scope: "SELF" },
+    { code: "appointments.reschedule", scope: "SELF" },
+    { code: "appointments.cancel", scope: "SELF" },
+    { code: "appointments.status.transition", scope: "SELF" },
+    { code: "appointment_records.read", scope: "SELF" },
+    { code: "appointment_records.write", scope: "SELF" },
+    { code: "resources.read", scope: "ASSIGNED_BRANCHES" },
+    { code: "waitlist.read", scope: "SELF" },
+    { code: "messages.read", scope: "SELF" },
+    { code: "messages.send", scope: "SELF" },
+    { code: "conversations.read", scope: "SELF" },
+    { code: "recordings.read", scope: "SELF" },
+    { code: "reports.read", scope: "SELF" },
+    { code: "predictions.read", scope: "SELF" },
+    { code: "predictions.feedback", scope: "SELF" },
+  ],
+};
+
+export function isPermissionCode(value: string): value is PermissionCode {
+  return (permissionCodes as readonly string[]).includes(value);
+}

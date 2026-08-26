@@ -1,0 +1,19 @@
+{
+  "name": "@jormall/contracts",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./ai-channels": "./src/ai-channels.ts",
+    "./action-gateway": "./src/action-gateway.ts",
+    "./communications": "./src/communications.ts",
+    "./locales": "./src/locales.ts",
+    "./predictive": "./src/predictive.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "4.4.3"
+  }
+}

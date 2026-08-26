@@ -1,0 +1,41 @@
+{
+  "name": "@jormall/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./ai-channel-repository": "./src/ai-channel-repository.ts",
+    "./ai-foundation-repository": "./src/ai-foundation-repository.ts",
+    "./client": "./src/client.ts",
+    "./communication-repository": "./src/communication-repository.ts",
+    "./copilot-repository": "./src/copilot-repository.ts",
+    "./crm-appointment-repository": "./src/crm-appointment-repository.ts",
+    "./generated/client": "./src/generated/prisma/client.ts",
+    "./generated/enums": "./src/generated/prisma/enums.ts",
+    "./identity-repository": "./src/identity-repository.ts",
+    "./invitation-token": "./src/invitation-token.ts",
+    "./operations-intelligence-repository": "./src/operations-intelligence-repository.ts",
+    "./predictive-repository": "./src/predictive-repository.ts",
+    "./scheduling-transaction": "./src/scheduling-transaction.ts",
+    "./scheduling-repository": "./src/scheduling-repository.ts",
+    "./tenant-context": "./src/tenant-context.ts"
+  },
+  "scripts": {
+    "db:format": "prisma format --config prisma.config.ts",
+    "db:generate": "prisma generate --config prisma.config.ts",
+    "db:migrate:deploy": "prisma migrate deploy --config prisma.config.ts",
+    "db:validate": "prisma validate --config prisma.config.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@jormall/domain": "workspace:*",
+    "@prisma/adapter-pg": "7.9.1",
+    "@prisma/client": "7.9.1",
+    "dotenv": "17.4.2",
+    "pg": "8.23.0"
+  },
+  "devDependencies": {
+    "@types/pg": "8.23.1",
+    "prisma": "7.9.1"
+  }
+}

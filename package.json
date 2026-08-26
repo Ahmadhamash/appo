@@ -1,0 +1,53 @@
+{
+  "name": "jormall-platform",
+  "version": "0.0.0",
+  "private": true,
+  "description": "JorMall multi-tenant appointment and AI receptionist platform",
+  "type": "module",
+  "packageManager": "pnpm@10.33.2",
+  "engines": {
+    "node": ">=24.0.0 <25",
+    "pnpm": ">=10.33.0 <11"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "db:format": "pnpm --filter @jormall/db db:format",
+    "db:generate": "pnpm --filter @jormall/db db:generate",
+    "db:migrate:deploy": "pnpm --filter @jormall/db db:migrate:deploy",
+    "db:seed": "pnpm --filter @jormall/web seed",
+    "db:validate": "pnpm --filter @jormall/db db:validate",
+    "dev": "turbo run dev --parallel",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "infra:config": "docker compose config",
+    "infra:down": "docker compose down",
+    "infra:logs": "docker compose logs --follow",
+    "infra:up": "docker compose up --detach --wait",
+    "lint": "eslint . --max-warnings 0",
+    "lint:boundaries": "node scripts/check-workspace-boundaries.mjs",
+    "test": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "typecheck": "turbo run typecheck"
+  },
+  "devDependencies": {
+    "@jormall/ai": "workspace:*",
+    "@jormall/auth": "workspace:*",
+    "@jormall/contracts": "workspace:*",
+    "@jormall/db": "workspace:*",
+    "@jormall/domain": "workspace:*",
+    "@playwright/test": "1.62.1",
+    "@types/node": "24.13.3",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
+    "@vitest/coverage-v8": "4.1.11",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.3.2",
+    "globals": "17.11.0",
+    "prettier": "3.9.6",
+    "turbo": "2.10.11",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11"
+  }
+}

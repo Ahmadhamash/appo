@@ -1,0 +1,19 @@
+{
+  "name": "@jormall/auth",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./actor": "./src/actor.ts",
+    "./authorization": "./src/authorization.ts",
+    "./signed-capability": "./src/signed-capability.ts",
+    "./tenant-policy": "./src/tenant-policy.ts",
+    "./webhook-signature": "./src/webhook-signature.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@jormall/domain": "workspace:*"
+  }
+}

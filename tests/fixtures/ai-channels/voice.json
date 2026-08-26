@@ -1,0 +1,17 @@
+{
+  "channel": "VOICE",
+  "events": [
+    { "expectedOutcome": "STORED_ONLY", "input": "بدي أح...", "kind": "transcript_partial" },
+    { "expectedOutcome": "INTERRUPTED", "input": "barge-in", "kind": "barge_in" },
+    {
+      "expectedOutcome": "CLARIFICATION",
+      "input": "نعم أؤكد",
+      "kind": "low_confidence_confirmation"
+    },
+    { "expectedOutcome": "COMPLETED", "input": "نعم أؤكد", "kind": "high_confidence_confirmation" },
+    { "expectedOutcome": "HANDOFF", "input": "بدي أحكي مع موظف", "kind": "transcript_final" }
+  ],
+  "locale": "ar",
+  "name": "Voice interruption, confirmation evidence, and transfer",
+  "version": 1
+}

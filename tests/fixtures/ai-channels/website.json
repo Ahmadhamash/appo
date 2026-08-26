@@ -1,0 +1,29 @@
+{
+  "channel": "WEBSITE",
+  "events": [
+    {
+      "expectedOutcome": "ACTION",
+      "input": "Which services do you offer?",
+      "kind": "customer_message"
+    },
+    {
+      "expectedOutcome": "ACTION",
+      "input": "check the selected day",
+      "kind": "availability_request"
+    },
+    {
+      "expectedOutcome": "REQUIRES_CONFIRMATION",
+      "input": "book the selected slot",
+      "kind": "booking_request"
+    },
+    { "expectedOutcome": "COMPLETED", "input": "I confirm", "kind": "explicit_confirmation" },
+    {
+      "expectedOutcome": "HANDOFF",
+      "input": "I need to speak to a person",
+      "kind": "customer_message"
+    }
+  ],
+  "locale": "en",
+  "name": "Website complete booking and handoff",
+  "version": 1
+}

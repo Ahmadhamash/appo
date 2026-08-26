@@ -1,0 +1,2882 @@
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  moduleFormat        = "esm"
+  importFileExtension = "ts"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum PlatformRole {
+  USER
+  JORMALL_SUPER_ADMIN
+}
+
+enum OrganizationStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+}
+
+enum MembershipStatus {
+  ACTIVE
+  SUSPENDED
+  REVOKED
+}
+
+enum TenantRoleKey {
+  ORGANIZATION_OWNER
+  ORGANIZATION_MANAGER
+  SECRETARY
+  PROVIDER
+}
+
+enum PermissionScope {
+  ORGANIZATION
+  ASSIGNED_BRANCHES
+  SELF
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REVOKED
+  EXPIRED
+}
+
+enum SupportedLocale {
+  en
+  ar
+}
+
+enum Weekday {
+  SUNDAY
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+}
+
+enum CustomerContactKind {
+  PHONE
+  EMAIL
+  OTHER
+}
+
+enum ConsentStatus {
+  GRANTED
+  REVOKED
+}
+
+enum ConsentChannel {
+  STAFF
+  PUBLIC_BOOKING
+  WEBSITE
+  IMPORT
+  API
+}
+
+enum ConsentSource {
+  STAFF
+  PUBLIC_BOOKING
+  WEBSITE_AI
+  WHATSAPP_AI
+  VOICE_AI
+  IMPORT
+  API
+}
+
+enum AppointmentSource {
+  PUBLIC_BOOKING
+  STAFF
+  WEBSITE_AI
+  WHATSAPP_AI
+  VOICE_AI
+  IMPORT
+  API
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  CHECKED_IN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum AppointmentHistoryType {
+  CREATED
+  RESCHEDULED
+  STATUS_CHANGED
+}
+
+enum AppointmentParticipantType {
+  CUSTOMER
+  PROVIDER
+  STAFF
+}
+
+enum ResourceKind {
+  PROVIDER
+  ROOM
+  CHAIR
+  DEVICE
+  VEHICLE
+  SHARED_EQUIPMENT
+  OTHER
+}
+
+enum ResourceStatus {
+  ACTIVE
+  INACTIVE
+  MAINTENANCE
+}
+
+enum WaitlistStatus {
+  ACTIVE
+  OFFERED
+  FULFILLED
+  CANCELLED
+}
+
+enum SlotOfferStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
+enum SlotOfferAttemptType {
+  MOCK_SENT
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
+enum SlotOfferAttemptResult {
+  SUCCEEDED
+  REJECTED
+}
+
+enum CommunicationChannel {
+  SMS
+  WHATSAPP
+  EMAIL
+  INTERNAL
+  VOICE
+}
+
+enum ConversationStatus {
+  OPEN
+  CLOSED
+}
+
+enum MessageDirection {
+  OUTBOUND
+  INBOUND
+  INTERNAL
+}
+
+enum MessageStatus {
+  QUEUED
+  SENDING
+  SENT
+  DELIVERED
+  FAILED
+  DEAD_LETTER
+}
+
+enum MessageAttemptStatus {
+  STARTED
+  SUCCEEDED
+  RETRYABLE_FAILURE
+  PERMANENT_FAILURE
+  TIMEOUT
+}
+
+enum OutboxEventStatus {
+  PENDING
+  CLAIMED
+  ENQUEUED
+  PROCESSED
+  DEAD_LETTER
+}
+
+enum InboxEventStatus {
+  RECEIVED
+  PROCESSED
+  FAILED
+}
+
+enum DeliveryState {
+  SENT
+  DELIVERED
+  READ
+  FAILED
+}
+
+enum ProviderConnectionStatus {
+  ACTIVE
+  DISABLED
+  MISCONFIGURED
+}
+
+enum MockProviderBehavior {
+  SUCCESS
+  TRANSIENT_ONCE
+  TIMEOUT
+  PERMANENT_FAILURE
+}
+
+enum KnowledgeSourceType {
+  MANUAL_TEXT
+  TEXT_UPLOAD
+}
+
+enum KnowledgeIngestionStatus {
+  DRAFT
+  READY
+  FAILED
+}
+
+enum KnowledgeVersionStatus {
+  DRAFT
+  ACTIVE
+  ROLLED_BACK
+}
+
+enum KnowledgeLanguage {
+  en
+  ar
+  mixed
+}
+
+enum AIConversationStatus {
+  OPEN
+  WAITING_HUMAN
+  CLOSED
+}
+
+enum AIMessageRole {
+  SYSTEM
+  CUSTOMER
+  ASSISTANT
+  TOOL
+}
+
+enum AIMessageSafetyStatus {
+  SAFE
+  AMBIGUOUS
+  HANDOFF_REQUIRED
+  INJECTION_DETECTED
+}
+
+enum AIActionOutcome {
+  PENDING
+  COMPLETED
+  REJECTED
+  REQUIRES_CONFIRMATION
+  FAILED
+}
+
+enum AIActionApprovalStatus {
+  PENDING
+  APPROVED
+  CONSUMED
+  EXPIRED
+  REVOKED
+}
+
+enum AIUsageOutcome {
+  SUCCEEDED
+  REJECTED
+  FAILED
+}
+
+enum HumanHandoffStatus {
+  OPEN
+  ASSIGNED
+  RESOLVED
+  CLOSED
+}
+
+enum AIEvaluationOutcome {
+  PASS
+  FAIL
+  ERROR
+}
+
+enum AICustomerChannel {
+  WEBSITE
+  WHATSAPP
+  VOICE
+}
+
+enum AIChannelSessionStatus {
+  OPEN
+  CLOSED
+  EXPIRED
+}
+
+enum AIChannelPendingActionStatus {
+  PENDING
+  DECLINED
+  CONSUMED
+  EXPIRED
+}
+
+enum CallDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum CallStatus {
+  RINGING
+  ACTIVE
+  HUMAN_TRANSFER
+  COMPLETED
+  MISSED
+  FAILED
+}
+
+enum RecordingConsentStatus {
+  NOT_REQUESTED
+  DECLINED
+  GRANTED
+  REVOKED
+}
+
+enum CallEventStatus {
+  RECEIVED
+  PROCESSED
+  FAILED
+}
+
+enum CallRecordingStatus {
+  PENDING
+  RECORDING
+  STOPPED
+  FAILED
+}
+
+enum CallTranscriptSpeaker {
+  CUSTOMER
+  ASSISTANT
+  HUMAN
+  SYSTEM
+}
+
+enum CopilotInsightType {
+  DAILY_BRIEFING
+  CUSTOMER_SUMMARY
+  SCHEDULE_GAPS
+  WAITLIST_MATCHES
+  CALL_QUALITY
+  ANALYTICS
+}
+
+enum CopilotInsightStatus {
+  ACTIVE
+  EXPIRED
+}
+
+enum CopilotEvidenceSourceType {
+  APPOINTMENT
+  CALL
+  CONSENT
+  CUSTOMER
+  HANDOFF
+  MESSAGE
+  METRIC_SNAPSHOT
+  WAITLIST_ENTRY
+}
+
+enum CopilotDataClassification {
+  INTERNAL
+  CONFIDENTIAL
+  RESTRICTED
+}
+
+enum CopilotFeedbackType {
+  HELPFUL
+  INCORRECT
+  UNSAFE
+  OUTDATED
+}
+
+enum ImportKind {
+  CUSTOMERS
+  STAFF
+  SERVICES
+  APPOINTMENTS
+}
+
+enum ImportBatchStatus {
+  STAGING
+  DRY_RUN_READY
+  COMMITTING
+  COMMITTED
+  PARTIAL
+  ROLLED_BACK
+  FAILED
+}
+
+enum ImportRowStatus {
+  VALID
+  INVALID
+  DUPLICATE
+  IMPORTED
+  FAILED
+  ROLLED_BACK
+}
+
+enum AttributionSource {
+  PUBLIC_BOOKING
+  WEBSITE_CHATBOT
+  WHATSAPP_AI
+  VOICE_AI
+  STAFF_MANUAL
+  CAMPAIGN
+  WAITLIST_CONVERSION
+  MISSED_CALL_RECOVERY
+}
+
+enum DataExportType {
+  CUSTOMERS
+  APPOINTMENTS
+  AUDIT_LOG
+  REPORT
+}
+
+enum DataExportStatus {
+  READY
+  EXPIRED
+  FAILED
+}
+
+enum PredictiveCapability {
+  NO_SHOW
+  DEMAND_FORECAST
+  STAFFING
+  SCHEDULE_REFLOW
+  SERVICE_PROVIDER_RECOMMENDATION
+}
+
+enum PredictiveJobType {
+  DATA_AUDIT
+  FEATURE_COMPUTE
+  GENERATE
+  BACKTEST
+  DRIFT
+}
+
+enum PredictiveJobStatus {
+  PENDING
+  CLAIMED
+  ENQUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+  DEAD_LETTER
+}
+
+enum PredictivePredictionStatus {
+  GENERATED
+  REFUSED
+}
+
+enum PredictiveRefusalReason {
+  CAPABILITY_DISABLED
+  INSUFFICIENT_SAMPLE
+  INSUFFICIENT_POSITIVES
+  INSUFFICIENT_HISTORY_SPAN
+  NO_ELIGIBLE_TARGET
+  NO_VALID_CANDIDATE
+  MISSING_SCHEDULE_CONFIGURATION
+  MODEL_DEGRADED
+}
+
+enum PredictiveEvaluationType {
+  OFFLINE
+  BACKTEST
+}
+
+enum PredictiveEvaluationOutcome {
+  PASSED
+  FAILED
+  INSUFFICIENT
+}
+
+enum PredictiveDriftStatus {
+  STABLE
+  WATCH
+  ALERT
+  INSUFFICIENT
+}
+
+enum PredictiveFeedbackType {
+  HELPFUL
+  INCORRECT
+  UNSAFE
+  OUTDATED
+}
+
+enum OperationalCalendarEventType {
+  HOLIDAY
+  CLOSURE
+  SPECIAL_OPEN
+}
+
+model User {
+  id            String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name          String       @db.VarChar(160)
+  email         String       @unique @db.VarChar(320)
+  emailVerified Boolean      @default(false) @map("email_verified")
+  image         String?      @db.Text
+  platformRole  PlatformRole @default(USER) @map("platform_role")
+  createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  accounts             Account[]
+  sessions             Session[]
+  memberships          OrganizationMembership[]
+  createdOrganizations Organization[]             @relation("OrganizationCreator")
+  invitationsSent      OrganizationInvitation[]   @relation("InvitationSender")
+  supportAccesses      PlatformSupportAccess[]
+  auditEvents          AuditEvent[]
+  consentsRecorded     Consent[]                  @relation("ConsentActor")
+  messagesCreated      Message[]                  @relation("MessageCreator")
+  appointmentRecords   AppointmentRecord[]        @relation("AppointmentRecordAuthor")
+  appointmentNotes     AppointmentNote[]          @relation("AppointmentNoteAuthor")
+  appointmentHistory   AppointmentStatusHistory[] @relation("AppointmentStatusActor")
+  slotOfferAttempts    SlotOfferAttempt[]         @relation("SlotOfferAttemptActor")
+  knowledgeVersions    KnowledgeVersion[]         @relation("KnowledgeVersionCreator")
+  aiConversations      AIConversation[]           @relation("AIConversationCreator")
+  promptConfigurations PromptConfiguration[]      @relation("PromptConfigurationUpdater")
+  copilotInsights      CopilotInsight[]           @relation("CopilotInsightActor")
+  copilotFeedback      CopilotFeedback[]          @relation("CopilotFeedbackActor")
+  analyticsSnapshots   AnalyticsSnapshot[]        @relation("AnalyticsSnapshotActor")
+
+  @@map("users")
+}
+
+model Session {
+  id                    String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  expiresAt             DateTime @map("expires_at") @db.Timestamptz(3)
+  token                 String   @unique @db.VarChar(255)
+  createdAt             DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt             DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  ipAddress             String?  @map("ip_address") @db.VarChar(64)
+  userAgent             String?  @map("user_agent") @db.Text
+  userId                String   @map("user_id") @db.Uuid
+  activeOrganizationId  String?  @map("active_organization_id") @db.Uuid
+  activeMembershipId    String?  @map("active_membership_id") @db.Uuid
+  activeSupportAccessId String?  @map("active_support_access_id") @db.Uuid
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model Account {
+  id                    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  accountId             String    @map("account_id") @db.VarChar(255)
+  providerId            String    @map("provider_id") @db.VarChar(100)
+  issuer                String    @db.VarChar(255)
+  userId                String    @map("user_id") @db.Uuid
+  accessToken           String?   @map("access_token") @db.Text
+  refreshToken          String?   @map("refresh_token") @db.Text
+  idToken               String?   @map("id_token") @db.Text
+  accessTokenExpiresAt  DateTime? @map("access_token_expires_at") @db.Timestamptz(3)
+  refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at") @db.Timestamptz(3)
+  scope                 String?   @db.Text
+  password              String?   @db.Text
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt             DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([issuer, accountId])
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Verification {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  identifier String   @db.VarChar(320)
+  value      String   @db.Text
+  expiresAt  DateTime @map("expires_at") @db.Timestamptz(3)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@index([identifier])
+  @@map("verifications")
+}
+
+model RateLimit {
+  id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  key         String @unique @db.VarChar(255)
+  count       Int
+  lastRequest BigInt @map("last_request")
+
+  @@map("rate_limits")
+}
+
+model Organization {
+  id               String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  slug             String             @unique @db.VarChar(80)
+  nameEn           String             @map("name_en") @db.VarChar(160)
+  nameAr           String             @map("name_ar") @db.VarChar(160)
+  status           OrganizationStatus @default(PENDING)
+  createdByUserId  String             @map("created_by_user_id") @db.Uuid
+  suspendedAt      DateTime?          @map("suspended_at") @db.Timestamptz(3)
+  suspensionReason String?            @map("suspension_reason") @db.VarChar(500)
+  createdAt        DateTime           @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime           @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  createdBy                   User                          @relation("OrganizationCreator", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  settings                    OrganizationSettings?
+  branches                    Branch[]
+  memberships                 OrganizationMembership[]
+  roles                       Role[]
+  rolePermissions             RolePermission[]
+  membershipRoles             MembershipRole[]
+  staffProfiles               StaffProfile[]
+  staffBranches               StaffBranchAssignment[]
+  services                    Service[]
+  serviceBranches             ServiceBranch[]
+  staffServices               StaffService[]
+  availabilityRules           AvailabilityRule[]
+  timeOffEntries              TimeOff[]
+  customers                   Customer[]
+  customerContacts            CustomerContact[]
+  consents                    Consent[]
+  appointments                Appointment[]
+  reservations                AppointmentStaffReservation[]
+  branchHoursRules            BranchHoursRule[]
+  resourceGroups              ResourceGroup[]
+  resources                   Resource[]
+  resourceAvailability        ResourceAvailabilityRule[]
+  serviceResourceNeeds        ServiceResourceRequirement[]
+  appointmentResources        AppointmentResource[]
+  waitlistEntries             WaitlistEntry[]
+  waitlistBranches            WaitlistEntryBranch[]
+  waitlistProviders           WaitlistEntryProvider[]
+  slotOffers                  SlotOffer[]
+  slotOfferAttempts           SlotOfferAttempt[]
+  appointmentRecords          AppointmentRecord[]
+  appointmentHistory          AppointmentStatusHistory[]
+  appointmentNotes            AppointmentNote[]
+  appointmentParticipants     AppointmentParticipant[]
+  appointmentIdempotencies    AppointmentIdempotency[]
+  invitations                 OrganizationInvitation[]
+  supportAccesses             PlatformSupportAccess[]
+  auditEvents                 AuditEvent[]
+  conversations               Conversation[]
+  messages                    Message[]
+  messageAttempts             MessageAttempt[]
+  messageTemplates            MessageTemplate[]
+  outboxEvents                OutboxEvent[]
+  inboxEvents                 InboxEvent[]
+  deliveryReceipts            DeliveryReceipt[]
+  communicationPreferences    CommunicationPreference[]
+  providerConnections         ProviderConnection[]
+  knowledgeSources            KnowledgeSource[]
+  knowledgeDocuments          KnowledgeDocument[]
+  knowledgeChunks             KnowledgeChunk[]
+  knowledgeVersions           KnowledgeVersion[]
+  aiConversations             AIConversation[]
+  aiMessages                  AIMessage[]
+  aiActions                   AIAction[]
+  aiActionApprovals           AIActionApproval[]
+  aiUsage                     AIUsage[]
+  humanHandoffs               HumanHandoff[]
+  promptConfigurations        PromptConfiguration[]
+  aiEvaluationCases           AIEvaluationCase[]
+  aiEvaluationRuns            AIEvaluationRun[]
+  websiteWidgetConfigurations WebsiteWidgetConfiguration[]
+  aiChannelSessions           AIChannelSession[]
+  aiChannelPendingActions     AIChannelPendingAction[]
+  calls                       Call[]
+  callEvents                  CallEvent[]
+  callRecordings              CallRecording[]
+  callTranscripts             CallTranscript[]
+  callSummaries               CallSummary[]
+  copilotInsights             CopilotInsight[]
+  copilotInsightSources       CopilotInsightSource[]
+  copilotFeedback             CopilotFeedback[]
+  analyticsSnapshots          AnalyticsSnapshot[]
+  predictiveSettings          PredictiveCapabilitySetting[]
+  predictiveJobs              PredictiveJob[]
+  predictiveDataAudits        PredictiveDataAudit[]
+  predictiveFeatureSnapshots  PredictiveFeatureSnapshot[]
+  predictiveModelVersions     PredictiveModelVersion[]
+  predictions                 Prediction[]
+  predictiveEvaluationRuns    PredictiveEvaluationRun[]
+  predictiveDriftRuns         PredictiveDriftRun[]
+  predictiveFeedback          PredictiveFeedback[]
+  operationalCalendarEvents   OperationalCalendarEvent[]
+
+  @@map("organizations")
+}
+
+model OrganizationSettings {
+  id                String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId    String          @unique @map("organization_id") @db.Uuid
+  defaultLocale     SupportedLocale @default(en) @map("default_locale")
+  timezone          String          @default("Asia/Amman") @db.VarChar(100)
+  currency          String          @default("JOD") @db.Char(3)
+  bookingWindowDays Int             @default(60) @map("booking_window_days")
+  createdAt         DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime        @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, id])
+  @@map("organization_settings")
+}
+
+model Branch {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String   @map("organization_id") @db.Uuid
+  nameEn         String   @map("name_en") @db.VarChar(160)
+  nameAr         String   @map("name_ar") @db.VarChar(160)
+  timezone       String   @default("Asia/Amman") @db.VarChar(100)
+  phone          String?  @db.VarChar(40)
+  addressEn      String?  @map("address_en") @db.VarChar(500)
+  addressAr      String?  @map("address_ar") @db.VarChar(500)
+  isActive       Boolean  @default(true) @map("is_active")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization       Organization                 @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  staffAssignments   StaffBranchAssignment[]
+  serviceBranches    ServiceBranch[]
+  availabilityRules  AvailabilityRule[]
+  timeOffEntries     TimeOff[]
+  appointments       Appointment[]
+  hoursRules         BranchHoursRule[]
+  resourceGroups     ResourceGroup[]
+  resources          Resource[]
+  resourceNeeds      ServiceResourceRequirement[]
+  waitlistEntries    WaitlistEntryBranch[]
+  slotOffers         SlotOffer[]
+  analyticsSnapshots AnalyticsSnapshot[]
+
+  @@unique([organizationId, id])
+  @@index([organizationId, isActive])
+  @@map("branches")
+}
+
+model OrganizationMembership {
+  id             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String           @map("organization_id") @db.Uuid
+  userId         String           @map("user_id") @db.Uuid
+  status         MembershipStatus @default(ACTIVE)
+  joinedAt       DateTime         @default(now()) @map("joined_at") @db.Timestamptz(3)
+  suspendedAt    DateTime?        @map("suspended_at") @db.Timestamptz(3)
+  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization       Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roles              MembershipRole[]
+  staffProfile       StaffProfile?
+  assignedAIHandoffs HumanHandoff[]
+  copilotInsights    CopilotInsight[]
+
+  @@unique([organizationId, userId])
+  @@unique([organizationId, id])
+  @@index([userId, status])
+  @@map("organization_memberships")
+}
+
+model Role {
+  id             String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String         @map("organization_id") @db.Uuid
+  key            String         @db.VarChar(80)
+  systemKey      TenantRoleKey? @map("system_key")
+  nameEn         String         @map("name_en") @db.VarChar(120)
+  nameAr         String         @map("name_ar") @db.VarChar(120)
+  isSystem       Boolean        @default(false) @map("is_system")
+  createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization Organization             @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  permissions  RolePermission[]
+  memberships  MembershipRole[]
+  invitations  OrganizationInvitation[]
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, key])
+  @@unique([organizationId, systemKey])
+  @@map("roles")
+}
+
+model Permission {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code        String   @unique @db.VarChar(120)
+  nameEn      String   @map("name_en") @db.VarChar(160)
+  nameAr      String   @map("name_ar") @db.VarChar(160)
+  description String?  @db.VarChar(500)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  roles RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  organizationId String          @map("organization_id") @db.Uuid
+  roleId         String          @map("role_id") @db.Uuid
+  permissionId   String          @map("permission_id") @db.Uuid
+  scope          PermissionScope @default(ORGANIZATION)
+  createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  role         Role         @relation(fields: [organizationId, roleId], references: [organizationId, id], onDelete: Cascade)
+  permission   Permission   @relation(fields: [permissionId], references: [id], onDelete: Restrict)
+
+  @@id([organizationId, roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model MembershipRole {
+  organizationId String   @map("organization_id") @db.Uuid
+  membershipId   String   @map("membership_id") @db.Uuid
+  roleId         String   @map("role_id") @db.Uuid
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  membership   OrganizationMembership @relation(fields: [organizationId, membershipId], references: [organizationId, id], onDelete: Cascade)
+  role         Role                   @relation(fields: [organizationId, roleId], references: [organizationId, id], onDelete: Cascade)
+
+  @@id([organizationId, membershipId, roleId])
+  @@map("membership_roles")
+}
+
+model StaffProfile {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String   @map("organization_id") @db.Uuid
+  membershipId   String   @unique @map("membership_id") @db.Uuid
+  displayNameEn  String   @map("display_name_en") @db.VarChar(160)
+  displayNameAr  String   @map("display_name_ar") @db.VarChar(160)
+  bioEn          String?  @map("bio_en") @db.Text
+  bioAr          String?  @map("bio_ar") @db.Text
+  isBookable     Boolean  @default(false) @map("is_bookable")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization            Organization                  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  membership              OrganizationMembership        @relation(fields: [organizationId, membershipId], references: [organizationId, id], onDelete: Cascade)
+  branchAssignments       StaffBranchAssignment[]
+  services                StaffService[]
+  availabilityRules       AvailabilityRule[]
+  timeOffEntries          TimeOff[]
+  providedAppointments    Appointment[]                 @relation("AppointmentProvider")
+  appointmentParticipants AppointmentParticipant[]      @relation("AppointmentParticipantStaff")
+  appointmentReservations AppointmentStaffReservation[]
+  linkedResources         Resource[]
+  waitlistEntries         WaitlistEntryProvider[]
+  slotOffers              SlotOffer[]
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, membershipId])
+  @@map("staff_profiles")
+}
+
+model StaffBranchAssignment {
+  organizationId String   @map("organization_id") @db.Uuid
+  staffProfileId String   @map("staff_profile_id") @db.Uuid
+  branchId       String   @map("branch_id") @db.Uuid
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  staffProfile StaffProfile @relation(fields: [organizationId, staffProfileId], references: [organizationId, id], onDelete: Cascade)
+  branch       Branch       @relation(fields: [organizationId, branchId], references: [organizationId, id], onDelete: Cascade)
+
+  @@id([organizationId, staffProfileId, branchId])
+  @@map("staff_branch_assignments")
+}
+
+model Service {
+  id                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId      String   @map("organization_id") @db.Uuid
+  nameEn              String   @map("name_en") @db.VarChar(160)
+  nameAr              String   @map("name_ar") @db.VarChar(160)
+  descriptionEn       String?  @map("description_en") @db.Text
+  descriptionAr       String?  @map("description_ar") @db.Text
+  defaultDurationMins Int      @map("default_duration_mins")
+  defaultPriceMinor   Int?     @map("default_price_minor")
+  currency            String   @default("JOD") @db.Char(3)
+  isActive            Boolean  @default(true) @map("is_active")
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt           DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization         Organization                 @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  branches             ServiceBranch[]
+  staffServices        StaffService[]
+  appointments         Appointment[]
+  resourceRequirements ServiceResourceRequirement[]
+  waitlistEntries      WaitlistEntry[]
+  slotOffers           SlotOffer[]
+
+  @@unique([organizationId, id])
+  @@index([organizationId, isActive])
+  @@map("services")
+}
+
+model ServiceBranch {
+  organizationId    String   @map("organization_id") @db.Uuid
+  serviceId         String   @map("service_id") @db.Uuid
+  branchId          String   @map("branch_id") @db.Uuid
+  isEnabled         Boolean  @default(true) @map("is_enabled")
+  priceMinor        Int?     @map("price_minor")
+  durationMins      Int?     @map("duration_mins")
+  bufferBeforeMins  Int      @default(0) @map("buffer_before_mins")
+  bufferAfterMins   Int      @default(0) @map("buffer_after_mins")
+  bookingWindowDays Int?     @map("booking_window_days")
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization         Organization                 @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  service              Service                      @relation(fields: [organizationId, serviceId], references: [organizationId, id], onDelete: Cascade)
+  branch               Branch                       @relation(fields: [organizationId, branchId], references: [organizationId, id], onDelete: Cascade)
+  resourceRequirements ServiceResourceRequirement[]
+
+  @@id([organizationId, serviceId, branchId])
+  @@map("service_branches")
+}
+
+model StaffService {
+  organizationId String   @map("organization_id") @db.Uuid
+  staffProfileId String   @map("staff_profile_id") @db.Uuid
+  serviceId      String   @map("service_id") @db.Uuid
+  isEnabled      Boolean  @default(true) @map("is_enabled")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  staffProfile StaffProfile @relation(fields: [organizationId, staffProfileId], references: [organizationId, id], onDelete: Cascade)
+  service      Service      @relation(fields: [organizationId, serviceId], references: [organizationId, id], onDelete: Cascade)
+
+  @@id([organizationId, staffProfileId, serviceId])
+  @@map("staff_services")
+}
+
+model AvailabilityRule {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId   String    @map("organization_id") @db.Uuid
+  staffProfileId   String    @map("staff_profile_id") @db.Uuid
+  branchId         String?   @map("branch_id") @db.Uuid
+  weekday          Weekday
+  startMinuteLocal Int       @map("start_minute_local")
+  endMinuteLocal   Int       @map("end_minute_local")
+  effectiveFrom    DateTime? @map("effective_from") @db.Date
+  effectiveUntil   DateTime? @map("effective_until") @db.Date
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  staffProfile StaffProfile @relation(fields: [organizationId, staffProfileId], references: [organizationId, id], onDelete: Cascade)
+  branch       Branch?      @relation(fields: [organizationId, branchId], references: [organizationId, id], onDelete: Cascade)
+
+  @@unique([organizationId, id])
+  @@index([organizationId, staffProfileId, weekday])
+  @@map("availability_rules")
+}
+
+model TimeOff {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String   @map("organization_id") @db.Uuid
+  staffProfileId String   @map("staff_profile_id") @db.Uuid
+  branchId       String?  @map("branch_id") @db.Uuid
+  startsAt       DateTime @map("starts_at") @db.Timestamptz(3)
+  endsAt         DateTime @map("ends_at") @db.Timestamptz(3)
+  reason         String?  @db.VarChar(500)
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  staffProfile StaffProfile @relation(fields: [organizationId, staffProfileId], references: [organizationId, id], onDelete: Cascade)
+  branch       Branch?      @relation(fields: [organizationId, branchId], references: [organizationId, id], onDelete: Cascade)
+
+  @@unique([organizationId, id])
+  @@index([organizationId, staffProfileId, startsAt])
+  @@map("time_off")
+}
+
+model BranchHoursRule {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId   String    @map("organization_id") @db.Uuid
+  branchId         String    @map("branch_id") @db.Uuid
+  weekday          Weekday
+  startMinuteLocal Int       @map("start_minute_local")
+  endMinuteLocal   Int       @map("end_minute_local")
+  effectiveFrom    DateTime? @map("effective_from") @db.Date
+  effectiveUntil   DateTime? @map("effective_until") @db.Date
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  branch       Branch       @relation(fields: [organizationId, branchId], references: [organizationId, id], onDelete: Cascade)
+
+  @@unique([organizationId, id])
+  @@index([organizationId, branchId, weekday])
+  @@map("branch_hours_rules")
+}
+
+model ResourceGroup {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String       @map("organization_id") @db.Uuid
+  branchId       String       @map("branch_id") @db.Uuid
+  nameEn         String       @map("name_en") @db.VarChar(160)
+  nameAr         String       @map("name_ar") @db.VarChar(160)
+  kind           ResourceKind
+  isActive       Boolean      @default(true) @map("is_active")
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization Organization                 @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  branch       Branch                       @relation(fields: [organizationId, branchId], references: [organizationId, id], onDelete: Restrict)
+  resources    Resource[]
+  requirements ServiceResourceRequirement[]
+  reservations AppointmentResource[]
+
+  @@unique([organizationId, id])
+  @@index([organizationId, branchId, isActive])
+  @@map("resource_groups")
+}
+
+model Resource {
+  id             String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String         @map("organization_id") @db.Uuid
+  groupId        String         @map("group_id") @db.Uuid
+  branchId       String         @map("branch_id") @db.Uuid
+  staffProfileId String?        @map("staff_profile_id") @db.Uuid
+  nameEn         String         @map("name_en") @db.VarChar(160)
+  nameAr         String         @map("name_ar") @db.VarChar(160)
+  status         ResourceStatus @default(ACTIVE)
+  createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization      Organization               @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  group             ResourceGroup              @relation(fields: [organizationId, groupId], references: [organizationId, id], onDelete: Restrict)
+  branch            Branch                     @relation(fields: [organizationId, branchId], references: [organizationId, id], onDelete: Restrict)
+  staffProfile      StaffProfile?              @relation(fields: [organizationId, staffProfileId], references: [organizationId, id], onDelete: Restrict)
+  availabilityRules ResourceAvailabilityRule[]
+  reservations      AppointmentResource[]
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, staffProfileId])
+  @@index([organizationId, groupId, status])
+  @@index([organizationId, branchId, status])
+  @@map("resources")
+}
+
+model ResourceAvailabilityRule {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId   String    @map("organization_id") @db.Uuid
+  resourceId       String    @map("resource_id") @db.Uuid
+  weekday          Weekday
+  startMinuteLocal Int       @map("start_minute_local")
+  endMinuteLocal   Int       @map("end_minute_local")
+  effectiveFrom    DateTime? @map("effective_from") @db.Date
+  effectiveUntil   DateTime? @map("effective_until") @db.Date
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  resource     Resource     @relation(fields: [organizationId, resourceId], references: [organizationId, id], onDelete: Cascade)
+
+  @@unique([organizationId, id])
+  @@index([organizationId, resourceId, weekday])
+  @@map("resource_availability_rules")
+}
+
+model ServiceResourceRequirement {
+  organizationId  String   @map("organization_id") @db.Uuid
+  serviceId       String   @map("service_id") @db.Uuid
+  branchId        String   @map("branch_id") @db.Uuid
+  resourceGroupId String   @map("resource_group_id") @db.Uuid
+  quantity        Int      @default(1)
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization  Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  service       Service       @relation(fields: [organizationId, serviceId], references: [organizationId, id], onDelete: Cascade)
+  serviceBranch ServiceBranch @relation(fields: [organizationId, serviceId, branchId], references: [organizationId, serviceId, branchId], onDelete: Cascade)
+  branch        Branch        @relation(fields: [organizationId, branchId], references: [organizationId, id], onDelete: Cascade)
+  resourceGroup ResourceGroup @relation(fields: [organizationId, resourceGroupId], references: [organizationId, id], onDelete: Restrict)
+
+  @@id([organizationId, serviceId, branchId, resourceGroupId])
+  @@index([organizationId, branchId, resourceGroupId])
+  @@map("service_resource_requirements")
+}
+
+model Customer {
+  id              String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId  String          @map("organization_id") @db.Uuid
+  displayName     String          @map("display_name") @db.VarChar(160)
+  preferredLocale SupportedLocale @default(en) @map("preferred_locale")
+  isArchived      Boolean         @default(false) @map("is_archived")
+  version         Int             @default(1)
+  createdAt       DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime        @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization             Organization              @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  contacts                 CustomerContact[]
+  consents                 Consent[]
+  appointments             Appointment[]
+  appointmentParticipants  AppointmentParticipant[]  @relation("AppointmentParticipantCustomer")
+  waitlistEntries          WaitlistEntry[]
+  conversations            Conversation[]
+  communicationPreferences CommunicationPreference[]
+  messages                 Message[]
+  aiConversations          AIConversation[]
+  aiActionApprovals        AIActionApproval[]
+  humanHandoffs            HumanHandoff[]
+  aiChannelSessions        AIChannelSession[]
+  calls                    Call[]
+
+  @@unique([organizationId, id])
+  @@index([organizationId, displayName])
+  @@map("customers")
+}
+
+model CustomerContact {
+  id                  String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId      String              @map("organization_id") @db.Uuid
+  customerId          String              @map("customer_id") @db.Uuid
+  kind                CustomerContactKind @default(PHONE)
+  originalValue       String              @map("original_value") @db.VarChar(320)
+  normalizedPhoneE164 String?             @map("normalized_phone_e164") @db.VarChar(16)
+  label               String?             @db.VarChar(80)
+  isPrimary           Boolean             @default(false) @map("is_primary")
+  createdAt           DateTime            @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt           DateTime            @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customer     Customer     @relation(fields: [organizationId, customerId], references: [organizationId, id], onDelete: Cascade)
+
+  @@unique([organizationId, id])
+  @@index([organizationId, normalizedPhoneE164])
+  @@index([organizationId, customerId, isPrimary])
+  @@map("customer_contacts")
+}
+
+model Consent {
+  id               String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId   String         @map("organization_id") @db.Uuid
+  customerId       String         @map("customer_id") @db.Uuid
+  purpose          String         @db.VarChar(120)
+  channel          ConsentChannel
+  textVersion      String         @map("text_version") @db.VarChar(120)
+  status           ConsentStatus
+  source           ConsentSource
+  evidence         String?        @db.Text
+  actorUserId      String?        @map("actor_user_id") @db.Uuid
+  recordedAt       DateTime       @default(now()) @map("recorded_at") @db.Timestamptz(3)
+  revokesConsentId String?        @map("revokes_consent_id") @db.Uuid
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customer     Customer     @relation(fields: [organizationId, customerId], references: [organizationId, id], onDelete: Restrict)
+  actor        User?        @relation("ConsentActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  revokes      Consent?     @relation("ConsentRevocation", fields: [organizationId, revokesConsentId], references: [organizationId, id], onDelete: Restrict)
+  revocations  Consent[]    @relation("ConsentRevocation")
+
+  @@unique([organizationId, id])
+  @@index([organizationId, customerId, purpose, channel, recordedAt])
+  @@map("consents")
+}
+
+model Appointment {
+  id             String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String            @map("organization_id") @db.Uuid
+  customerId     String            @map("customer_id") @db.Uuid
+  branchId       String            @map("branch_id") @db.Uuid
+  serviceId      String            @map("service_id") @db.Uuid
+  providerId     String            @map("provider_id") @db.Uuid
+  status         AppointmentStatus @default(PENDING)
+  source         AppointmentSource @default(STAFF)
+  sourceDetail   String?           @map("source_detail") @db.VarChar(200)
+  startsAt       DateTime          @map("starts_at") @db.Timestamptz(3)
+  endsAt         DateTime          @map("ends_at") @db.Timestamptz(3)
+  timezone       String            @db.VarChar(100)
+  version        Int               @default(1)
+  cancelledAt    DateTime?         @map("cancelled_at") @db.Timestamptz(3)
+  createdAt      DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization         Organization                 @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customer             Customer                     @relation(fields: [organizationId, customerId], references: [organizationId, id], onDelete: Restrict)
+  branch               Branch                       @relation(fields: [organizationId, branchId], references: [organizationId, id], onDelete: Restrict)
+  service              Service                      @relation(fields: [organizationId, serviceId], references: [organizationId, id], onDelete: Restrict)
+  provider             StaffProfile                 @relation("AppointmentProvider", fields: [organizationId, providerId], references: [organizationId, id], onDelete: Restrict)
+  reservation          AppointmentStaffReservation?
+  record               AppointmentRecord?
+  history              AppointmentStatusHistory[]
+  notes                AppointmentNote[]
+  participants         AppointmentParticipant[]
+  resourceReservations AppointmentResource[]
+  waitlistEntry        WaitlistEntry?
+  slotOffers           SlotOffer[]                  @relation("SlotOfferTargetAppointment")
+  acceptedSlotOffers   SlotOffer[]                  @relation("SlotOfferAcceptedAppointment")
+  conversations        Conversation[]
+  messages             Message[]
+  aiConversations      AIConversation[]
+  callSummaries        CallSummary[]
+
+  @@unique([organizationId, id])
+  @@index([organizationId, branchId, startsAt])
+  @@index([organizationId, providerId, startsAt])
+  @@index([organizationId, customerId, startsAt])
+  @@map("appointments")
+}
+
+model AppointmentStaffReservation {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String   @map("organization_id") @db.Uuid
+  appointmentId  String   @unique @map("appointment_id") @db.Uuid
+  providerId     String   @map("provider_id") @db.Uuid
+  startsAt       DateTime @map("starts_at") @db.Timestamptz(3)
+  endsAt         DateTime @map("ends_at") @db.Timestamptz(3)
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  appointment  Appointment  @relation(fields: [organizationId, appointmentId], references: [organizationId, id], onDelete: Cascade)
+  provider     StaffProfile @relation(fields: [organizationId, providerId], references: [organizationId, id], onDelete: Restrict)
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, appointmentId])
+  @@index([organizationId, providerId, startsAt])
+  @@map("appointment_staff_reservations")
+}
+
+model AppointmentResource {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId  String   @map("organization_id") @db.Uuid
+  appointmentId   String   @map("appointment_id") @db.Uuid
+  resourceId      String   @map("resource_id") @db.Uuid
+  resourceGroupId String   @map("resource_group_id") @db.Uuid
+  startsAt        DateTime @map("starts_at") @db.Timestamptz(3)
+  endsAt          DateTime @map("ends_at") @db.Timestamptz(3)
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization  Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  appointment   Appointment   @relation(fields: [organizationId, appointmentId], references: [organizationId, id], onDelete: Cascade)
+  resource      Resource      @relation(fields: [organizationId, resourceId], references: [organizationId, id], onDelete: Restrict)
+  resourceGroup ResourceGroup @relation(fields: [organizationId, resourceGroupId], references: [organizationId, id], onDelete: Restrict)
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, appointmentId, resourceId])
+  @@index([organizationId, resourceId, startsAt])
+  @@index([organizationId, appointmentId])
+  @@map("appointment_resources")
+}
+
+model WaitlistEntry {
+  id                   String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId       String         @map("organization_id") @db.Uuid
+  customerId           String         @map("customer_id") @db.Uuid
+  serviceId            String         @map("service_id") @db.Uuid
+  appointmentId        String?        @map("appointment_id") @db.Uuid
+  preferredStartDate   DateTime       @map("preferred_start_date") @db.Date
+  preferredEndDate     DateTime       @map("preferred_end_date") @db.Date
+  preferredStartMinute Int            @default(0) @map("preferred_start_minute")
+  preferredEndMinute   Int            @default(1440) @map("preferred_end_minute")
+  priority             Int            @default(0)
+  notes                String?        @db.VarChar(500)
+  status               WaitlistStatus @default(ACTIVE)
+  version              Int            @default(1)
+  createdAt            DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt            DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization Organization            @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customer     Customer                @relation(fields: [organizationId, customerId], references: [organizationId, id], onDelete: Restrict)
+  service      Service                 @relation(fields: [organizationId, serviceId], references: [organizationId, id], onDelete: Restrict)
+  appointment  Appointment?            @relation(fields: [organizationId, appointmentId], references: [organizationId, id], onDelete: Restrict)
+  branches     WaitlistEntryBranch[]
+  providers    WaitlistEntryProvider[]
+  offers       SlotOffer[]
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, appointmentId])
+  @@index([organizationId, status, priority, createdAt])
+  @@index([organizationId, customerId])
+  @@map("waitlist_entries")
+}
+
+model WaitlistEntryBranch {
+  organizationId  String   @map("organization_id") @db.Uuid
+  waitlistEntryId String   @map("waitlist_entry_id") @db.Uuid
+  branchId        String   @map("branch_id") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization  Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  waitlistEntry WaitlistEntry @relation(fields: [organizationId, waitlistEntryId], references: [organizationId, id], onDelete: Cascade)
+  branch        Branch        @relation(fields: [organizationId, branchId], references: [organizationId, id], onDelete: Restrict)
+
+  @@id([organizationId, waitlistEntryId, branchId])
+  @@map("waitlist_entry_branches")
+}
+
+model WaitlistEntryProvider {
+  organizationId  String   @map("organization_id") @db.Uuid
+  waitlistEntryId String   @map("waitlist_entry_id") @db.Uuid
+  providerId      String   @map("provider_id") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization  Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  waitlistEntry WaitlistEntry @relation(fields: [organizationId, waitlistEntryId], references: [organizationId, id], onDelete: Cascade)
+  provider      StaffProfile  @relation(fields: [organizationId, providerId], references: [organizationId, id], onDelete: Restrict)
+
+  @@id([organizationId, waitlistEntryId, providerId])
+  @@map("waitlist_entry_providers")
+}
+
+model SlotOffer {
+  id                       String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId           String          @map("organization_id") @db.Uuid
+  waitlistEntryId          String          @map("waitlist_entry_id") @db.Uuid
+  targetAppointmentId      String?         @map("target_appointment_id") @db.Uuid
+  targetAppointmentVersion Int?            @map("target_appointment_version")
+  branchId                 String          @map("branch_id") @db.Uuid
+  serviceId                String          @map("service_id") @db.Uuid
+  providerId               String          @map("provider_id") @db.Uuid
+  startsAt                 DateTime        @map("starts_at") @db.Timestamptz(3)
+  endsAt                   DateTime        @map("ends_at") @db.Timestamptz(3)
+  timezone                 String          @db.VarChar(100)
+  expiresAt                DateTime        @map("expires_at") @db.Timestamptz(3)
+  status                   SlotOfferStatus @default(PENDING)
+  acceptedRequestKey       String?         @map("accepted_request_key") @db.Uuid
+  acceptedFingerprint      String?         @map("accepted_fingerprint") @db.Char(64)
+  acceptedAppointmentId    String?         @map("accepted_appointment_id") @db.Uuid
+  acceptedAt               DateTime?       @map("accepted_at") @db.Timestamptz(3)
+  declinedAt               DateTime?       @map("declined_at") @db.Timestamptz(3)
+  version                  Int             @default(1)
+  createdAt                DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt                DateTime        @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization        Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  waitlistEntry       WaitlistEntry      @relation(fields: [organizationId, waitlistEntryId], references: [organizationId, id], onDelete: Restrict)
+  targetAppointment   Appointment?       @relation("SlotOfferTargetAppointment", fields: [organizationId, targetAppointmentId], references: [organizationId, id], onDelete: Restrict)
+  acceptedAppointment Appointment?       @relation("SlotOfferAcceptedAppointment", fields: [organizationId, acceptedAppointmentId], references: [organizationId, id], onDelete: Restrict)
+  branch              Branch             @relation(fields: [organizationId, branchId], references: [organizationId, id], onDelete: Restrict)
+  service             Service            @relation(fields: [organizationId, serviceId], references: [organizationId, id], onDelete: Restrict)
+  provider            StaffProfile       @relation(fields: [organizationId, providerId], references: [organizationId, id], onDelete: Restrict)
+  attempts            SlotOfferAttempt[]
+
+  @@unique([organizationId, id])
+  @@index([organizationId, status, expiresAt])
+  @@index([organizationId, waitlistEntryId, createdAt])
+  @@map("slot_offers")
+}
+
+model SlotOfferAttempt {
+  id                 String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId     String                 @map("organization_id") @db.Uuid
+  slotOfferId        String                 @map("slot_offer_id") @db.Uuid
+  attemptType        SlotOfferAttemptType   @map("attempt_type")
+  result             SlotOfferAttemptResult
+  requestKey         String?                @map("request_key") @db.Uuid
+  requestFingerprint String?                @map("request_fingerprint") @db.Char(64)
+  reason             String?                @db.VarChar(500)
+  actorUserId        String?                @map("actor_user_id") @db.Uuid
+  createdAt          DateTime               @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  slotOffer    SlotOffer    @relation(fields: [organizationId, slotOfferId], references: [organizationId, id], onDelete: Restrict)
+  actor        User?        @relation("SlotOfferAttemptActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, slotOfferId, attemptType, requestKey])
+  @@index([organizationId, slotOfferId, createdAt])
+  @@map("slot_offer_attempts")
+}
+
+model AppointmentRecord {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId   String   @map("organization_id") @db.Uuid
+  appointmentId    String   @unique @map("appointment_id") @db.Uuid
+  summary          String   @db.Text
+  details          String?  @db.Text
+  authoredByUserId String   @map("authored_by_user_id") @db.Uuid
+  completedAt      DateTime @default(now()) @map("completed_at") @db.Timestamptz(3)
+  version          Int      @default(1)
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  appointment  Appointment  @relation(fields: [organizationId, appointmentId], references: [organizationId, id], onDelete: Restrict)
+  author       User         @relation("AppointmentRecordAuthor", fields: [authoredByUserId], references: [id], onDelete: Restrict)
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, appointmentId])
+  @@map("appointment_records")
+}
+
+model AppointmentStatusHistory {
+  id                          String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId              String                 @map("organization_id") @db.Uuid
+  appointmentId               String                 @map("appointment_id") @db.Uuid
+  eventType                   AppointmentHistoryType @map("event_type")
+  fromStatus                  AppointmentStatus?     @map("from_status")
+  toStatus                    AppointmentStatus      @map("to_status")
+  startsAt                    DateTime               @map("starts_at") @db.Timestamptz(3)
+  endsAt                      DateTime               @map("ends_at") @db.Timestamptz(3)
+  version                     Int
+  source                      AppointmentSource
+  branchSnapshotId            String?                @map("branch_snapshot_id") @db.Uuid
+  serviceSnapshotId           String?                @map("service_snapshot_id") @db.Uuid
+  providerSnapshotId          String?                @map("provider_snapshot_id") @db.Uuid
+  customerSnapshotId          String?                @map("customer_snapshot_id") @db.Uuid
+  timezoneSnapshot            String?                @map("timezone_snapshot") @db.VarChar(100)
+  dimensionSnapshotVerifiedAt DateTime?              @map("dimension_snapshot_verified_at") @db.Timestamptz(3)
+  reason                      String?                @db.VarChar(500)
+  actorUserId                 String?                @map("actor_user_id") @db.Uuid
+  createdAt                   DateTime               @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  appointment  Appointment  @relation(fields: [organizationId, appointmentId], references: [organizationId, id], onDelete: Restrict)
+  actor        User?        @relation("AppointmentStatusActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@unique([organizationId, id])
+  @@index([organizationId, appointmentId, createdAt])
+  @@index([organizationId, eventType, createdAt, id])
+  @@map("appointment_status_history")
+}
+
+model AppointmentNote {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String   @map("organization_id") @db.Uuid
+  appointmentId  String   @map("appointment_id") @db.Uuid
+  body           String   @db.Text
+  authorUserId   String   @map("author_user_id") @db.Uuid
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  appointment  Appointment  @relation(fields: [organizationId, appointmentId], references: [organizationId, id], onDelete: Restrict)
+  author       User         @relation("AppointmentNoteAuthor", fields: [authorUserId], references: [id], onDelete: Restrict)
+
+  @@unique([organizationId, id])
+  @@index([organizationId, appointmentId, createdAt])
+  @@map("appointment_notes")
+}
+
+model AppointmentParticipant {
+  id              String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId  String                     @map("organization_id") @db.Uuid
+  appointmentId   String                     @map("appointment_id") @db.Uuid
+  participantType AppointmentParticipantType @map("participant_type")
+  customerId      String?                    @map("customer_id") @db.Uuid
+  staffProfileId  String?                    @map("staff_profile_id") @db.Uuid
+  createdAt       DateTime                   @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  appointment  Appointment   @relation(fields: [organizationId, appointmentId], references: [organizationId, id], onDelete: Cascade)
+  customer     Customer?     @relation("AppointmentParticipantCustomer", fields: [organizationId, customerId], references: [organizationId, id], onDelete: Restrict)
+  staffProfile StaffProfile? @relation("AppointmentParticipantStaff", fields: [organizationId, staffProfileId], references: [organizationId, id], onDelete: Restrict)
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, appointmentId, participantType, customerId, staffProfileId])
+  @@index([organizationId, customerId])
+  @@index([organizationId, staffProfileId])
+  @@map("appointment_participants")
+}
+
+/// Repeating a staff appointment mutation with the same request key is safe. A
+/// mismatched fingerprint is rejected instead of applying a different request.
+model AppointmentIdempotency {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId     String   @map("organization_id") @db.Uuid
+  operation          String   @db.VarChar(64)
+  requestKey         String   @map("request_key") @db.Uuid
+  requestFingerprint String   @map("request_fingerprint") @db.Char(64)
+  appointmentId      String   @map("appointment_id") @db.Uuid
+  expiresAt          DateTime @map("expires_at") @db.Timestamptz(3)
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, operation, requestKey])
+  @@index([organizationId, expiresAt])
+  @@map("appointment_idempotencies")
+}
+
+model Conversation {
+  id             String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String               @map("organization_id") @db.Uuid
+  customerId     String               @map("customer_id") @db.Uuid
+  appointmentId  String?              @map("appointment_id") @db.Uuid
+  channel        CommunicationChannel
+  status         ConversationStatus   @default(OPEN)
+  subject        String?              @db.VarChar(200)
+  lastMessageAt  DateTime?            @map("last_message_at") @db.Timestamptz(3)
+  version        Int                  @default(1)
+  createdAt      DateTime             @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime             @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customer     Customer     @relation(fields: [organizationId, customerId], references: [organizationId, id], onDelete: Restrict)
+  appointment  Appointment? @relation(fields: [organizationId, appointmentId], references: [organizationId, id], onDelete: Restrict)
+  messages     Message[]
+
+  @@unique([organizationId, id])
+  @@index([organizationId, status, lastMessageAt])
+  @@index([organizationId, customerId, lastMessageAt])
+  @@index([organizationId, appointmentId, lastMessageAt])
+  @@map("conversations")
+}
+
+model MessageTemplate {
+  id             String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String               @map("organization_id") @db.Uuid
+  key            String               @db.VarChar(80)
+  channel        CommunicationChannel
+  locale         SupportedLocale
+  body           String               @db.Text
+  version        Int                  @default(1)
+  isActive       Boolean              @default(true) @map("is_active")
+  createdAt      DateTime             @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime             @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  messages     Message[]
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, key, channel, locale, version])
+  @@index([organizationId, key, channel, locale, isActive])
+  @@map("message_templates")
+}
+
+model ProviderConnection {
+  id                     String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId         String                   @map("organization_id") @db.Uuid
+  name                   String                   @db.VarChar(120)
+  channel                CommunicationChannel
+  adapterKey             String                   @map("adapter_key") @db.VarChar(80)
+  providerAccountId      String?                  @map("provider_account_id") @db.VarChar(160)
+  webhookSecretReference String?                  @map("webhook_secret_reference") @db.VarChar(200)
+  status                 ProviderConnectionStatus @default(ACTIVE)
+  mockBehavior           MockProviderBehavior     @default(SUCCESS) @map("mock_behavior")
+  createdAt              DateTime                 @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt              DateTime                 @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization      Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  messages          Message[]
+  attempts          MessageAttempt[]
+  inboxEvents       InboxEvent[]
+  deliveryReceipts  DeliveryReceipt[]
+  aiChannelSessions AIChannelSession[]
+  calls             Call[]
+
+  @@unique([organizationId, id])
+  @@index([organizationId, channel, status])
+  @@map("provider_connections")
+}
+
+model CommunicationPreference {
+  id              String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId  String               @map("organization_id") @db.Uuid
+  customerId      String               @map("customer_id") @db.Uuid
+  channel         CommunicationChannel
+  isEnabled       Boolean              @default(false) @map("is_enabled")
+  changedByUserId String?              @map("changed_by_user_id") @db.Uuid
+  reason          String?              @db.VarChar(500)
+  version         Int                  @default(1)
+  createdAt       DateTime             @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime             @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customer     Customer     @relation(fields: [organizationId, customerId], references: [organizationId, id], onDelete: Restrict)
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, customerId, channel])
+  @@index([organizationId, customerId])
+  @@map("communication_preferences")
+}
+
+model Message {
+  id                   String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId       String               @map("organization_id") @db.Uuid
+  conversationId       String               @map("conversation_id") @db.Uuid
+  customerId           String               @map("customer_id") @db.Uuid
+  appointmentId        String?              @map("appointment_id") @db.Uuid
+  templateId           String?              @map("template_id") @db.Uuid
+  providerConnectionId String?              @map("provider_connection_id") @db.Uuid
+  createdByUserId      String?              @map("created_by_user_id") @db.Uuid
+  channel              CommunicationChannel
+  direction            MessageDirection
+  status               MessageStatus        @default(QUEUED)
+  locale               SupportedLocale
+  body                 String               @db.Text
+  consentPurpose       String?              @map("consent_purpose") @db.VarChar(120)
+  consentId            String?              @map("consent_id") @db.Uuid
+  providerMessageId    String?              @map("provider_message_id") @db.VarChar(200)
+  lastErrorCode        String?              @map("last_error_code") @db.VarChar(100)
+  lastErrorCategory    String?              @map("last_error_category") @db.VarChar(80)
+  sentAt               DateTime?            @map("sent_at") @db.Timestamptz(3)
+  deliveredAt          DateTime?            @map("delivered_at") @db.Timestamptz(3)
+  failedAt             DateTime?            @map("failed_at") @db.Timestamptz(3)
+  version              Int                  @default(1)
+  createdAt            DateTime             @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt            DateTime             @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization       Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  conversation       Conversation        @relation(fields: [organizationId, conversationId], references: [organizationId, id], onDelete: Restrict)
+  customer           Customer            @relation(fields: [organizationId, customerId], references: [organizationId, id], onDelete: Restrict)
+  appointment        Appointment?        @relation(fields: [organizationId, appointmentId], references: [organizationId, id], onDelete: Restrict)
+  template           MessageTemplate?    @relation(fields: [organizationId, templateId], references: [organizationId, id], onDelete: Restrict)
+  providerConnection ProviderConnection? @relation(fields: [organizationId, providerConnectionId], references: [organizationId, id], onDelete: Restrict)
+  createdBy          User?               @relation("MessageCreator", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  attempts           MessageAttempt[]
+  deliveryReceipts   DeliveryReceipt[]
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, providerConnectionId, providerMessageId])
+  @@index([organizationId, conversationId, createdAt])
+  @@index([organizationId, customerId, createdAt])
+  @@index([organizationId, appointmentId, createdAt])
+  @@index([organizationId, status, createdAt])
+  @@map("messages")
+}
+
+model MessageAttempt {
+  id                   String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId       String               @map("organization_id") @db.Uuid
+  messageId            String               @map("message_id") @db.Uuid
+  providerConnectionId String?              @map("provider_connection_id") @db.Uuid
+  attemptNumber        Int                  @map("attempt_number")
+  idempotencyKey       String               @map("idempotency_key") @db.VarChar(200)
+  status               MessageAttemptStatus
+  providerMessageId    String?              @map("provider_message_id") @db.VarChar(200)
+  errorCode            String?              @map("error_code") @db.VarChar(100)
+  errorCategory        String?              @map("error_category") @db.VarChar(80)
+  safeErrorMessage     String?              @map("safe_error_message") @db.VarChar(300)
+  startedAt            DateTime             @default(now()) @map("started_at") @db.Timestamptz(3)
+  finishedAt           DateTime?            @map("finished_at") @db.Timestamptz(3)
+  durationMs           Int?                 @map("duration_ms")
+  nextRetryAt          DateTime?            @map("next_retry_at") @db.Timestamptz(3)
+
+  organization       Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  message            Message             @relation(fields: [organizationId, messageId], references: [organizationId, id], onDelete: Restrict)
+  providerConnection ProviderConnection? @relation(fields: [organizationId, providerConnectionId], references: [organizationId, id], onDelete: Restrict)
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, messageId, attemptNumber])
+  @@unique([organizationId, idempotencyKey])
+  @@index([organizationId, messageId, startedAt])
+  @@map("message_attempts")
+}
+
+model OutboxEvent {
+  id                String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId    String            @map("organization_id") @db.Uuid
+  eventType         String            @map("event_type") @db.VarChar(100)
+  aggregateType     String            @map("aggregate_type") @db.VarChar(80)
+  aggregateId       String            @map("aggregate_id") @db.Uuid
+  aggregateVersion  Int               @map("aggregate_version")
+  deduplicationKey  String            @map("deduplication_key") @db.VarChar(220)
+  payload           Json
+  status            OutboxEventStatus @default(PENDING)
+  availableAt       DateTime          @default(now()) @map("available_at") @db.Timestamptz(3)
+  claimedAt         DateTime?         @map("claimed_at") @db.Timestamptz(3)
+  claimedBy         String?           @map("claimed_by") @db.VarChar(120)
+  enqueuedAt        DateTime?         @map("enqueued_at") @db.Timestamptz(3)
+  processedAt       DateTime?         @map("processed_at") @db.Timestamptz(3)
+  deadLetterAt      DateTime?         @map("dead_letter_at") @db.Timestamptz(3)
+  deliveryAttempts  Int               @default(0) @map("delivery_attempts")
+  lastErrorCode     String?           @map("last_error_code") @db.VarChar(100)
+  lastErrorCategory String?           @map("last_error_category") @db.VarChar(80)
+  createdAt         DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, deduplicationKey])
+  @@index([status, availableAt, createdAt])
+  @@index([organizationId, aggregateType, aggregateId])
+  @@map("outbox_events")
+}
+
+model InboxEvent {
+  id                   String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId       String           @map("organization_id") @db.Uuid
+  providerConnectionId String           @map("provider_connection_id") @db.Uuid
+  providerEventId      String           @map("provider_event_id") @db.VarChar(200)
+  eventType            String           @map("event_type") @db.VarChar(100)
+  payloadDigest        String           @map("payload_digest") @db.Char(64)
+  payload              Json
+  status               InboxEventStatus @default(RECEIVED)
+  receivedAt           DateTime         @default(now()) @map("received_at") @db.Timestamptz(3)
+  processedAt          DateTime?        @map("processed_at") @db.Timestamptz(3)
+  errorCode            String?          @map("error_code") @db.VarChar(100)
+
+  organization       Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  providerConnection ProviderConnection @relation(fields: [organizationId, providerConnectionId], references: [organizationId, id], onDelete: Restrict)
+  deliveryReceipts   DeliveryReceipt[]
+
+  @@unique([organizationId, id])
+  @@unique([providerConnectionId, providerEventId])
+  @@index([organizationId, status, receivedAt])
+  @@map("inbox_events")
+}
+
+model DeliveryReceipt {
+  id                   String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId       String        @map("organization_id") @db.Uuid
+  messageId            String        @map("message_id") @db.Uuid
+  providerConnectionId String        @map("provider_connection_id") @db.Uuid
+  inboxEventId         String?       @map("inbox_event_id") @db.Uuid
+  providerMessageId    String        @map("provider_message_id") @db.VarChar(200)
+  state                DeliveryState
+  providerTimestamp    DateTime      @map("provider_timestamp") @db.Timestamptz(3)
+  normalizedErrorCode  String?       @map("normalized_error_code") @db.VarChar(100)
+  receivedAt           DateTime      @default(now()) @map("received_at") @db.Timestamptz(3)
+
+  organization       Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  message            Message            @relation(fields: [organizationId, messageId], references: [organizationId, id], onDelete: Restrict)
+  providerConnection ProviderConnection @relation(fields: [organizationId, providerConnectionId], references: [organizationId, id], onDelete: Restrict)
+  inboxEvent         InboxEvent?        @relation(fields: [organizationId, inboxEventId], references: [organizationId, id], onDelete: Restrict)
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, inboxEventId])
+  @@index([organizationId, messageId, providerTimestamp])
+  @@map("delivery_receipts")
+}
+
+model WorkerHeartbeat {
+  workerId           String    @id @map("worker_id") @db.VarChar(120)
+  queueName          String    @map("queue_name") @db.VarChar(120)
+  status             String    @db.VarChar(40)
+  lastSeenAt         DateTime  @map("last_seen_at") @db.Timestamptz(3)
+  processedCount     Int       @default(0) @map("processed_count")
+  failedCount        Int       @default(0) @map("failed_count")
+  lastProcessedAt    DateTime? @map("last_processed_at") @db.Timestamptz(3)
+  applicationVersion String    @map("application_version") @db.VarChar(80)
+  startedAt          DateTime  @default(now()) @map("started_at") @db.Timestamptz(3)
+  updatedAt          DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@index([queueName, lastSeenAt])
+  @@map("worker_heartbeats")
+}
+
+model KnowledgeSource {
+  id               String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId   String                   @map("organization_id") @db.Uuid
+  name             String                   @db.VarChar(180)
+  sourceType       KnowledgeSourceType      @map("source_type")
+  originalFilename String?                  @map("original_filename") @db.VarChar(255)
+  ingestionStatus  KnowledgeIngestionStatus @default(DRAFT) @map("ingestion_status")
+  activeVersionId  String?                  @map("active_version_id") @db.Uuid
+  createdAt        DateTime                 @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime                 @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization  Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  activeVersion KnowledgeVersion?   @relation("KnowledgeSourceActiveVersion", fields: [organizationId, activeVersionId], references: [organizationId, id], onDelete: Restrict)
+  versions      KnowledgeVersion[]  @relation("KnowledgeSourceVersions")
+  documents     KnowledgeDocument[]
+  chunks        KnowledgeChunk[]
+
+  @@unique([organizationId, id])
+  @@index([organizationId, ingestionStatus, updatedAt])
+  @@map("knowledge_sources")
+}
+
+model KnowledgeVersion {
+  id              String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId  String                 @map("organization_id") @db.Uuid
+  sourceId        String                 @map("source_id") @db.Uuid
+  versionNumber   Int                    @map("version_number")
+  status          KnowledgeVersionStatus @default(DRAFT)
+  checksum        String                 @db.Char(64)
+  createdByUserId String?                @map("created_by_user_id") @db.Uuid
+  activatedAt     DateTime?              @map("activated_at") @db.Timestamptz(3)
+  rolledBackAt    DateTime?              @map("rolled_back_at") @db.Timestamptz(3)
+  createdAt       DateTime               @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization     Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  source           KnowledgeSource     @relation("KnowledgeSourceVersions", fields: [organizationId, sourceId], references: [organizationId, id], onDelete: Cascade)
+  activeForSources KnowledgeSource[]   @relation("KnowledgeSourceActiveVersion")
+  createdBy        User?               @relation("KnowledgeVersionCreator", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  documents        KnowledgeDocument[]
+  chunks           KnowledgeChunk[]
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, sourceId, versionNumber])
+  @@index([organizationId, status, activatedAt])
+  @@map("knowledge_versions")
+}
+
+model KnowledgeDocument {
+  id             String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String            @map("organization_id") @db.Uuid
+  sourceId       String            @map("source_id") @db.Uuid
+  versionId      String            @map("version_id") @db.Uuid
+  title          String            @db.VarChar(220)
+  language       KnowledgeLanguage @default(mixed)
+  checksum       String            @db.Char(64)
+  content        String            @db.Text
+  createdAt      DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  source       KnowledgeSource  @relation(fields: [organizationId, sourceId], references: [organizationId, id], onDelete: Cascade)
+  version      KnowledgeVersion @relation(fields: [organizationId, versionId], references: [organizationId, id], onDelete: Cascade)
+  chunks       KnowledgeChunk[]
+
+  @@unique([organizationId, id])
+  @@index([organizationId, sourceId, versionId])
+  @@map("knowledge_documents")
+}
+
+model KnowledgeChunk {
+  id             String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String            @map("organization_id") @db.Uuid
+  sourceId       String            @map("source_id") @db.Uuid
+  documentId     String            @map("document_id") @db.Uuid
+  versionId      String            @map("version_id") @db.Uuid
+  position       Int
+  language       KnowledgeLanguage @default(mixed)
+  content        String            @db.Text
+  checksum       String            @db.Char(64)
+  isQuarantined  Boolean           @default(false) @map("is_quarantined")
+  safetyReason   String?           @map("safety_reason") @db.VarChar(120)
+  createdAt      DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  source       KnowledgeSource   @relation(fields: [organizationId, sourceId], references: [organizationId, id], onDelete: Cascade)
+  document     KnowledgeDocument @relation(fields: [organizationId, documentId], references: [organizationId, id], onDelete: Cascade)
+  version      KnowledgeVersion  @relation(fields: [organizationId, versionId], references: [organizationId, id], onDelete: Cascade)
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, documentId, position])
+  @@index([organizationId, versionId, isQuarantined])
+  @@map("knowledge_chunks")
+}
+
+model PromptConfiguration {
+  id                     String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId         String   @map("organization_id") @db.Uuid
+  name                   String   @db.VarChar(120)
+  systemPrompt           String   @map("system_prompt") @db.Text
+  allowedActionNames     String[] @map("allowed_action_names")
+  minimumConfidence      Float    @default(0.7) @map("minimum_confidence")
+  monthlyActionLimit     Int      @default(1000) @map("monthly_action_limit")
+  monthlyTokenLimit      Int      @default(1000000) @map("monthly_token_limit")
+  monthlyCostLimitMicros Int      @default(25000000) @map("monthly_cost_limit_micros")
+  isActive               Boolean  @default(true) @map("is_active")
+  version                Int      @default(1)
+  updatedByUserId        String?  @map("updated_by_user_id") @db.Uuid
+  createdAt              DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt              DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization    Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  updatedBy       User?             @relation("PromptConfigurationUpdater", fields: [updatedByUserId], references: [id], onDelete: SetNull)
+  conversations   AIConversation[]
+  usage           AIUsage[]
+  evaluationRuns  AIEvaluationRun[]
+  copilotInsights CopilotInsight[]
+
+  @@unique([organizationId, id])
+  @@index([organizationId, isActive, updatedAt])
+  @@map("prompt_configurations")
+}
+
+model AIConversation {
+  id                    String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId        String               @map("organization_id") @db.Uuid
+  customerId            String?              @map("customer_id") @db.Uuid
+  appointmentId         String?              @map("appointment_id") @db.Uuid
+  promptConfigurationId String?              @map("prompt_configuration_id") @db.Uuid
+  createdByUserId       String?              @map("created_by_user_id") @db.Uuid
+  locale                KnowledgeLanguage    @default(mixed)
+  channel               String               @default("INTERNAL") @db.VarChar(40)
+  status                AIConversationStatus @default(OPEN)
+  modelIdentifier       String               @map("model_identifier") @db.VarChar(160)
+  lastMessageAt         DateTime?            @map("last_message_at") @db.Timestamptz(3)
+  version               Int                  @default(1)
+  createdAt             DateTime             @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt             DateTime             @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization        Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customer            Customer?            @relation(fields: [organizationId, customerId], references: [organizationId, id], onDelete: Restrict)
+  appointment         Appointment?         @relation(fields: [organizationId, appointmentId], references: [organizationId, id], onDelete: Restrict)
+  promptConfiguration PromptConfiguration? @relation(fields: [organizationId, promptConfigurationId], references: [organizationId, id], onDelete: Restrict)
+  createdBy           User?                @relation("AIConversationCreator", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  messages            AIMessage[]
+  actions             AIAction[]
+  approvals           AIActionApproval[]
+  usage               AIUsage[]
+  handoffs            HumanHandoff[]
+  channelSession      AIChannelSession?
+
+  @@unique([organizationId, id])
+  @@index([organizationId, status, lastMessageAt])
+  @@index([organizationId, customerId, lastMessageAt])
+  @@map("ai_conversations")
+}
+
+model AIMessage {
+  id              String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId  String                @map("organization_id") @db.Uuid
+  conversationId  String                @map("conversation_id") @db.Uuid
+  role            AIMessageRole
+  content         String                @db.Text
+  safetyStatus    AIMessageSafetyStatus @default(SAFE) @map("safety_status")
+  modelIdentifier String?               @map("model_identifier") @db.VarChar(160)
+  createdAt       DateTime              @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  conversation AIConversation @relation(fields: [organizationId, conversationId], references: [organizationId, id], onDelete: Cascade)
+
+  @@unique([organizationId, id])
+  @@index([organizationId, conversationId, createdAt])
+  @@map("ai_messages")
+}
+
+model AIAction {
+  id                      String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId          String          @map("organization_id") @db.Uuid
+  conversationId          String          @map("conversation_id") @db.Uuid
+  requestId               String          @map("request_id") @db.Uuid
+  actionName              String          @map("action_name") @db.VarChar(100)
+  requiredPermission      String          @map("required_permission") @db.VarChar(120)
+  authorizationDecisionId String          @map("authorization_decision_id") @db.Uuid
+  actorId                 String          @map("actor_id") @db.Uuid
+  actorType               String          @map("actor_type") @db.VarChar(40)
+  channel                 String          @db.VarChar(40)
+  idempotencyKey          String          @map("idempotency_key") @db.VarChar(200)
+  inputFingerprint        String          @map("input_fingerprint") @db.Char(64)
+  rawInput                Json            @map("raw_input")
+  validatedInput          Json            @map("validated_input")
+  result                  Json?
+  latencyMs               Int?            @map("latency_ms")
+  modelIdentifier         String          @map("model_identifier") @db.VarChar(160)
+  outcome                 AIActionOutcome @default(PENDING)
+  errorCode               String?         @map("error_code") @db.VarChar(100)
+  auditEventId            String?         @map("audit_event_id") @db.Uuid
+  createdAt               DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  completedAt             DateTime?       @map("completed_at") @db.Timestamptz(3)
+
+  organization         Organization            @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  conversation         AIConversation          @relation(fields: [organizationId, conversationId], references: [organizationId, id], onDelete: Restrict)
+  approval             AIActionApproval?
+  usage                AIUsage[]
+  pendingChannelAction AIChannelPendingAction?
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, requestId])
+  @@unique([organizationId, actionName, idempotencyKey])
+  @@index([organizationId, outcome, createdAt])
+  @@index([organizationId, conversationId, createdAt])
+  @@map("ai_actions")
+}
+
+model AIActionApproval {
+  id             String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String                 @map("organization_id") @db.Uuid
+  conversationId String                 @map("conversation_id") @db.Uuid
+  actionId       String                 @unique @map("action_id") @db.Uuid
+  customerId     String                 @map("customer_id") @db.Uuid
+  actionName     String                 @map("action_name") @db.VarChar(100)
+  summary        String                 @db.VarChar(1000)
+  summaryHash    String                 @map("summary_hash") @db.Char(64)
+  payloadHash    String                 @map("payload_hash") @db.Char(64)
+  status         AIActionApprovalStatus @default(PENDING)
+  expiresAt      DateTime               @map("expires_at") @db.Timestamptz(3)
+  confirmedAt    DateTime?              @map("confirmed_at") @db.Timestamptz(3)
+  consumedAt     DateTime?              @map("consumed_at") @db.Timestamptz(3)
+  createdAt      DateTime               @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization         Organization            @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  conversation         AIConversation          @relation(fields: [organizationId, conversationId], references: [organizationId, id], onDelete: Restrict)
+  action               AIAction                @relation(fields: [organizationId, actionId], references: [organizationId, id], onDelete: Restrict)
+  customer             Customer                @relation(fields: [organizationId, customerId], references: [organizationId, id], onDelete: Restrict)
+  pendingChannelAction AIChannelPendingAction?
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, actionId])
+  @@index([organizationId, status, expiresAt])
+  @@map("ai_action_approvals")
+}
+
+model AIUsage {
+  id                    String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId        String         @map("organization_id") @db.Uuid
+  conversationId        String?        @map("conversation_id") @db.Uuid
+  actionId              String?        @map("action_id") @db.Uuid
+  promptConfigurationId String?        @map("prompt_configuration_id") @db.Uuid
+  modelIdentifier       String         @map("model_identifier") @db.VarChar(160)
+  channel               String         @default("internal") @db.VarChar(40)
+  inputTokens           Int            @default(0) @map("input_tokens")
+  outputTokens          Int            @default(0) @map("output_tokens")
+  estimatedCostMicros   Int            @default(0) @map("estimated_cost_micros")
+  latencyMs             Int            @default(0) @map("latency_ms")
+  outcome               AIUsageOutcome
+  occurredAt            DateTime       @default(now()) @map("occurred_at") @db.Timestamptz(3)
+
+  organization        Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  conversation        AIConversation?      @relation(fields: [organizationId, conversationId], references: [organizationId, id], onDelete: Restrict)
+  action              AIAction?            @relation(fields: [organizationId, actionId], references: [organizationId, id], onDelete: Restrict)
+  promptConfiguration PromptConfiguration? @relation(fields: [organizationId, promptConfigurationId], references: [organizationId, id], onDelete: Restrict)
+
+  @@unique([organizationId, id])
+  @@index([organizationId, occurredAt])
+  @@index([organizationId, channel, occurredAt])
+  @@map("ai_usage")
+}
+
+model HumanHandoff {
+  id                   String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId       String             @map("organization_id") @db.Uuid
+  conversationId       String             @map("conversation_id") @db.Uuid
+  customerId           String?            @map("customer_id") @db.Uuid
+  assignedMembershipId String?            @map("assigned_membership_id") @db.Uuid
+  reasonCode           String             @map("reason_code") @db.VarChar(80)
+  summary              String             @db.VarChar(1000)
+  urgency              Int                @default(0)
+  status               HumanHandoffStatus @default(OPEN)
+  resolvedAt           DateTime?          @map("resolved_at") @db.Timestamptz(3)
+  createdAt            DateTime           @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt            DateTime           @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization       Organization            @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  conversation       AIConversation          @relation(fields: [organizationId, conversationId], references: [organizationId, id], onDelete: Restrict)
+  customer           Customer?               @relation(fields: [organizationId, customerId], references: [organizationId, id], onDelete: Restrict)
+  assignedMembership OrganizationMembership? @relation(fields: [organizationId, assignedMembershipId], references: [organizationId, id], onDelete: Restrict)
+
+  @@unique([organizationId, id])
+  @@index([organizationId, status, createdAt])
+  @@map("human_handoffs")
+}
+
+model AIEvaluationCase {
+  id                       String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId           String            @map("organization_id") @db.Uuid
+  name                     String            @db.VarChar(180)
+  locale                   KnowledgeLanguage @default(mixed)
+  input                    String            @db.Text
+  expectedAction           String?           @map("expected_action") @db.VarChar(100)
+  expectedOutcome          String            @map("expected_outcome") @db.VarChar(80)
+  expectedResponseContains String?           @map("expected_response_contains") @db.VarChar(300)
+  expectsHandoff           Boolean           @default(false) @map("expects_handoff")
+  tags                     String[]
+  channel                  String            @default("shared") @db.VarChar(40)
+  replayFixture            Json?             @map("replay_fixture")
+  isActive                 Boolean           @default(true) @map("is_active")
+  createdAt                DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt                DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  runs         AIEvaluationRun[]
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, name])
+  @@index([organizationId, isActive])
+  @@index([organizationId, channel, isActive])
+  @@map("ai_evaluation_cases")
+}
+
+model WebsiteWidgetConfiguration {
+  id             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String          @map("organization_id") @db.Uuid
+  publicKey      String          @unique @default(dbgenerated("gen_random_uuid()")) @map("public_key") @db.Uuid
+  name           String          @db.VarChar(120)
+  displayNameEn  String          @map("display_name_en") @db.VarChar(160)
+  displayNameAr  String          @map("display_name_ar") @db.VarChar(160)
+  primaryColor   String          @default("#125e46") @map("primary_color") @db.Char(7)
+  accentColor    String          @default("#d7f265") @map("accent_color") @db.Char(7)
+  allowedOrigins String[]        @map("allowed_origins")
+  defaultLocale  SupportedLocale @default(en) @map("default_locale")
+  isActive       Boolean         @default(true) @map("is_active")
+  version        Int             @default(1)
+  createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime        @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  sessions     AIChannelSession[]
+
+  @@unique([organizationId, id])
+  @@index([organizationId, isActive])
+  @@map("website_widget_configurations")
+}
+
+model AIChannelSession {
+  id                    String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId        String                 @map("organization_id") @db.Uuid
+  conversationId        String                 @unique @map("conversation_id") @db.Uuid
+  customerId            String?                @map("customer_id") @db.Uuid
+  widgetConfigurationId String?                @map("widget_configuration_id") @db.Uuid
+  providerConnectionId  String?                @map("provider_connection_id") @db.Uuid
+  channel               AICustomerChannel
+  externalKeyHash       String                 @map("external_key_hash") @db.Char(64)
+  origin                String?                @db.VarChar(500)
+  locale                SupportedLocale        @default(en)
+  status                AIChannelSessionStatus @default(OPEN)
+  expiresAt             DateTime               @map("expires_at") @db.Timestamptz(3)
+  lastInboundAt         DateTime?              @map("last_inbound_at") @db.Timestamptz(3)
+  lastOutboundAt        DateTime?              @map("last_outbound_at") @db.Timestamptz(3)
+  version               Int                    @default(1)
+  createdAt             DateTime               @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt             DateTime               @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization        Organization                @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  conversation        AIConversation              @relation(fields: [organizationId, conversationId], references: [organizationId, id], onDelete: Cascade)
+  customer            Customer?                   @relation(fields: [organizationId, customerId], references: [organizationId, id], onDelete: Restrict)
+  widgetConfiguration WebsiteWidgetConfiguration? @relation(fields: [organizationId, widgetConfigurationId], references: [organizationId, id], onDelete: Restrict)
+  providerConnection  ProviderConnection?         @relation(fields: [organizationId, providerConnectionId], references: [organizationId, id], onDelete: Restrict)
+  pendingActions      AIChannelPendingAction[]
+  call                Call?
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, conversationId])
+  @@unique([organizationId, channel, externalKeyHash])
+  @@index([organizationId, channel, status, updatedAt])
+  @@map("ai_channel_sessions")
+}
+
+model AIChannelPendingAction {
+  id             String                       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String                       @map("organization_id") @db.Uuid
+  sessionId      String                       @map("session_id") @db.Uuid
+  actionId       String                       @unique @map("action_id") @db.Uuid
+  approvalId     String                       @unique @map("approval_id") @db.Uuid
+  payload        Json
+  status         AIChannelPendingActionStatus @default(PENDING)
+  expiresAt      DateTime                     @map("expires_at") @db.Timestamptz(3)
+  consumedAt     DateTime?                    @map("consumed_at") @db.Timestamptz(3)
+  createdAt      DateTime                     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime                     @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  session      AIChannelSession @relation(fields: [organizationId, sessionId], references: [organizationId, id], onDelete: Cascade)
+  action       AIAction         @relation(fields: [organizationId, actionId], references: [organizationId, id], onDelete: Restrict)
+  approval     AIActionApproval @relation(fields: [organizationId, approvalId], references: [organizationId, id], onDelete: Restrict)
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, actionId])
+  @@unique([organizationId, approvalId])
+  @@index([organizationId, sessionId, status, expiresAt])
+  @@map("ai_channel_pending_actions")
+}
+
+model Call {
+  id                     String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId         String                 @map("organization_id") @db.Uuid
+  channelSessionId       String                 @unique @map("channel_session_id") @db.Uuid
+  providerConnectionId   String                 @map("provider_connection_id") @db.Uuid
+  customerId             String?                @map("customer_id") @db.Uuid
+  providerCallId         String                 @map("provider_call_id") @db.VarChar(200)
+  direction              CallDirection          @default(INBOUND)
+  locale                 SupportedLocale        @default(ar)
+  status                 CallStatus             @default(RINGING)
+  recordingConsentStatus RecordingConsentStatus @default(NOT_REQUESTED) @map("recording_consent_status")
+  startedAt              DateTime               @map("started_at") @db.Timestamptz(3)
+  answeredAt             DateTime?              @map("answered_at") @db.Timestamptz(3)
+  endedAt                DateTime?              @map("ended_at") @db.Timestamptz(3)
+  handoffReason          String?                @map("handoff_reason") @db.VarChar(500)
+  version                Int                    @default(1)
+  createdAt              DateTime               @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt              DateTime               @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization       Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  channelSession     AIChannelSession   @relation(fields: [organizationId, channelSessionId], references: [organizationId, id], onDelete: Restrict)
+  providerConnection ProviderConnection @relation(fields: [organizationId, providerConnectionId], references: [organizationId, id], onDelete: Restrict)
+  customer           Customer?          @relation(fields: [organizationId, customerId], references: [organizationId, id], onDelete: Restrict)
+  events             CallEvent[]
+  recordings         CallRecording[]
+  transcripts        CallTranscript[]
+  summary            CallSummary?
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, channelSessionId])
+  @@unique([providerConnectionId, providerCallId])
+  @@index([organizationId, status, startedAt])
+  @@map("calls")
+}
+
+model CallEvent {
+  id              String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId  String          @map("organization_id") @db.Uuid
+  callId          String          @map("call_id") @db.Uuid
+  providerEventId String          @map("provider_event_id") @db.VarChar(200)
+  eventType       String          @map("event_type") @db.VarChar(80)
+  sequence        Int?
+  payloadDigest   String          @map("payload_digest") @db.Char(64)
+  payload         Json
+  status          CallEventStatus @default(RECEIVED)
+  occurredAt      DateTime        @map("occurred_at") @db.Timestamptz(3)
+  processedAt     DateTime?       @map("processed_at") @db.Timestamptz(3)
+  errorCode       String?         @map("error_code") @db.VarChar(100)
+  createdAt       DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization      Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  call              Call             @relation(fields: [organizationId, callId], references: [organizationId, id], onDelete: Cascade)
+  transcripts       CallTranscript[]
+  consentRecordings CallRecording[]  @relation("RecordingConsentEvent")
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, callId, providerEventId])
+  @@index([organizationId, status, occurredAt])
+  @@map("call_events")
+}
+
+model CallRecording {
+  id                  String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId      String              @map("organization_id") @db.Uuid
+  callId              String              @map("call_id") @db.Uuid
+  consentEventId      String              @map("consent_event_id") @db.Uuid
+  providerRecordingId String?             @map("provider_recording_id") @db.VarChar(200)
+  objectReference     String?             @map("object_reference") @db.VarChar(500)
+  status              CallRecordingStatus @default(PENDING)
+  startedAt           DateTime?           @map("started_at") @db.Timestamptz(3)
+  endedAt             DateTime?           @map("ended_at") @db.Timestamptz(3)
+  retainUntil         DateTime?           @map("retain_until") @db.Timestamptz(3)
+  createdAt           DateTime            @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt           DateTime            @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  call         Call         @relation(fields: [organizationId, callId], references: [organizationId, id], onDelete: Restrict)
+  consentEvent CallEvent    @relation("RecordingConsentEvent", fields: [organizationId, consentEventId], references: [organizationId, id], onDelete: Restrict)
+
+  @@unique([organizationId, id])
+  @@index([organizationId, callId, createdAt])
+  @@map("call_recordings")
+}
+
+model CallTranscript {
+  id             String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String                @map("organization_id") @db.Uuid
+  callId         String                @map("call_id") @db.Uuid
+  callEventId    String?               @map("call_event_id") @db.Uuid
+  speaker        CallTranscriptSpeaker
+  content        String                @db.Text
+  locale         SupportedLocale
+  isFinal        Boolean               @default(false) @map("is_final")
+  confidence     Float?
+  startedAt      DateTime              @map("started_at") @db.Timestamptz(3)
+  endedAt        DateTime?             @map("ended_at") @db.Timestamptz(3)
+  createdAt      DateTime              @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  call         Call         @relation(fields: [organizationId, callId], references: [organizationId, id], onDelete: Cascade)
+  callEvent    CallEvent?   @relation(fields: [organizationId, callEventId], references: [organizationId, id], onDelete: Restrict)
+
+  @@unique([organizationId, id])
+  @@index([organizationId, callId, startedAt])
+  @@map("call_transcripts")
+}
+
+model CallSummary {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId  String   @map("organization_id") @db.Uuid
+  callId          String   @unique @map("call_id") @db.Uuid
+  appointmentId   String?  @map("appointment_id") @db.Uuid
+  intent          String   @db.VarChar(300)
+  outcome         String   @db.VarChar(300)
+  unresolvedItems String[] @map("unresolved_items")
+  handoffReason   String?  @map("handoff_reason") @db.VarChar(500)
+  modelIdentifier String   @map("model_identifier") @db.VarChar(160)
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  call         Call         @relation(fields: [organizationId, callId], references: [organizationId, id], onDelete: Restrict)
+  appointment  Appointment? @relation(fields: [organizationId, appointmentId], references: [organizationId, id], onDelete: Restrict)
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, callId])
+  @@index([organizationId, createdAt])
+  @@map("call_summaries")
+}
+
+model AnalyticsSnapshot {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId    String   @map("organization_id") @db.Uuid
+  actorUserId       String   @map("actor_user_id") @db.Uuid
+  branchId          String?  @map("branch_id") @db.Uuid
+  metricKey         String   @map("metric_key") @db.VarChar(80)
+  definitionVersion Int      @default(1) @map("definition_version")
+  startsAt          DateTime @map("starts_at") @db.Timestamptz(3)
+  endsAt            DateTime @map("ends_at") @db.Timestamptz(3)
+  value             Decimal  @db.Decimal(20, 4)
+  dimensions        Json
+  dataWatermark     DateTime @map("data_watermark") @db.Timestamptz(3)
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  actor        User         @relation("AnalyticsSnapshotActor", fields: [actorUserId], references: [id], onDelete: Restrict)
+  branch       Branch?      @relation(fields: [organizationId, branchId], references: [organizationId, id], onDelete: Restrict)
+
+  @@unique([organizationId, id])
+  @@index([organizationId, metricKey, startsAt, endsAt])
+  @@map("analytics_snapshots")
+}
+
+model CopilotInsight {
+  id                    String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId        String               @map("organization_id") @db.Uuid
+  actorUserId           String               @map("actor_user_id") @db.Uuid
+  membershipId          String?              @map("membership_id") @db.Uuid
+  promptConfigurationId String?              @map("prompt_configuration_id") @db.Uuid
+  insightType           CopilotInsightType   @map("insight_type")
+  status                CopilotInsightStatus @default(ACTIVE)
+  subjectType           String?              @map("subject_type") @db.VarChar(40)
+  subjectId             String?              @map("subject_id") @db.Uuid
+  locale                SupportedLocale
+  title                 String               @db.VarChar(240)
+  statements            Json
+  modelIdentifier       String               @map("model_identifier") @db.VarChar(160)
+  promptVersion         Int                  @map("prompt_version")
+  knowledgeVersionIds   String[]             @map("knowledge_version_ids") @db.Uuid
+  confidence            Float
+  dataWatermark         DateTime             @map("data_watermark") @db.Timestamptz(3)
+  expiresAt             DateTime             @map("expires_at") @db.Timestamptz(3)
+  generationKey         String               @map("generation_key") @db.Char(64)
+  createdAt             DateTime             @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization        Organization            @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  actor               User                    @relation("CopilotInsightActor", fields: [actorUserId], references: [id], onDelete: Restrict)
+  membership          OrganizationMembership? @relation(fields: [organizationId, membershipId], references: [organizationId, id], onDelete: Restrict)
+  promptConfiguration PromptConfiguration?    @relation(fields: [organizationId, promptConfigurationId], references: [organizationId, id], onDelete: Restrict)
+  evidence            CopilotInsightSource[]
+  feedback            CopilotFeedback[]
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, generationKey])
+  @@index([organizationId, actorUserId, insightType, createdAt])
+  @@index([organizationId, subjectType, subjectId, createdAt])
+  @@map("copilot_insights")
+}
+
+model CopilotInsightSource {
+  id             String                    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String                    @map("organization_id") @db.Uuid
+  insightId      String                    @map("insight_id") @db.Uuid
+  sourceType     CopilotEvidenceSourceType @map("source_type")
+  sourceId       String                    @map("source_id") @db.Uuid
+  label          String                    @db.VarChar(240)
+  href           String                    @db.VarChar(500)
+  classification CopilotDataClassification
+  occurredAt     DateTime                  @map("occurred_at") @db.Timestamptz(3)
+  createdAt      DateTime                  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  insight      CopilotInsight @relation(fields: [organizationId, insightId], references: [organizationId, id], onDelete: Cascade)
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, insightId, sourceType, sourceId])
+  @@index([organizationId, sourceType, sourceId])
+  @@map("copilot_insight_sources")
+}
+
+model CopilotFeedback {
+  id             String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String              @map("organization_id") @db.Uuid
+  insightId      String              @map("insight_id") @db.Uuid
+  actorUserId    String              @map("actor_user_id") @db.Uuid
+  feedbackType   CopilotFeedbackType @map("feedback_type")
+  comment        String?             @db.VarChar(500)
+  createdAt      DateTime            @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  insight      CopilotInsight @relation(fields: [organizationId, insightId], references: [organizationId, id], onDelete: Cascade)
+  actor        User           @relation("CopilotFeedbackActor", fields: [actorUserId], references: [id], onDelete: Restrict)
+
+  @@unique([organizationId, id])
+  @@index([organizationId, insightId, createdAt])
+  @@map("copilot_feedback")
+}
+
+model ImportBatch {
+  id              String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId  String            @map("organization_id") @db.Uuid
+  actorUserId     String            @map("actor_user_id") @db.Uuid
+  kind            ImportKind
+  status          ImportBatchStatus @default(STAGING)
+  idempotencyKey  String            @map("idempotency_key") @db.VarChar(160)
+  fileName        String            @map("file_name") @db.VarChar(240)
+  fileDigest      String            @map("file_digest") @db.Char(64)
+  totalRows       Int               @default(0) @map("total_rows")
+  validRows       Int               @default(0) @map("valid_rows")
+  invalidRows     Int               @default(0) @map("invalid_rows")
+  duplicateRows   Int               @default(0) @map("duplicate_rows")
+  importedRows    Int               @default(0) @map("imported_rows")
+  failedRows      Int               @default(0) @map("failed_rows")
+  rollbackSummary Json?             @map("rollback_summary")
+  committedAt     DateTime?         @map("committed_at") @db.Timestamptz(3)
+  rolledBackAt    DateTime?         @map("rolled_back_at") @db.Timestamptz(3)
+  createdAt       DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  rows ImportRow[]
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, idempotencyKey])
+  @@index([organizationId, createdAt])
+  @@map("import_batches")
+}
+
+model ImportRow {
+  id             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String          @map("organization_id") @db.Uuid
+  batchId        String          @map("batch_id") @db.Uuid
+  rowNumber      Int             @map("row_number")
+  externalKey    String?         @map("external_key") @db.VarChar(160)
+  payload        Json
+  payloadDigest  String          @map("payload_digest") @db.Char(64)
+  status         ImportRowStatus
+  errorCode      String?         @map("error_code") @db.VarChar(100)
+  errorField     String?         @map("error_field") @db.VarChar(100)
+  safeMessage    String?         @map("safe_message") @db.VarChar(300)
+  targetType     String?         @map("target_type") @db.VarChar(80)
+  targetId       String?         @map("target_id") @db.Uuid
+  createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime        @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  batch ImportBatch @relation(fields: [organizationId, batchId], references: [organizationId, id], onDelete: Cascade)
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, batchId, rowNumber])
+  @@index([organizationId, batchId, status, rowNumber])
+  @@map("import_rows")
+}
+
+model AttributionEvent {
+  id             String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String            @map("organization_id") @db.Uuid
+  appointmentId  String?           @map("appointment_id") @db.Uuid
+  customerId     String?           @map("customer_id") @db.Uuid
+  source         AttributionSource
+  sourceDetail   String?           @map("source_detail") @db.VarChar(200)
+  campaignSource String?           @map("campaign_source") @db.VarChar(120)
+  campaignMedium String?           @map("campaign_medium") @db.VarChar(120)
+  campaignName   String?           @map("campaign_name") @db.VarChar(160)
+  occurredAt     DateTime          @map("occurred_at") @db.Timestamptz(3)
+  createdAt      DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@unique([organizationId, id])
+  @@index([organizationId, source, occurredAt])
+  @@index([organizationId, appointmentId, occurredAt])
+  @@map("attribution_events")
+}
+
+model ReportRun {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId    String   @map("organization_id") @db.Uuid
+  actorUserId       String   @map("actor_user_id") @db.Uuid
+  metricKey         String   @map("metric_key") @db.VarChar(80)
+  definitionVersion Int      @default(1) @map("definition_version")
+  timezone          String   @db.VarChar(100)
+  startsAt          DateTime @map("starts_at") @db.Timestamptz(3)
+  endsAt            DateTime @map("ends_at") @db.Timestamptz(3)
+  dimensions        Json
+  result            Json
+  dataWatermark     DateTime @map("data_watermark") @db.Timestamptz(3)
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@unique([organizationId, id])
+  @@index([organizationId, metricKey, createdAt])
+  @@map("report_runs")
+}
+
+model DataExportJob {
+  id             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String           @map("organization_id") @db.Uuid
+  actorUserId    String           @map("actor_user_id") @db.Uuid
+  type           DataExportType
+  status         DataExportStatus @default(READY)
+  parameters     Json
+  rowCount       Int?             @map("row_count")
+  expiresAt      DateTime         @map("expires_at") @db.Timestamptz(3)
+  downloadedAt   DateTime?        @map("downloaded_at") @db.Timestamptz(3)
+  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@unique([organizationId, id])
+  @@index([organizationId, actorUserId, createdAt])
+  @@map("data_export_jobs")
+}
+
+model PlatformAuditEvent {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  actorUserId String   @map("actor_user_id") @db.Uuid
+  action      String   @db.VarChar(120)
+  reason      String   @db.VarChar(500)
+  metadata    Json?
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([actorUserId, createdAt])
+  @@map("platform_audit_events")
+}
+
+model PredictiveCapabilitySetting {
+  organizationId  String               @map("organization_id") @db.Uuid
+  capability      PredictiveCapability
+  enabled         Boolean              @default(false)
+  version         Int                  @default(1)
+  updatedByUserId String               @map("updated_by_user_id") @db.Uuid
+  createdAt       DateTime             @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime             @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@id([organizationId, capability])
+  @@index([organizationId, enabled])
+  @@map("predictive_capability_settings")
+}
+
+model PredictiveJob {
+  id                 String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId     String               @map("organization_id") @db.Uuid
+  actorUserId        String               @map("actor_user_id") @db.Uuid
+  membershipId       String?              @map("membership_id") @db.Uuid
+  supportAccessId    String?              @map("support_access_id") @db.Uuid
+  capability         PredictiveCapability
+  jobType            PredictiveJobType    @map("job_type")
+  status             PredictiveJobStatus  @default(PENDING)
+  idempotencyKey     String               @map("idempotency_key") @db.VarChar(160)
+  requestFingerprint String               @map("request_fingerprint") @db.Char(64)
+  branchId           String?              @map("branch_id") @db.Uuid
+  appointmentId      String?              @map("appointment_id") @db.Uuid
+  serviceId          String?              @map("service_id") @db.Uuid
+  parameters         Json
+  totalRows          Int                  @default(0) @map("total_rows")
+  processedRows      Int                  @default(0) @map("processed_rows")
+  attempts           Int                  @default(0)
+  maxAttempts        Int                  @default(4) @map("max_attempts")
+  claimedAt          DateTime?            @map("claimed_at") @db.Timestamptz(3)
+  claimedBy          String?              @map("claimed_by") @db.VarChar(120)
+  leaseToken         String?              @map("lease_token") @db.Uuid
+  enqueuedAt         DateTime?            @map("enqueued_at") @db.Timestamptz(3)
+  evaluationAt       DateTime?            @map("evaluation_at") @db.Timestamptz(3)
+  startedAt          DateTime?            @map("started_at") @db.Timestamptz(3)
+  completedAt        DateTime?            @map("completed_at") @db.Timestamptz(3)
+  safeErrorCode      String?              @map("safe_error_code") @db.VarChar(100)
+  createdAt          DateTime             @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt          DateTime             @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization     Organization                @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  dataAudits       PredictiveDataAudit[]
+  featureSnapshots PredictiveFeatureSnapshot[]
+  predictions      Prediction[]
+  evaluations      PredictiveEvaluationRun[]
+  driftRuns        PredictiveDriftRun[]
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, idempotencyKey])
+  @@index([organizationId, status, createdAt])
+  @@index([organizationId, capability, createdAt])
+  @@index([organizationId, branchId, createdAt])
+  @@map("predictive_jobs")
+}
+
+model PredictiveDataAudit {
+  id              String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId  String                   @map("organization_id") @db.Uuid
+  jobId           String                   @map("job_id") @db.Uuid
+  capability      PredictiveCapability
+  branchId        String?                  @map("branch_id") @db.Uuid
+  eligible        Boolean
+  refusalReason   PredictiveRefusalReason? @map("refusal_reason")
+  sampleSize      Int                      @map("sample_size")
+  historyStartsAt DateTime?                @map("history_starts_at") @db.Timestamptz(3)
+  historyEndsAt   DateTime?                @map("history_ends_at") @db.Timestamptz(3)
+  counts          Json
+  warnings        String[]
+  dataWatermark   DateTime                 @map("data_watermark") @db.Timestamptz(3)
+  auditChecksum   String                   @map("audit_checksum") @db.Char(64)
+  createdAt       DateTime                 @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  job          PredictiveJob @relation(fields: [organizationId, jobId], references: [organizationId, id], onDelete: Restrict)
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, jobId])
+  @@index([organizationId, capability, createdAt])
+  @@map("predictive_data_audits")
+}
+
+model PredictiveFeatureSnapshot {
+  id              String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId  String               @map("organization_id") @db.Uuid
+  jobId           String               @map("job_id") @db.Uuid
+  capability      PredictiveCapability
+  subjectType     String               @map("subject_type") @db.VarChar(40)
+  subjectId       String?              @map("subject_id") @db.Uuid
+  asOf            DateTime             @map("as_of") @db.Timestamptz(3)
+  features        Json
+  featureHash     String               @map("feature_hash") @db.Char(64)
+  sourceWatermark DateTime             @map("source_watermark") @db.Timestamptz(3)
+  createdAt       DateTime             @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  job          PredictiveJob @relation(fields: [organizationId, jobId], references: [organizationId, id], onDelete: Restrict)
+  predictions  Prediction[]
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, featureHash])
+  @@index([organizationId, capability, subjectType, subjectId, asOf])
+  @@map("predictive_feature_snapshots")
+}
+
+model PredictiveModelVersion {
+  id                       String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId           String               @map("organization_id") @db.Uuid
+  capability               PredictiveCapability
+  algorithmIdentifier      String               @map("algorithm_identifier") @db.VarChar(160)
+  version                  Int
+  featureDefinitionVersion Int                  @map("feature_definition_version")
+  labelDefinitionVersion   Int                  @map("label_definition_version")
+  trainingStartsAt         DateTime?            @map("training_starts_at") @db.Timestamptz(3)
+  trainingEndsAt           DateTime?            @map("training_ends_at") @db.Timestamptz(3)
+  dataWatermark            DateTime             @map("data_watermark") @db.Timestamptz(3)
+  parameters               Json
+  sampleSize               Int                  @map("sample_size")
+  checksum                 String               @db.Char(64)
+  isActive                 Boolean              @default(false) @map("is_active")
+  createdAt                DateTime             @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization Organization              @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  predictions  Prediction[]
+  evaluations  PredictiveEvaluationRun[]
+  driftRuns    PredictiveDriftRun[]
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, capability, version])
+  @@unique([organizationId, checksum])
+  @@index([organizationId, capability, isActive])
+  @@map("predictive_model_versions")
+}
+
+model Prediction {
+  id                String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId    String                     @map("organization_id") @db.Uuid
+  jobId             String?                    @map("job_id") @db.Uuid
+  modelVersionId    String?                    @map("model_version_id") @db.Uuid
+  featureSnapshotId String?                    @map("feature_snapshot_id") @db.Uuid
+  capability        PredictiveCapability
+  status            PredictivePredictionStatus
+  branchId          String?                    @map("branch_id") @db.Uuid
+  providerId        String?                    @map("provider_id") @db.Uuid
+  serviceId         String?                    @map("service_id") @db.Uuid
+  subjectType       String                     @map("subject_type") @db.VarChar(40)
+  subjectId         String?                    @map("subject_id") @db.Uuid
+  estimate          Float?
+  lowerBound        Float?                     @map("lower_bound")
+  upperBound        Float?                     @map("upper_bound")
+  refusalReason     PredictiveRefusalReason?   @map("refusal_reason")
+  sampleSize        Int                        @map("sample_size")
+  modelIdentifier   String                     @map("model_identifier") @db.VarChar(160)
+  modelVersion      Int                        @map("model_version")
+  explanation       Json
+  details           Json
+  asOf              DateTime                   @map("as_of") @db.Timestamptz(3)
+  horizonStartsAt   DateTime?                  @map("horizon_starts_at") @db.Timestamptz(3)
+  horizonEndsAt     DateTime?                  @map("horizon_ends_at") @db.Timestamptz(3)
+  expiresAt         DateTime                   @map("expires_at") @db.Timestamptz(3)
+  generationKey     String                     @map("generation_key") @db.Char(64)
+  createdAt         DateTime                   @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization    Organization               @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  job             PredictiveJob?             @relation(fields: [organizationId, jobId], references: [organizationId, id], onDelete: Restrict)
+  modelDefinition PredictiveModelVersion?    @relation(fields: [organizationId, modelVersionId], references: [organizationId, id], onDelete: Restrict)
+  featureSnapshot PredictiveFeatureSnapshot? @relation(fields: [organizationId, featureSnapshotId], references: [organizationId, id], onDelete: Restrict)
+  feedback        PredictiveFeedback[]
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, generationKey])
+  @@index([organizationId, capability, createdAt])
+  @@index([organizationId, branchId, createdAt])
+  @@index([organizationId, providerId, createdAt])
+  @@index([organizationId, subjectType, subjectId, createdAt])
+  @@map("predictions")
+}
+
+model PredictiveEvaluationRun {
+  id             String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String                      @map("organization_id") @db.Uuid
+  jobId          String                      @map("job_id") @db.Uuid
+  modelVersionId String?                     @map("model_version_id") @db.Uuid
+  capability     PredictiveCapability
+  runType        PredictiveEvaluationType    @map("run_type")
+  outcome        PredictiveEvaluationOutcome
+  branchId       String?                     @map("branch_id") @db.Uuid
+  sampleSize     Int                         @map("sample_size")
+  startsAt       DateTime?                   @map("starts_at") @db.Timestamptz(3)
+  endsAt         DateTime?                   @map("ends_at") @db.Timestamptz(3)
+  metrics        Json
+  dataWatermark  DateTime                    @map("data_watermark") @db.Timestamptz(3)
+  createdAt      DateTime                    @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization Organization            @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  job          PredictiveJob           @relation(fields: [organizationId, jobId], references: [organizationId, id], onDelete: Restrict)
+  modelVersion PredictiveModelVersion? @relation(fields: [organizationId, modelVersionId], references: [organizationId, id], onDelete: Restrict)
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, jobId])
+  @@index([organizationId, capability, createdAt])
+  @@map("predictive_evaluation_runs")
+}
+
+model PredictiveDriftRun {
+  id               String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId   String                @map("organization_id") @db.Uuid
+  jobId            String                @map("job_id") @db.Uuid
+  modelVersionId   String?               @map("model_version_id") @db.Uuid
+  capability       PredictiveCapability
+  branchId         String?               @map("branch_id") @db.Uuid
+  status           PredictiveDriftStatus
+  score            Float?
+  sampleSize       Int                   @map("sample_size")
+  baselineStartsAt DateTime?             @map("baseline_starts_at") @db.Timestamptz(3)
+  baselineEndsAt   DateTime?             @map("baseline_ends_at") @db.Timestamptz(3)
+  currentStartsAt  DateTime?             @map("current_starts_at") @db.Timestamptz(3)
+  currentEndsAt    DateTime?             @map("current_ends_at") @db.Timestamptz(3)
+  metrics          Json
+  dataWatermark    DateTime              @map("data_watermark") @db.Timestamptz(3)
+  createdAt        DateTime              @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization Organization            @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  job          PredictiveJob           @relation(fields: [organizationId, jobId], references: [organizationId, id], onDelete: Restrict)
+  modelVersion PredictiveModelVersion? @relation(fields: [organizationId, modelVersionId], references: [organizationId, id], onDelete: Restrict)
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, jobId])
+  @@index([organizationId, capability, createdAt])
+  @@map("predictive_drift_runs")
+}
+
+model PredictiveFeedback {
+  id             String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String                 @map("organization_id") @db.Uuid
+  predictionId   String                 @map("prediction_id") @db.Uuid
+  actorUserId    String                 @map("actor_user_id") @db.Uuid
+  feedbackType   PredictiveFeedbackType @map("feedback_type")
+  comment        String?                @db.VarChar(500)
+  createdAt      DateTime               @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  prediction   Prediction   @relation(fields: [organizationId, predictionId], references: [organizationId, id], onDelete: Restrict)
+
+  @@unique([organizationId, id])
+  @@index([organizationId, predictionId, createdAt])
+  @@map("predictive_feedback")
+}
+
+model OperationalCalendarEvent {
+  id               String                       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId   String                       @map("organization_id") @db.Uuid
+  branchId         String?                      @map("branch_id") @db.Uuid
+  eventType        OperationalCalendarEventType @map("event_type")
+  localDate        DateTime                     @map("local_date") @db.Date
+  labelEn          String                       @map("label_en") @db.VarChar(160)
+  labelAr          String                       @map("label_ar") @db.VarChar(160)
+  demandAdjustment Float?                       @map("demand_adjustment")
+  version          Int                          @default(1)
+  isActive         Boolean                      @default(true) @map("is_active")
+  createdByUserId  String                       @map("created_by_user_id") @db.Uuid
+  createdAt        DateTime                     @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, id])
+  @@index([organizationId, branchId, localDate, isActive])
+  @@map("operational_calendar_events")
+}
+
+model AIEvaluationRun {
+  id                    String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId        String              @map("organization_id") @db.Uuid
+  evaluationCaseId      String              @map("evaluation_case_id") @db.Uuid
+  promptConfigurationId String?             @map("prompt_configuration_id") @db.Uuid
+  modelIdentifier       String              @map("model_identifier") @db.VarChar(160)
+  outcome               AIEvaluationOutcome
+  actualAction          String?             @map("actual_action") @db.VarChar(100)
+  responseExcerpt       String?             @map("response_excerpt") @db.VarChar(500)
+  latencyMs             Int                 @map("latency_ms")
+  safeTrace             Json?               @map("safe_trace")
+  createdAt             DateTime            @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization        Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  evaluationCase      AIEvaluationCase     @relation(fields: [organizationId, evaluationCaseId], references: [organizationId, id], onDelete: Cascade)
+  promptConfiguration PromptConfiguration? @relation(fields: [organizationId, promptConfigurationId], references: [organizationId, id], onDelete: Restrict)
+
+  @@unique([organizationId, id])
+  @@index([organizationId, evaluationCaseId, createdAt])
+  @@map("ai_evaluation_runs")
+}
+
+model OrganizationInvitation {
+  id               String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId   String           @map("organization_id") @db.Uuid
+  email            String           @db.VarChar(320)
+  tokenHash        String           @unique @map("token_hash") @db.Char(64)
+  roleId           String           @map("role_id") @db.Uuid
+  status           InvitationStatus @default(PENDING)
+  invitedByUserId  String           @map("invited_by_user_id") @db.Uuid
+  expiresAt        DateTime         @map("expires_at") @db.Timestamptz(3)
+  acceptedAt       DateTime?        @map("accepted_at") @db.Timestamptz(3)
+  acceptedByUserId String?          @map("accepted_by_user_id") @db.Uuid
+  createdAt        DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  role         Role         @relation(fields: [organizationId, roleId], references: [organizationId, id], onDelete: Restrict)
+  invitedBy    User         @relation("InvitationSender", fields: [invitedByUserId], references: [id], onDelete: Restrict)
+
+  @@unique([organizationId, id])
+  @@index([organizationId, email, status])
+  @@map("organization_invitations")
+}
+
+model PlatformSupportAccess {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  organizationId  String    @map("organization_id") @db.Uuid
+  reason          String    @db.VarChar(500)
+  permissionCodes String[]  @map("permission_codes")
+  startsAt        DateTime  @default(now()) @map("starts_at") @db.Timestamptz(3)
+  expiresAt       DateTime  @map("expires_at") @db.Timestamptz(3)
+  revokedAt       DateTime? @map("revoked_at") @db.Timestamptz(3)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Restrict)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@unique([organizationId, id])
+  @@index([userId, organizationId, expiresAt])
+  @@map("platform_support_accesses")
+}
+
+model AuditEvent {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId  String   @map("organization_id") @db.Uuid
+  actorUserId     String?  @map("actor_user_id") @db.Uuid
+  supportAccessId String?  @map("support_access_id") @db.Uuid
+  action          String   @db.VarChar(120)
+  targetType      String?  @map("target_type") @db.VarChar(100)
+  targetId        String?  @map("target_id") @db.Uuid
+  reason          String?  @db.VarChar(500)
+  metadata        Json?
+  ipAddress       String?  @map("ip_address") @db.VarChar(64)
+  userAgent       String?  @map("user_agent") @db.Text
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  actor        User?        @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@unique([organizationId, id])
+  @@index([organizationId, createdAt])
+  @@index([supportAccessId, createdAt])
+  @@map("audit_events")
+}

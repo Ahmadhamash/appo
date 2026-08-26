@@ -1,0 +1,22 @@
+{
+  "name": "@jormall/worker",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --env-file-if-exists=../../.env src/main.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@jormall/ai": "workspace:*",
+    "@jormall/config": "workspace:*",
+    "@jormall/contracts": "workspace:*",
+    "@jormall/db": "workspace:*",
+    "@jormall/domain": "workspace:*",
+    "bullmq": "6.2.0",
+    "ioredis": "6.0.0"
+  },
+  "devDependencies": {
+    "tsx": "4.23.12"
+  }
+}

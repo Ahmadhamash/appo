@@ -1,0 +1,26 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["scripts/run-next-typecheck.mjs", "tsconfig.base.json"],
+  "globalEnv": [
+    "AUTH_SECRET",
+    "CREDENTIAL_ENCRYPTION_KEY",
+    "DATABASE_URL",
+    "MOCK_WHATSAPP_WEBHOOK_SECRET",
+    "NEXT_PUBLIC_APP_URL",
+    "REDIS_URL"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "typecheck": {
+      "dependsOn": ["^typecheck"],
+      "outputs": []
+    }
+  }
+}

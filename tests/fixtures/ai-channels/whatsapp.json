@@ -1,0 +1,13 @@
+{
+  "channel": "WHATSAPP",
+  "events": [
+    { "expectedOutcome": "ACCEPTED_ONCE", "input": "provider-event-1", "kind": "verified_webhook" },
+    { "expectedOutcome": "DUPLICATE", "input": "provider-event-1", "kind": "verified_webhook" },
+    { "expectedOutcome": "ACTION", "input": "شو في خدمات؟", "kind": "mock_voice_note_transcript" },
+    { "expectedOutcome": "HANDOFF", "input": "بدي موظف", "kind": "customer_message" },
+    { "expectedOutcome": "SUPPRESSED", "input": "وينكم؟", "kind": "customer_message" }
+  ],
+  "locale": "ar",
+  "name": "WhatsApp voice note, dedupe, and takeover",
+  "version": 1
+}

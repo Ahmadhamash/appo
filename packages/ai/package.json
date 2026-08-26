@@ -1,0 +1,21 @@
+{
+  "name": "@jormall/ai",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./channel-adapters": "./src/channel-adapters.ts",
+    "./channels": "./src/channels.ts",
+    "./copilot": "./src/copilot.ts",
+    "./gateway": "./src/gateway.ts",
+    "./model": "./src/model.ts",
+    "./orchestrator": "./src/orchestrator.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@jormall/contracts": "workspace:*",
+    "@jormall/domain": "workspace:*"
+  }
+}

@@ -1,0 +1,12 @@
+.next
+apps/web/AGENTS.md
+apps/web/CLAUDE.md
+coverage
+dist
+klhg
+node_modules
+packages/db/prisma/schema.prisma
+packages/db/src/generated
+playwright-report
+pnpm-lock.yaml
+test-results

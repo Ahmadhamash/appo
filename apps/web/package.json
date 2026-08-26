@@ -1,0 +1,36 @@
+{
+  "name": "@jormall/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/run-next.mjs build",
+    "dev": "node scripts/run-next.mjs dev",
+    "prove:phase4": "tsx --env-file-if-exists=../../.env scripts/prove-phase4-lifecycle.ts",
+    "seed": "tsx --env-file-if-exists=../../.env scripts/seed-development.ts",
+    "start": "node scripts/run-next.mjs start",
+    "typecheck": "node ../../scripts/run-next-typecheck.mjs"
+  },
+  "dependencies": {
+    "@jormall/ai": "workspace:*",
+    "@jormall/auth": "workspace:*",
+    "@jormall/config": "workspace:*",
+    "@jormall/contracts": "workspace:*",
+    "@jormall/db": "workspace:*",
+    "@jormall/domain": "workspace:*",
+    "@jormall/ui": "workspace:*",
+    "better-auth": "1.7.1",
+    "ioredis": "6.0.0",
+    "next": "16.3.2",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "server-only": "0.0.1",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "postcss": "8.5.26",
+    "tailwindcss": "4.3.3",
+    "tsx": "4.20.6"
+  }
+}

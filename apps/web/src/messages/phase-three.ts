@@ -1,0 +1,98 @@
+import type { SupportedLocale } from "@jormall/contracts/locales";
+
+const en = {
+  acceptOffer: "Accept offer",
+  addResource: "Add resource",
+  addResourceGroup: "Add resource group",
+  addToWaitlist: "Add to waitlist",
+  availability: "Available slots",
+  branchHours: "Branch hours",
+  capacity: "Capacity",
+  conflictProtected: "Conflict protected",
+  declineOffer: "Decline offer",
+  expires: "Expires",
+  expireOffer: "Expire offer",
+  findSlots: "Find available slots",
+  mockedDelivery: "Mocked delivery only — no message is sent.",
+  preferredDates: "Preferred dates",
+  preferredTime: "Preferred time window",
+  priority: "Priority",
+  resource: "Resource",
+  resourceGroup: "Resource group",
+  resources: "Resources",
+  requirement: "Service requirement",
+  sendMockOffer: "Create mocked offer",
+  slotOffers: "Slot offers",
+  waitlist: "Waitlist",
+};
+
+const ar: typeof en = {
+  acceptOffer: "قبول العرض",
+  addResource: "إضافة مورد",
+  addResourceGroup: "إضافة مجموعة موارد",
+  addToWaitlist: "إضافة إلى قائمة الانتظار",
+  availability: "المواعيد المتاحة",
+  branchHours: "ساعات عمل الفرع",
+  capacity: "السعة",
+  conflictProtected: "محمي من التعارض",
+  declineOffer: "رفض العرض",
+  expires: "ينتهي",
+  expireOffer: "إنهاء العرض",
+  findSlots: "البحث عن مواعيد متاحة",
+  mockedDelivery: "إرسال تجريبي فقط — لن تُرسل أي رسالة.",
+  preferredDates: "التواريخ المفضلة",
+  preferredTime: "الفترة الزمنية المفضلة",
+  priority: "الأولوية",
+  resource: "المورد",
+  resourceGroup: "مجموعة الموارد",
+  resources: "الموارد",
+  requirement: "متطلبات الخدمة",
+  sendMockOffer: "إنشاء عرض تجريبي",
+  slotOffers: "عروض المواعيد",
+  waitlist: "قائمة الانتظار",
+};
+
+export const phaseThreeMessages: Readonly<Record<SupportedLocale, typeof en>> = { ar, en };
+
+const labels: Readonly<Record<SupportedLocale, Readonly<Record<string, string>>>> = {
+  ar: {
+    ACCEPTED: "مقبول",
+    ACTIVE: "نشط",
+    CHAIR: "كرسي",
+    DECLINED: "مرفوض",
+    DEVICE: "جهاز",
+    EXPIRED: "منتهي",
+    FULFILLED: "تم الحجز",
+    INACTIVE: "غير نشط",
+    MAINTENANCE: "صيانة",
+    OFFERED: "تم تقديم عرض",
+    OTHER: "آخر",
+    PENDING: "قيد الانتظار",
+    PROVIDER: "مقدم خدمة",
+    ROOM: "غرفة",
+    SHARED_EQUIPMENT: "معدات مشتركة",
+    VEHICLE: "مركبة",
+  },
+  en: {
+    ACCEPTED: "Accepted",
+    ACTIVE: "Active",
+    CHAIR: "Chair",
+    DECLINED: "Declined",
+    DEVICE: "Device",
+    EXPIRED: "Expired",
+    FULFILLED: "Booked",
+    INACTIVE: "Inactive",
+    MAINTENANCE: "Maintenance",
+    OFFERED: "Offered",
+    OTHER: "Other",
+    PENDING: "Pending",
+    PROVIDER: "Provider",
+    ROOM: "Room",
+    SHARED_EQUIPMENT: "Shared equipment",
+    VEHICLE: "Vehicle",
+  },
+};
+
+export function phaseThreeLabel(locale: SupportedLocale, value: string): string {
+  return labels[locale][value] ?? value;
+}
