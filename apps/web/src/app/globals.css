@@ -1569,6 +1569,65 @@ tbody tr:last-child td {
 .business-portal {
   display: grid;
 }
+.sector-onboarding {
+  display: grid;
+  gap: 1.5rem;
+  padding: clamp(1.2rem, 3vw, 2.5rem);
+  border: 1px solid #2c3b51;
+  border-radius: 1.5rem;
+  background: #111b2a;
+}
+.sector-onboarding-copy {
+  max-width: 48rem;
+}
+.sector-onboarding-copy h2 {
+  margin-block: 0.35rem 0.65rem;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+}
+.sector-onboarding-copy p:last-child {
+  color: #aeb9c9;
+}
+.sector-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+.sector-choice-card {
+  display: flex;
+  min-height: 20rem;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 1.5rem;
+  border: 1px solid #34445a;
+  border-radius: 1.25rem;
+  background: #0d1726;
+  color: #f5f7fa;
+}
+.sector-choice-card h3 {
+  margin: 0;
+  font-size: 1.45rem;
+}
+.sector-choice-card p {
+  flex: 1;
+  margin: 0;
+  color: #aeb9c9;
+  line-height: 1.75;
+}
+.sector-choice-card .button {
+  width: 100%;
+}
+.sector-choice-icon {
+  display: grid;
+  width: 4rem;
+  height: 4rem;
+  place-items: center;
+  border-radius: 1.1rem;
+  background: #f4e5c3;
+  color: #9b6c16;
+  font-size: 1.6rem;
+  font-weight: 900;
+}
 .portal-hero {
   display: flex;
   position: relative;
@@ -1722,6 +1781,175 @@ tbody tr:last-child td {
   color: #7057c6;
 }
 
+.gym-workspace {
+  --gym-accent: #d3a23d;
+}
+.section-heading,
+.record-card-heading,
+.trainee-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.section-heading h2,
+.section-heading h3,
+.record-card-heading h2,
+.trainee-hero h1 {
+  margin-block: 0.25rem;
+}
+.gym-profile-form {
+  margin-block-start: 1rem;
+}
+.field-span {
+  grid-column: 1 / -1;
+}
+.field-hint {
+  color: #8f9db0;
+  line-height: 1.5;
+}
+.trainee-card-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.trainee-card {
+  color: inherit;
+  text-decoration: none;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease;
+}
+.trainee-card:hover,
+.trainee-card:focus-visible {
+  transform: translateY(-0.2rem);
+  border-color: var(--gym-accent);
+}
+.trainee-avatar {
+  display: grid;
+  width: 3.4rem;
+  height: 3.4rem;
+  flex: 0 0 3.4rem;
+  place-items: center;
+  border-radius: 1rem;
+  background: #f3e4c3;
+  color: #936817;
+  font-size: 1.25rem;
+  font-weight: 950;
+}
+.trainee-avatar-large {
+  width: 5.5rem;
+  height: 5.5rem;
+  flex-basis: 5.5rem;
+  border-radius: 1.35rem;
+  font-size: 2rem;
+}
+.trainee-hero {
+  justify-content: flex-start;
+  padding: clamp(1.2rem, 3vw, 2rem);
+  border: 1px solid #3a4658;
+  border-radius: 1.35rem;
+  background: linear-gradient(135deg, #151f2f, #202a36);
+}
+.trainee-hero .status {
+  margin-inline-start: auto;
+}
+.compact-details,
+.profile-metric-grid {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0;
+}
+.compact-details div,
+.profile-metric-grid div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.compact-details dt,
+.profile-metric-grid dt {
+  color: #8f9db0;
+  font-size: 0.75rem;
+}
+.compact-details dd,
+.profile-metric-grid dd {
+  margin: 0;
+  font-weight: 800;
+}
+.profile-metric-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+.profile-metric-grid div {
+  min-height: 6.2rem;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1rem;
+  border: 1px solid #2d3a4e;
+  border-radius: 1rem;
+  background: #111b2a;
+}
+.profile-metric-grid dd {
+  font-size: 1.05rem;
+}
+.action-disclosure summary,
+.inline-disclosure summary {
+  cursor: pointer;
+  color: #f0c766;
+  font-weight: 800;
+}
+.action-disclosure summary:focus-visible,
+.inline-disclosure summary:focus-visible {
+  outline: 3px solid #f0c766;
+  outline-offset: 0.25rem;
+}
+.disclosure-form {
+  margin-block-start: 1.2rem;
+}
+.gym-section,
+.plan-stack,
+.exercise-list {
+  display: grid;
+  gap: 1rem;
+}
+.gym-plan {
+  display: grid;
+  gap: 1rem;
+}
+.exercise-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid #29374a;
+  border-radius: 1rem;
+  background: #0d1726;
+}
+.exercise-row h4,
+.meal-card h4 {
+  margin-block: 0.35rem;
+}
+.compact-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(7rem, 1fr));
+  gap: 0.65rem;
+  min-width: min(32rem, 80vw);
+  margin-block-start: 0.8rem;
+}
+.meal-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+.meal-card {
+  padding: 1rem;
+  border: 1px solid #2d3a4e;
+  border-radius: 1rem;
+  background: #0d1726;
+}
+.nutrition-safety {
+  max-width: 34rem;
+  margin: 0;
+}
+
 .login-shell {
   background: #0a1220;
   color: #f5f1e8;
@@ -1765,6 +1993,13 @@ tbody tr:last-child td {
   }
   .portal-action-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .profile-metric-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .trainee-card-grid,
+  .meal-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -1846,6 +2081,32 @@ tbody tr:last-child td {
     width: 3.55rem;
     height: 3.55rem;
     font-size: 1.35rem;
+  }
+  .sector-choice-grid {
+    grid-template-columns: 1fr;
+  }
+  .sector-choice-card {
+    min-height: 15rem;
+  }
+  .profile-metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .trainee-card-grid,
+  .meal-grid {
+    grid-template-columns: 1fr;
+  }
+  .trainee-hero,
+  .section-heading,
+  .exercise-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .trainee-hero .status {
+    margin-inline-start: 0;
+  }
+  .compact-form {
+    grid-template-columns: 1fr;
+    min-width: 0;
   }
 }
 

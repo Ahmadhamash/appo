@@ -1,4 +1,5 @@
 import { isSupportedLocale } from "@jormall/contracts/locales";
+import { BusinessSector } from "@jormall/db/generated/enums";
 import { DomainError } from "@jormall/domain/errors";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -8,8 +9,10 @@ import { phaseOneMessages } from "../../../messages/phase-one";
 import { phaseTwoMessages } from "../../../messages/phase-two";
 import { phaseFourMessages } from "../../../messages/phase-four";
 import { phaseSevenMessages } from "../../../messages/phase-seven";
+import { sectorMessages, sectorPortalProfile, sectorValueLabel } from "../../../messages/sectors";
 import { identityRepository, requireTenantPermission } from "../../../server/identity";
 import { requireSession } from "../../../server/session";
+import { setBusinessSectorAction } from "../actions";
 
 export default async function DashboardPage({
   params,
@@ -22,16 +25,20 @@ export default async function DashboardPage({
   const phaseTwo = phaseTwoMessages[locale];
   const phaseFour = phaseFourMessages[locale];
   const phaseSeven = phaseSevenMessages[locale];
+  const sectors = sectorMessages[locale];
   let overview: Awaited<ReturnType<typeof identityRepository.listTenantOverview>> | null = null;
+  let access: Awaited<ReturnType<typeof requireTenantPermission>> | null = null;
   let accessError: string | undefined;
   if (session.session.activeOrganizationId) {
     try {
-      const access = await requireTenantPermission(locale, "organization.read");
+      access = await requireTenantPermission(locale, "organization.read");
       overview = await identityRepository.listTenantOverview(access);
     } catch (error) {
       accessError = error instanceof DomainError ? error.code : "INTERNAL_ERROR";
     }
   }
+  const sector = overview?.organization?.settings?.businessSector ?? null;
+  const sectorProfile = sector ? sectorPortalProfile(locale, sector) : null;
   const portalActions = [
     {
       description: messages.todayCardDescription,
@@ -48,10 +55,13 @@ export default async function DashboardPage({
       tone: "blue",
     },
     {
-      description: messages.customersCardDescription,
-      href: `/${locale}/dashboard/customers`,
+      description: sectorProfile?.customersDescription ?? messages.customersCardDescription,
+      href:
+        sector === BusinessSector.GYM
+          ? `/${locale}/dashboard/gym/trainees`
+          : `/${locale}/dashboard/customers`,
       icon: "◎",
-      label: phaseTwo.customers,
+      label: sectorProfile?.customers ?? phaseTwo.customers,
       tone: "mint",
     },
     {
@@ -62,17 +72,17 @@ export default async function DashboardPage({
       tone: "violet",
     },
     {
-      description: messages.servicesCardDescription,
+      description: sectorProfile?.servicesDescription ?? messages.servicesCardDescription,
       href: `/${locale}/dashboard/services`,
       icon: "◇",
-      label: messages.services,
+      label: sectorProfile?.services ?? messages.services,
       tone: "gold",
     },
     {
-      description: messages.staffCardDescription,
+      description: sectorProfile?.staffDescription ?? messages.staffCardDescription,
       href: `/${locale}/dashboard/staff`,
       icon: "♙",
-      label: messages.staff,
+      label: sectorProfile?.staff ?? messages.staff,
       tone: "mint",
     },
     {
@@ -116,26 +126,82 @@ export default async function DashboardPage({
           </span>
           <p>{messages.noActiveOrganization}</p>
         </div>
+      ) : !sector ? (
+        <section className="sector-onboarding" aria-labelledby="sector-title">
+          <header className="sector-onboarding-copy">
+            <p className="eyebrow">{messages.businessPortal}</p>
+            <h2 id="sector-title">{sectors.chooseSectorTitle}</h2>
+            <p>{sectors.chooseSectorDescription}</p>
+          </header>
+          <div className="sector-choice-grid">
+            {[
+              {
+                description: sectors.gymDescription,
+                icon: "◆",
+                label: sectors.gym,
+                value: BusinessSector.GYM,
+              },
+              {
+                description: sectors.clinicDescription,
+                icon: "+",
+                label: sectors.clinic,
+                value: BusinessSector.CLINIC,
+              },
+              {
+                description: sectors.beautyCenterDescription,
+                icon: "✦",
+                label: sectors.beautyCenter,
+                value: BusinessSector.BEAUTY_CENTER,
+              },
+            ].map((choice) => (
+              <form
+                action={setBusinessSectorAction}
+                className="sector-choice-card"
+                key={choice.value}
+              >
+                <input name="locale" type="hidden" value={locale} />
+                <input name="businessSector" type="hidden" value={choice.value} />
+                <input name="returnTo" type="hidden" value={`/${locale}/dashboard`} />
+                <span aria-hidden="true" className="sector-choice-icon">
+                  {choice.icon}
+                </span>
+                <h3>{choice.label}</h3>
+                <p>{choice.description}</p>
+                {access?.grants.some((grant) => grant.code === "organization.settings.manage") ? (
+                  <button className="button button-primary" type="submit">
+                    {sectors.chooseSector}
+                  </button>
+                ) : (
+                  <small>
+                    {locale === "ar" ? "يختاره مالك المؤسسة" : "Organization owner selection"}
+                  </small>
+                )}
+              </form>
+            ))}
+          </div>
+          <p className="muted">{sectors.sectorCanChange}</p>
+        </section>
       ) : (
         <section aria-label={messages.businessPortal} className="business-portal">
           <article className="portal-hero">
             <div className="portal-hero-copy">
-              <p className="eyebrow">{messages.businessPortal}</p>
+              <p className="eyebrow">{sectorValueLabel(locale, sector)}</p>
               <h2>
+                {sectorProfile?.portalTitle}:{" "}
                 {locale === "ar" ? overview.organization.nameAr : overview.organization.nameEn}
               </h2>
-              <p>{messages.portalDescription}</p>
+              <p>{sectorProfile?.portalDescription ?? messages.portalDescription}</p>
               <dl className="portal-summary">
                 <div>
                   <dt>{messages.branches}</dt>
                   <dd>{overview.branches}</dd>
                 </div>
                 <div>
-                  <dt>{messages.staff}</dt>
+                  <dt>{sectorProfile?.staff ?? messages.staff}</dt>
                   <dd>{overview.staff}</dd>
                 </div>
                 <div>
-                  <dt>{messages.services}</dt>
+                  <dt>{sectorProfile?.services ?? messages.services}</dt>
                   <dd>{overview.services}</dd>
                 </div>
               </dl>

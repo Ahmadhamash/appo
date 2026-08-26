@@ -19,3 +19,4 @@ normative. Supersede an ADR with a new record; do not rewrite its historical dec
 | [0012](0012-authorized-copilot-and-semantic-metrics.md)             | Authorized Copilot and semantic metrics      | Accepted |
 | [0013](0013-staged-imports-attribution-and-reproducible-reports.md) | Staged imports and reproducible reports      | Accepted |
 | [0014](0014-tenant-local-deterministic-predictive-intelligence.md)  | Tenant-local deterministic predictions       | Accepted |
+| [0015](0015-sector-portals-and-gym-operations.md)                   | Sector profiles and gym operations           | Accepted |

@@ -3,7 +3,7 @@ import { AIFoundationRepository } from "@jormall/db/ai-foundation-repository";
 import { AIChannelRepository } from "@jormall/db/ai-channel-repository";
 import { CrmAppointmentRepository } from "@jormall/db/crm-appointment-repository";
 import { CommunicationRepository } from "@jormall/db/communication-repository";
-import { OrganizationStatus, PlatformRole } from "@jormall/db/generated/enums";
+import { BusinessSector, OrganizationStatus, PlatformRole } from "@jormall/db/generated/enums";
 import { IdentityRepository } from "@jormall/db/identity-repository";
 import { runInTenant } from "@jormall/db/tenant-context";
 import { SchedulingRepository } from "@jormall/db/scheduling-repository";
@@ -107,10 +107,15 @@ async function main(): Promise<void> {
     nameEn: "Development Clinic A",
     slug: "development-clinic-a",
   });
-  await ensureOrganization(superAdmin.id, owner, {
+  const organizationB = await ensureOrganization(superAdmin.id, owner, {
     nameAr: "صالون التطوير ب",
     nameEn: "Development Salon B",
     slug: "development-salon-b",
+  });
+  const organizationC = await ensureOrganization(superAdmin.id, owner, {
+    nameAr: "نادي التطوير ج",
+    nameEn: "Development Gym C",
+    slug: "development-gym-c",
   });
 
   const ownerMembership = await prisma.organizationMembership.findUnique({
@@ -122,6 +127,32 @@ async function main(): Promise<void> {
     { activeMembershipId: ownerMembership.id, activeOrganizationId: organizationA.id },
     {},
   );
+  for (const [organization, businessSector] of [
+    [organizationA, BusinessSector.CLINIC],
+    [organizationB, BusinessSector.BEAUTY_CENTER],
+    [organizationC, BusinessSector.GYM],
+  ] as const) {
+    const membership = await prisma.organizationMembership.findUnique({
+      where: {
+        organizationId_userId: { organizationId: organization.id, userId: owner.id },
+      },
+    });
+    if (!membership) throw new Error("Seed owner sector membership was not created.");
+    const sectorAccess =
+      organization.id === organizationA.id
+        ? access
+        : await repository.loadTenantAccess(
+            owner.id,
+            {
+              activeMembershipId: membership.id,
+              activeOrganizationId: organization.id,
+            },
+            {},
+          );
+    if ((await repository.getBusinessSector(sectorAccess)) !== businessSector) {
+      await repository.setBusinessSector(sectorAccess, businessSector);
+    }
+  }
   const roles = await repository.listRoles(access);
   for (const invitee of [
     { roleKey: "SECRETARY", user: secretary },
@@ -405,4 +436,4 @@ function localDateTimeInAmman(date: Date): string {
 
 await main();
 await prisma.$disconnect();
-process.stdout.write("Development identities and two isolated organizations are ready.\n");
+process.stdout.write("Development identities and three isolated organizations are ready.\n");

@@ -36,7 +36,9 @@ test("logs in, explicitly selects an organization, and logs out", async ({ page 
   await expect(page.getByRole("heading", { level: 1, name: "Overview" })).toBeVisible();
   await page.getByLabel("Switch organization").selectOption({ label: "Development Clinic A" });
   await page.getByRole("button", { name: "Switch organization" }).click();
-  await expect(page.getByRole("heading", { level: 2, name: "Development Clinic A" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 2, name: "Clinic portal: Development Clinic A" }),
+  ).toBeVisible();
   await expect(page.locator(".workspace-context strong")).toHaveText("Development Clinic A");
   await expect(page.getByLabel("Switch organization")).toHaveValue(/.+/);
   await page.getByRole("button", { name: "Sign out" }).click();
@@ -62,6 +64,39 @@ test("owner can use the Phase 2 customer and calendar screens", async ({ page })
   await expect(page.getByRole("heading", { level: 2, name: "Create appointment" })).toBeVisible();
   await page.goto("/en/dashboard/today");
   await expect(page.getByRole("heading", { level: 1, name: "Today operations" })).toBeVisible();
+});
+
+test("owner can use the sector-specific gym trainee workflow in English and Arabic RTL", async ({
+  page,
+}) => {
+  const seedPassword = process.env.DEV_SEED_PASSWORD;
+  test.skip(!seedPassword, "DEV_SEED_PASSWORD is required for the authenticated browser test.");
+  const traineeName = `Gym E2E Trainee ${Date.now()}`;
+  await page.goto("/en/login");
+  await page.getByLabel("Email address").fill("owner@example.invalid");
+  await page.getByLabel("Password").fill(seedPassword ?? "");
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByLabel("Switch organization").selectOption({ label: "Development Gym C" });
+  await page.getByRole("button", { name: "Switch organization" }).click();
+  await expect(
+    page.getByRole("heading", { level: 2, name: "Gym management portal: Development Gym C" }),
+  ).toBeVisible();
+
+  await page.goto("/en/dashboard/customers");
+  await page.getByLabel("Full name").fill(traineeName);
+  await page.getByRole("button", { name: "Create customer" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: traineeName })).toBeVisible();
+  await page.goto("/en/dashboard/gym/trainees");
+  await expect(page.getByRole("heading", { level: 1, name: "Trainees" })).toBeVisible();
+  await page.getByLabel("Select customer").selectOption({ label: traineeName });
+  await page.getByLabel("Starting weight (kg)").fill("82");
+  await page.getByLabel("Target weight (kg)").fill("88");
+  await page.getByRole("button", { name: "Add trainee profile" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: traineeName })).toBeVisible();
+
+  await page.goto("/ar/dashboard/gym/trainees");
+  await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+  await expect(page.getByRole("heading", { level: 1, name: "المتدربون" })).toBeVisible();
 });
 
 test("owner can use Phase 3 resource and waitlist screens in English and Arabic RTL", async ({

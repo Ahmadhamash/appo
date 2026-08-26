@@ -1,0 +1,48 @@
+# Sector portals and gym operations
+
+Status: implemented with a deep gym operational module and shared clinic/beauty specialization
+
+## Owner flow
+
+After selecting an active organization with no sector, the dashboard presents Gym, Clinic, and
+Beauty center. The choice is persisted in `OrganizationSettings`, audited, and can be changed by an
+Organization Owner from Organization settings. It specializes navigation and terminology; all
+server-side authorization and tenant isolation remain unchanged.
+
+Gym enables the Trainees workspace. An authorized owner or manager first creates a Customer, then
+adds a gym profile with trainer, goal, experience, measurements, and food budget. Authorized owners,
+managers, or the assigned provider can create workout/nutrition plans and record progress. Provider
+`SELF` scope returns only assigned trainees and treats an unrelated or foreign ID as not found.
+
+## Stored gym records
+
+- `GymTraineeProfile`: one per organization-local Customer, with optional trainer StaffProfile.
+- `GymWorkoutPlan` and `GymWorkoutExercise`: bilingual dated programming and prescriptions.
+- `GymWorkoutLog`: performed sets, repetitions, weight, effort, timestamp, and optional notes.
+- `GymNutritionPlan` and `GymNutritionMeal`: goal, daily budget, calories/macros, and bilingual meal
+  options with estimated costs.
+- `GymProgressEntry`: append-oriented weight, body fat, waist, timestamp, and notes.
+
+All records carry `organization_id`, use tenant-aware foreign keys, have bounded list projections,
+and use forced RLS. Every mutation appends an AuditEvent. Date-only plan windows are PostgreSQL
+`date`; workout and measurement events are UTC instants and display in `Asia/Amman` in the current
+UI.
+
+## Explicit limitations
+
+The Customer-based trainee profile is not a customer login account. Membership subscriptions,
+billing, automatic period-based plan replacement, automated nutrition recommendations, allergy or
+medical screening, and clinical records are not included. Nutrition content is operational guidance
+only and requires a qualified professional for medical diets or conditions.
+
+## Local verification
+
+1. Run explicit migrations and the development seed with a local-only `DEV_SEED_PASSWORD`.
+2. Sign in as `owner@example.invalid` and switch to Development Gym C.
+3. Choose Gym and verify the dashboard says Gym management portal.
+4. Open Trainees, create a Customer, then create the trainee profile.
+5. Add a workout plan/exercise and record performed sets, repetitions, and weight.
+6. Add progress measurements.
+7. Add a budget/macronutrient nutrition plan and a meal option.
+8. Switch to English and verify layout direction and translations.
+9. Sign in as an assigned provider and verify only that provider's trainees are returned.

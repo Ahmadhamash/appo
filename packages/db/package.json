@@ -12,6 +12,7 @@
     "./crm-appointment-repository": "./src/crm-appointment-repository.ts",
     "./generated/client": "./src/generated/prisma/client.ts",
     "./generated/enums": "./src/generated/prisma/enums.ts",
+    "./gym-repository": "./src/gym-repository.ts",
     "./identity-repository": "./src/identity-repository.ts",
     "./invitation-token": "./src/invitation-token.ts",
     "./operations-intelligence-repository": "./src/operations-intelligence-repository.ts",

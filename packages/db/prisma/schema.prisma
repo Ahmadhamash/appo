@@ -51,6 +51,32 @@ enum SupportedLocale {
   ar
 }
 
+enum BusinessSector {
+  GYM
+  CLINIC
+  BEAUTY_CENTER
+}
+
+enum GymGoal {
+  WEIGHT_LOSS
+  MUSCLE_GAIN
+  FITNESS
+  MAINTENANCE
+}
+
+enum GymExperienceLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum GymPlanStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
 enum Weekday {
   SUNDAY
   MONDAY
@@ -723,6 +749,13 @@ model Organization {
   predictiveDriftRuns         PredictiveDriftRun[]
   predictiveFeedback          PredictiveFeedback[]
   operationalCalendarEvents   OperationalCalendarEvent[]
+  gymTraineeProfiles          GymTraineeProfile[]
+  gymWorkoutPlans             GymWorkoutPlan[]
+  gymWorkoutExercises         GymWorkoutExercise[]
+  gymWorkoutLogs              GymWorkoutLog[]
+  gymNutritionPlans           GymNutritionPlan[]
+  gymNutritionMeals           GymNutritionMeal[]
+  gymProgressEntries          GymProgressEntry[]
 
   @@map("organizations")
 }
@@ -734,6 +767,7 @@ model OrganizationSettings {
   timezone          String          @default("Asia/Amman") @db.VarChar(100)
   currency          String          @default("JOD") @db.Char(3)
   bookingWindowDays Int             @default(60) @map("booking_window_days")
+  businessSector    BusinessSector? @map("business_sector")
   createdAt         DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt         DateTime        @updatedAt @map("updated_at") @db.Timestamptz(3)
 
@@ -886,6 +920,7 @@ model StaffProfile {
   linkedResources         Resource[]
   waitlistEntries         WaitlistEntryProvider[]
   slotOffers              SlotOffer[]
+  gymTrainees             GymTraineeProfile[]           @relation("GymTrainer")
 
   @@unique([organizationId, id])
   @@unique([organizationId, membershipId])
@@ -1144,10 +1179,193 @@ model Customer {
   humanHandoffs            HumanHandoff[]
   aiChannelSessions        AIChannelSession[]
   calls                    Call[]
+  gymTraineeProfile        GymTraineeProfile?
 
   @@unique([organizationId, id])
   @@index([organizationId, displayName])
   @@map("customers")
+}
+
+model GymTraineeProfile {
+  id                     String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId         String             @map("organization_id") @db.Uuid
+  customerId             String             @map("customer_id") @db.Uuid
+  trainerStaffProfileId  String?            @map("trainer_staff_profile_id") @db.Uuid
+  goal                   GymGoal
+  experienceLevel        GymExperienceLevel @default(BEGINNER) @map("experience_level")
+  heightCm               Decimal?           @map("height_cm") @db.Decimal(5, 2)
+  startingWeightKg       Decimal?           @map("starting_weight_kg") @db.Decimal(6, 2)
+  targetWeightKg         Decimal?           @map("target_weight_kg") @db.Decimal(6, 2)
+  monthlyFoodBudgetMinor Int?               @map("monthly_food_budget_minor")
+  currency               String             @default("JOD") @db.Char(3)
+  notes                  String?            @db.Text
+  version                Int                @default(1)
+  createdAt              DateTime           @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt              DateTime           @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization    Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customer        Customer           @relation(fields: [organizationId, customerId], references: [organizationId, id], onDelete: Restrict)
+  trainer         StaffProfile?      @relation("GymTrainer", fields: [organizationId, trainerStaffProfileId], references: [organizationId, id], onDelete: Restrict)
+  workoutPlans    GymWorkoutPlan[]
+  workoutLogs     GymWorkoutLog[]
+  nutritionPlans  GymNutritionPlan[]
+  progressEntries GymProgressEntry[]
+
+  @@unique([organizationId, id])
+  @@unique([organizationId, customerId])
+  @@index([organizationId, trainerStaffProfileId])
+  @@map("gym_trainee_profiles")
+}
+
+model GymWorkoutPlan {
+  id               String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId   String        @map("organization_id") @db.Uuid
+  traineeProfileId String        @map("trainee_profile_id") @db.Uuid
+  titleAr          String        @map("title_ar") @db.VarChar(160)
+  titleEn          String        @map("title_en") @db.VarChar(160)
+  notesAr          String?       @map("notes_ar") @db.Text
+  notesEn          String?       @map("notes_en") @db.Text
+  startsOn         DateTime      @map("starts_on") @db.Date
+  endsOn           DateTime?     @map("ends_on") @db.Date
+  status           GymPlanStatus @default(ACTIVE)
+  version          Int           @default(1)
+  createdAt        DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  trainee      GymTraineeProfile    @relation(fields: [organizationId, traineeProfileId], references: [organizationId, id], onDelete: Cascade)
+  exercises    GymWorkoutExercise[]
+
+  @@unique([organizationId, id])
+  @@index([organizationId, traineeProfileId, status, startsOn])
+  @@map("gym_workout_plans")
+}
+
+model GymWorkoutExercise {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String   @map("organization_id") @db.Uuid
+  workoutPlanId  String   @map("workout_plan_id") @db.Uuid
+  weekday        Weekday
+  nameAr         String   @map("name_ar") @db.VarChar(160)
+  nameEn         String   @map("name_en") @db.VarChar(160)
+  sets           Int
+  repsMin        Int      @map("reps_min")
+  repsMax        Int      @map("reps_max")
+  targetWeightKg Decimal? @map("target_weight_kg") @db.Decimal(7, 2)
+  restSeconds    Int      @default(60) @map("rest_seconds")
+  sortOrder      Int      @default(0) @map("sort_order")
+  instructionsAr String?  @map("instructions_ar") @db.Text
+  instructionsEn String?  @map("instructions_en") @db.Text
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  workoutPlan  GymWorkoutPlan  @relation(fields: [organizationId, workoutPlanId], references: [organizationId, id], onDelete: Cascade)
+  logs         GymWorkoutLog[]
+
+  @@unique([organizationId, id])
+  @@index([organizationId, workoutPlanId, weekday, sortOrder])
+  @@map("gym_workout_exercises")
+}
+
+model GymWorkoutLog {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId    String   @map("organization_id") @db.Uuid
+  traineeProfileId  String   @map("trainee_profile_id") @db.Uuid
+  workoutExerciseId String   @map("workout_exercise_id") @db.Uuid
+  performedAt       DateTime @default(now()) @map("performed_at") @db.Timestamptz(3)
+  actualSets        Int      @map("actual_sets")
+  actualReps        Int      @map("actual_reps")
+  actualWeightKg    Decimal? @map("actual_weight_kg") @db.Decimal(7, 2)
+  perceivedEffort   Int?     @map("perceived_effort")
+  notes             String?  @db.Text
+  version           Int      @default(1)
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  trainee      GymTraineeProfile  @relation(fields: [organizationId, traineeProfileId], references: [organizationId, id], onDelete: Cascade)
+  exercise     GymWorkoutExercise @relation(fields: [organizationId, workoutExerciseId], references: [organizationId, id], onDelete: Restrict)
+
+  @@unique([organizationId, id])
+  @@index([organizationId, traineeProfileId, performedAt])
+  @@index([organizationId, workoutExerciseId, performedAt])
+  @@map("gym_workout_logs")
+}
+
+model GymNutritionPlan {
+  id                 String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId     String        @map("organization_id") @db.Uuid
+  traineeProfileId   String        @map("trainee_profile_id") @db.Uuid
+  titleAr            String        @map("title_ar") @db.VarChar(160)
+  titleEn            String        @map("title_en") @db.VarChar(160)
+  goal               GymGoal
+  dailyBudgetMinor   Int           @map("daily_budget_minor")
+  currency           String        @default("JOD") @db.Char(3)
+  dailyCalories      Int           @map("daily_calories")
+  proteinGrams       Int           @map("protein_grams")
+  carbohydratesGrams Int           @map("carbohydrates_grams")
+  fatGrams           Int           @map("fat_grams")
+  notesAr            String?       @map("notes_ar") @db.Text
+  notesEn            String?       @map("notes_en") @db.Text
+  startsOn           DateTime      @map("starts_on") @db.Date
+  endsOn             DateTime?     @map("ends_on") @db.Date
+  status             GymPlanStatus @default(ACTIVE)
+  version            Int           @default(1)
+  createdAt          DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt          DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  trainee      GymTraineeProfile  @relation(fields: [organizationId, traineeProfileId], references: [organizationId, id], onDelete: Cascade)
+  meals        GymNutritionMeal[]
+
+  @@unique([organizationId, id])
+  @@index([organizationId, traineeProfileId, status, startsOn])
+  @@map("gym_nutrition_plans")
+}
+
+model GymNutritionMeal {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId     String   @map("organization_id") @db.Uuid
+  nutritionPlanId    String   @map("nutrition_plan_id") @db.Uuid
+  nameAr             String   @map("name_ar") @db.VarChar(160)
+  nameEn             String   @map("name_en") @db.VarChar(160)
+  timingLabelAr      String?  @map("timing_label_ar") @db.VarChar(120)
+  timingLabelEn      String?  @map("timing_label_en") @db.VarChar(120)
+  estimatedCostMinor Int      @map("estimated_cost_minor")
+  calories           Int
+  proteinGrams       Int      @map("protein_grams")
+  carbohydratesGrams Int      @map("carbohydrates_grams")
+  fatGrams           Int      @map("fat_grams")
+  sortOrder          Int      @default(0) @map("sort_order")
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt          DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  organization  Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  nutritionPlan GymNutritionPlan @relation(fields: [organizationId, nutritionPlanId], references: [organizationId, id], onDelete: Cascade)
+
+  @@unique([organizationId, id])
+  @@index([organizationId, nutritionPlanId, sortOrder])
+  @@map("gym_nutrition_meals")
+}
+
+model GymProgressEntry {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId   String   @map("organization_id") @db.Uuid
+  traineeProfileId String   @map("trainee_profile_id") @db.Uuid
+  measuredAt       DateTime @default(now()) @map("measured_at") @db.Timestamptz(3)
+  bodyWeightKg     Decimal  @map("body_weight_kg") @db.Decimal(6, 2)
+  bodyFatPercent   Decimal? @map("body_fat_percent") @db.Decimal(5, 2)
+  waistCm          Decimal? @map("waist_cm") @db.Decimal(6, 2)
+  notes            String?  @db.Text
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  trainee      GymTraineeProfile @relation(fields: [organizationId, traineeProfileId], references: [organizationId, id], onDelete: Cascade)
+
+  @@unique([organizationId, id])
+  @@index([organizationId, traineeProfileId, measuredAt])
+  @@map("gym_progress_entries")
 }
 
 model CustomerContact {

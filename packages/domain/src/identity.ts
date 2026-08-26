@@ -63,6 +63,10 @@ export const permissionCodes = [
   "audit.read",
   "imports.manage",
   "exports.manage",
+  "gym.plans.manage",
+  "gym.progress.write",
+  "gym.trainees.manage",
+  "gym.trainees.read",
 ] as const;
 
 export type PermissionCode = (typeof permissionCodes)[number];
@@ -133,6 +137,10 @@ export const defaultRolePermissions: Readonly<Record<TenantRoleKey, readonly Per
     { code: "audit.read", scope: "ASSIGNED_BRANCHES" },
     { code: "imports.manage", scope: "ORGANIZATION" },
     { code: "exports.manage", scope: "ORGANIZATION" },
+    { code: "gym.plans.manage", scope: "ORGANIZATION" },
+    { code: "gym.progress.write", scope: "ORGANIZATION" },
+    { code: "gym.trainees.manage", scope: "ORGANIZATION" },
+    { code: "gym.trainees.read", scope: "ORGANIZATION" },
   ],
   SECRETARY: [
     { code: "organization.read", scope: "ORGANIZATION" },
@@ -188,6 +196,9 @@ export const defaultRolePermissions: Readonly<Record<TenantRoleKey, readonly Per
     { code: "messages.send", scope: "SELF" },
     { code: "conversations.read", scope: "SELF" },
     { code: "recordings.read", scope: "SELF" },
+    { code: "gym.plans.manage", scope: "SELF" },
+    { code: "gym.progress.write", scope: "SELF" },
+    { code: "gym.trainees.read", scope: "SELF" },
     { code: "reports.read", scope: "SELF" },
     { code: "predictions.read", scope: "SELF" },
     { code: "predictions.feedback", scope: "SELF" },

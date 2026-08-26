@@ -18,7 +18,8 @@ import { phaseFiveBMessages } from "../../../messages/phase-five-b";
 import { phaseSixMessages } from "../../../messages/phase-six";
 import { phaseSevenMessages } from "../../../messages/phase-seven";
 import { phaseEightMessages } from "../../../messages/phase-eight";
-import { identityRepository } from "../../../server/identity";
+import { sectorPortalProfile } from "../../../messages/sectors";
+import { identityRepository, requireTenantAccess } from "../../../server/identity";
 import { requireSession } from "../../../server/session";
 import { endSupportAccessAction, logoutAction, switchOrganizationAction } from "../actions";
 
@@ -55,6 +56,17 @@ export default async function DashboardLayout({
       ? activeMembership.organization.nameAr
       : activeMembership.organization.nameEn
     : messages.activeOrganization;
+  let businessSector: Awaited<ReturnType<typeof identityRepository.getBusinessSector>> = null;
+  if (session.session.activeOrganizationId) {
+    try {
+      businessSector = await identityRepository.getBusinessSector(
+        await requireTenantAccess(locale),
+      );
+    } catch {
+      businessSector = null;
+    }
+  }
+  const sectorProfile = businessSector ? sectorPortalProfile(locale, businessSector) : null;
   const root = `/${locale}/dashboard`;
   const navigationGroups: readonly DashboardNavigationGroup[] = [
     {
@@ -63,7 +75,11 @@ export default async function DashboardLayout({
         { href: root, icon: "⌂", label: messages.dashboard },
         { href: `${root}/today`, icon: "◷", label: phaseTwo.operationsToday },
         { href: `${root}/calendar`, icon: "▦", label: phaseTwo.calendar },
-        { href: `${root}/customers`, icon: "◎", label: phaseTwo.customers },
+        {
+          href: businessSector === "GYM" ? `${root}/gym/trainees` : `${root}/customers`,
+          icon: "◎",
+          label: sectorProfile?.customers ?? phaseTwo.customers,
+        },
         { href: `${root}/waitlist`, icon: "≋", label: phaseThree.waitlist },
         { href: `${root}/communications`, icon: "◌", label: phaseFour.communications },
       ],
@@ -71,10 +87,18 @@ export default async function DashboardLayout({
     {
       label: messages.manageBusiness,
       items: [
-        { href: `${root}/services`, icon: "◇", label: messages.services },
-        { href: `${root}/resources`, icon: "▤", label: phaseThree.resources },
+        {
+          href: `${root}/services`,
+          icon: "◇",
+          label: sectorProfile?.services ?? messages.services,
+        },
+        {
+          href: `${root}/resources`,
+          icon: "▤",
+          label: sectorProfile?.resources ?? phaseThree.resources,
+        },
         { href: `${root}/branches`, icon: "⌑", label: messages.branches },
-        { href: `${root}/staff`, icon: "♙", label: messages.staff },
+        { href: `${root}/staff`, icon: "♙", label: sectorProfile?.staff ?? messages.staff },
         { href: `${root}/roles`, icon: "◆", label: messages.roles },
       ],
     },

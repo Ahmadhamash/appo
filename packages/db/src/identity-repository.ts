@@ -16,6 +16,7 @@ import {
   MembershipStatus,
   OrganizationStatus,
   PlatformRole,
+  type BusinessSector,
   type Prisma,
   type PrismaClient,
   type SupportedLocale,
@@ -59,6 +60,10 @@ const permissionLabels: Readonly<Record<PermissionCode, readonly [string, string
   "knowledge.read": ["Read knowledge base", "عرض قاعدة المعرفة"],
   "imports.manage": ["Manage safe data imports", "إدارة استيراد البيانات الآمن"],
   "exports.manage": ["Create protected data exports", "إنشاء تصدير بيانات محمي"],
+  "gym.plans.manage": ["Manage workout and nutrition plans", "إدارة خطط التمرين والتغذية"],
+  "gym.progress.write": ["Record gym progress", "تسجيل تقدم المتدرب"],
+  "gym.trainees.manage": ["Manage gym trainees", "إدارة متدربي النادي"],
+  "gym.trainees.read": ["Read gym trainees", "عرض متدربي النادي"],
   "organization.billing.manage": ["Manage organization billing", "إدارة فوترة المؤسسة"],
   "organization.read": ["Read organization", "عرض المؤسسة"],
   "organization.settings.manage": ["Manage organization settings", "إدارة إعدادات المؤسسة"],
@@ -180,6 +185,7 @@ async function createAuditEvent(
     action: string;
     actorUserId: string;
     details?: RequestAuditDetails | undefined;
+    metadata?: Prisma.InputJsonValue | undefined;
     organizationId: string;
     reason?: string | undefined;
     supportAccessId?: string | undefined;
@@ -192,6 +198,7 @@ async function createAuditEvent(
       action: input.action,
       actorUserId: input.actorUserId,
       ipAddress: input.details?.ipAddress ?? null,
+      ...(input.metadata === undefined ? {} : { metadata: input.metadata }),
       organizationId: input.organizationId,
       reason: input.reason ?? null,
       supportAccessId: input.supportAccessId ?? null,
@@ -333,10 +340,11 @@ export class IdentityRepository {
         },
       });
 
-      const roles = await Promise.all(
-        (Object.keys(roleLabels) as TenantRoleKey[]).map((roleKey) => {
-          const labels = roleLabels[roleKey];
-          return transaction.role.create({
+      const roles: Array<{ id: string; systemKey: TenantRoleKey | null }> = [];
+      for (const roleKey of Object.keys(roleLabels) as TenantRoleKey[]) {
+        const labels = roleLabels[roleKey];
+        roles.push(
+          await transaction.role.create({
             data: {
               isSystem: true,
               key: roleKey,
@@ -345,9 +353,9 @@ export class IdentityRepository {
               organizationId,
               systemKey: roleKey,
             },
-          });
-        }),
-      );
+          }),
+        );
+      }
 
       for (const role of roles) {
         const roleKey = role.systemKey;
@@ -737,17 +745,26 @@ export class IdentityRepository {
   async listTenantOverview(access: TenantAccessSnapshot) {
     requireAccessPermission(access, "organization.read");
     return this.runWithAccess(access, async (transaction) => {
-      const [organization, branches, staff, services] = await Promise.all([
-        transaction.organization.findUnique({
-          select: { id: true, nameAr: true, nameEn: true, slug: true, status: true },
-          where: { id: access.organizationId },
-        }),
-        transaction.branch.count({ where: { organizationId: access.organizationId } }),
-        transaction.organizationMembership.count({
-          where: { organizationId: access.organizationId, status: MembershipStatus.ACTIVE },
-        }),
-        transaction.service.count({ where: { organizationId: access.organizationId } }),
-      ]);
+      const organization = await transaction.organization.findUnique({
+        select: {
+          id: true,
+          nameAr: true,
+          nameEn: true,
+          settings: { select: { businessSector: true, currency: true } },
+          slug: true,
+          status: true,
+        },
+        where: { id: access.organizationId },
+      });
+      const branches = await transaction.branch.count({
+        where: { organizationId: access.organizationId },
+      });
+      const staff = await transaction.organizationMembership.count({
+        where: { organizationId: access.organizationId, status: MembershipStatus.ACTIVE },
+      });
+      const services = await transaction.service.count({
+        where: { organizationId: access.organizationId },
+      });
       return { branches, organization, services, staff };
     });
   }
@@ -759,6 +776,39 @@ export class IdentityRepository {
         where: { organizationId: access.organizationId },
       }),
     );
+  }
+
+  async getBusinessSector(access: TenantAccessSnapshot): Promise<BusinessSector | null> {
+    requireAccessPermission(access, "organization.read");
+    return this.runWithAccess(access, async (transaction) => {
+      const settings = await transaction.organizationSettings.findUnique({
+        select: { businessSector: true },
+        where: { organizationId: access.organizationId },
+      });
+      return settings?.businessSector ?? null;
+    });
+  }
+
+  async setBusinessSector(
+    access: TenantAccessSnapshot,
+    businessSector: BusinessSector,
+  ): Promise<void> {
+    requireAccessPermission(access, "organization.settings.manage");
+    await this.runWithAccess(access, async (transaction) => {
+      await transaction.organizationSettings.update({
+        data: { businessSector },
+        where: { organizationId: access.organizationId },
+      });
+      await createAuditEvent(transaction, {
+        action: "ORGANIZATION_BUSINESS_SECTOR_UPDATED",
+        actorUserId: access.actorUserId,
+        metadata: { businessSector },
+        organizationId: access.organizationId,
+        supportAccessId: access.supportAccessId,
+        targetId: access.organizationId,
+        targetType: "Organization",
+      });
+    });
   }
 
   async updateSettings(

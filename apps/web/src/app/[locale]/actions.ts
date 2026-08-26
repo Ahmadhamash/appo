@@ -4,6 +4,7 @@ import { requirePermission } from "@jormall/auth/tenant-policy";
 import { prisma } from "@jormall/db/client";
 import {
   AppointmentStatus,
+  BusinessSector,
   CommunicationChannel,
   ConsentChannel,
   ConsentSource,
@@ -276,6 +277,32 @@ export async function updateSettingsAction(formData: FormData): Promise<never> {
     redirect(destination(`/${locale}/dashboard/settings`, "error", errorCode(error)));
   }
   redirect(destination(`/${locale}/dashboard/settings`, "notice", "SETTINGS_UPDATED"));
+}
+
+export async function setBusinessSectorAction(formData: FormData): Promise<never> {
+  const locale = localeFrom(formData);
+  const parsed = z
+    .enum([BusinessSector.GYM, BusinessSector.CLINIC, BusinessSector.BEAUTY_CENTER])
+    .safeParse(value(formData, "businessSector"));
+  const returnTo = z
+    .string()
+    .max(200)
+    .catch(`/${locale}/dashboard`)
+    .parse(value(formData, "returnTo"));
+  const safeReturnTo = returnTo.startsWith(`/${locale}/dashboard`)
+    ? returnTo
+    : `/${locale}/dashboard`;
+  if (!parsed.success) {
+    redirect(destination(safeReturnTo, "error", "VALIDATION_FAILED"));
+  }
+  try {
+    const access = await requireTenantPermission(locale, "organization.settings.manage");
+    await identityRepository.setBusinessSector(access, parsed.data);
+    revalidatePath(`/${locale}/dashboard`, "layout");
+  } catch (error) {
+    redirect(destination(safeReturnTo, "error", errorCode(error)));
+  }
+  redirect(destination(safeReturnTo, "notice", "BUSINESS_SECTOR_UPDATED"));
 }
 
 export async function createBranchAction(formData: FormData): Promise<never> {

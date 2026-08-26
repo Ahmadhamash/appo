@@ -12,6 +12,7 @@
     "./communications": "./src/communications.ts",
     "./copilot": "./src/copilot.ts",
     "./errors": "./src/errors.ts",
+    "./gym": "./src/gym.ts",
     "./identity": "./src/identity.ts",
     "./jordan-phone": "./src/jordan-phone.ts",
     "./operations-intelligence": "./src/operations-intelligence.ts",

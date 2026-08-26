@@ -1,11 +1,13 @@
 import { isSupportedLocale } from "@jormall/contracts/locales";
+import { BusinessSector } from "@jormall/db/generated/enums";
 import { notFound } from "next/navigation";
 
 import { Feedback } from "../../../../components/feedback";
 import { SubmitButton } from "../../../../components/submit-button";
 import { phaseOneMessages } from "../../../../messages/phase-one";
+import { sectorMessages, sectorValueLabel } from "../../../../messages/sectors";
 import { identityRepository, requirePagePermission } from "../../../../server/identity";
-import { updateSettingsAction } from "../../actions";
+import { setBusinessSectorAction, updateSettingsAction } from "../../actions";
 
 export default async function SettingsPage({
   params,
@@ -20,6 +22,7 @@ export default async function SettingsPage({
   const settings = await identityRepository.getSettings(access);
   if (!settings) notFound();
   const messages = phaseOneMessages[locale];
+  const sectors = sectorMessages[locale];
   return (
     <section className="page-stack" aria-labelledby="settings-title">
       <div>
@@ -31,6 +34,32 @@ export default async function SettingsPage({
         locale={locale}
         notice={typeof query.notice === "string" ? query.notice : undefined}
       />
+      <form action={setBusinessSectorAction} className="panel form-grid">
+        <input name="locale" type="hidden" value={locale} />
+        <input name="returnTo" type="hidden" value={`/${locale}/dashboard/settings`} />
+        <label className="field field-span">
+          <span className="field-label">{sectors.sectorSettings}</span>
+          <select
+            className="select"
+            defaultValue={settings.businessSector ?? ""}
+            name="businessSector"
+            required
+          >
+            <option disabled value="">
+              {sectors.chooseSectorTitle}
+            </option>
+            {Object.values(BusinessSector).map((sector) => (
+              <option key={sector} value={sector}>
+                {sectorValueLabel(locale, sector)}
+              </option>
+            ))}
+          </select>
+          <small className="field-hint">{sectors.sectorCanChange}</small>
+        </label>
+        <div className="form-actions field-span">
+          <SubmitButton>{sectors.chooseSector}</SubmitButton>
+        </div>
+      </form>
       <form action={updateSettingsAction} className="panel form-grid">
         <input name="locale" type="hidden" value={locale} />
         <label className="field">

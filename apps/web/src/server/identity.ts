@@ -8,6 +8,7 @@ import { AIChannelRepository } from "@jormall/db/ai-channel-repository";
 import { CrmAppointmentRepository } from "@jormall/db/crm-appointment-repository";
 import { CommunicationRepository } from "@jormall/db/communication-repository";
 import { IdentityRepository, type SessionTenantSelection } from "@jormall/db/identity-repository";
+import { GymRepository } from "@jormall/db/gym-repository";
 import { OperationsIntelligenceRepository } from "@jormall/db/operations-intelligence-repository";
 import { SchedulingRepository } from "@jormall/db/scheduling-repository";
 import type { PermissionCode, TenantAccessSnapshot } from "@jormall/domain/identity";
@@ -18,6 +19,7 @@ import { requestAuditDetails } from "./request-context";
 import { requireSession } from "./session";
 
 export const identityRepository = new IdentityRepository(prisma);
+export const gymRepository = new GymRepository(prisma);
 export const crmAppointmentRepository = new CrmAppointmentRepository(prisma);
 export const communicationRepository = new CommunicationRepository(prisma);
 export const schedulingRepository = new SchedulingRepository(prisma);
