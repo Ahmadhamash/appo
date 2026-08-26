@@ -86,7 +86,28 @@ export async function loginAction(formData: FormData): Promise<never> {
     redirect(destination(`/${locale}/login`, "error", "INVALID_CREDENTIALS"));
   }
   try {
-    await auth.api.signInEmail({ body: result.data, headers: await headers() });
+    const signedIn = await auth.api.signInEmail({ body: result.data, headers: await headers() });
+    const memberships = await identityRepository.listMembershipChoices(signedIn.user.id);
+    const activeMemberships = memberships.filter(
+      (membership) =>
+        membership.status === MembershipStatus.ACTIVE &&
+        membership.organization.status === OrganizationStatus.ACTIVE,
+    );
+    const onlyMembership = activeMemberships.length === 1 ? activeMemberships[0] : undefined;
+    if (onlyMembership) {
+      const resolvedMembership = await identityRepository.resolveMembershipForSwitch(
+        signedIn.user.id,
+        onlyMembership.id,
+      );
+      await prisma.session.updateMany({
+        data: {
+          activeMembershipId: resolvedMembership.id,
+          activeOrganizationId: resolvedMembership.organizationId,
+          activeSupportAccessId: null,
+        },
+        where: { token: signedIn.token, userId: signedIn.user.id },
+      });
+    }
   } catch {
     redirect(destination(`/${locale}/login`, "error", "INVALID_CREDENTIALS"));
   }

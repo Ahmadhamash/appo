@@ -12,7 +12,8 @@ bounded daily matching use case. It cannot execute arbitrary SQL.
 
 1. Start PostgreSQL, apply migrations, generate Prisma types, seed, and run web as documented in
    `phase-5b-operations.md`.
-2. Sign in as `owner@example.invalid`, select Development Clinic A, and open **Staff Copilot**.
+2. Sign in as `owner@example.invalid`; Development Clinic A is selected automatically. Open **Staff
+   Copilot**.
 3. Generate the daily briefing, schedule gaps, and waitlist matches. Confirm every line is labelled
    Fact, Computed metric, or AI suggestion and has a supporting-record link.
 4. Run an Analytics Copilot query for `APPOINTMENTS_TOTAL`. Confirm the trace displays the local

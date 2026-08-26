@@ -73,7 +73,30 @@ async function ensureOrganization(
   input: Readonly<{ nameAr: string; nameEn: string; slug: string }>,
 ) {
   const existing = await prisma.organization.findUnique({ where: { slug: input.slug } });
-  if (existing) return existing;
+  if (existing) {
+    const expectedOwnerMembership = await prisma.organizationMembership.findUnique({
+      where: { organizationId_userId: { organizationId: existing.id, userId: owner.id } },
+    });
+    if (!expectedOwnerMembership) {
+      const fixtureOwnerMembership = await prisma.organizationMembership.findFirst({
+        include: { user: { select: { email: true } } },
+        where: {
+          organizationId: existing.id,
+          roles: { some: { role: { systemKey: "ORGANIZATION_OWNER" } } },
+        },
+      });
+      if (!fixtureOwnerMembership?.user.email.endsWith("@example.invalid")) {
+        throw new Error(
+          `Development organization ${input.slug} has no reassignable fixture owner.`,
+        );
+      }
+      await prisma.organizationMembership.update({
+        data: { userId: owner.id },
+        where: { id: fixtureOwnerMembership.id },
+      });
+    }
+    return existing;
+  }
   const created = await repository.createOrganization(superAdminId, {
     ...input,
     ownerEmail: owner.email,
@@ -92,9 +115,11 @@ async function ensureOrganization(
 }
 
 async function main(): Promise<void> {
-  const [superAdmin, owner, secretary, provider] = await Promise.all([
+  const [superAdmin, owner, beautyOwner, gymOwner, secretary, provider] = await Promise.all([
     ensureUser("superadmin@example.invalid", "Development Super Admin"),
-    ensureUser("owner@example.invalid", "Development Owner"),
+    ensureUser("owner@example.invalid", "Development Clinic Owner"),
+    ensureUser("beauty-owner@example.invalid", "Development Beauty Owner"),
+    ensureUser("gym-owner@example.invalid", "Development Gym Owner"),
     ensureUser("secretary@example.invalid", "Development Secretary"),
     ensureUser("provider@example.invalid", "Development Provider"),
   ]);
@@ -107,12 +132,12 @@ async function main(): Promise<void> {
     nameEn: "Development Clinic A",
     slug: "development-clinic-a",
   });
-  const organizationB = await ensureOrganization(superAdmin.id, owner, {
+  const organizationB = await ensureOrganization(superAdmin.id, beautyOwner, {
     nameAr: "صالون التطوير ب",
     nameEn: "Development Salon B",
     slug: "development-salon-b",
   });
-  const organizationC = await ensureOrganization(superAdmin.id, owner, {
+  const organizationC = await ensureOrganization(superAdmin.id, gymOwner, {
     nameAr: "نادي التطوير ج",
     nameEn: "Development Gym C",
     slug: "development-gym-c",
@@ -127,14 +152,14 @@ async function main(): Promise<void> {
     { activeMembershipId: ownerMembership.id, activeOrganizationId: organizationA.id },
     {},
   );
-  for (const [organization, businessSector] of [
-    [organizationA, BusinessSector.CLINIC],
-    [organizationB, BusinessSector.BEAUTY_CENTER],
-    [organizationC, BusinessSector.GYM],
+  for (const [organization, sectorOwner, businessSector] of [
+    [organizationA, owner, BusinessSector.CLINIC],
+    [organizationB, beautyOwner, BusinessSector.BEAUTY_CENTER],
+    [organizationC, gymOwner, BusinessSector.GYM],
   ] as const) {
     const membership = await prisma.organizationMembership.findUnique({
       where: {
-        organizationId_userId: { organizationId: organization.id, userId: owner.id },
+        organizationId_userId: { organizationId: organization.id, userId: sectorOwner.id },
       },
     });
     if (!membership) throw new Error("Seed owner sector membership was not created.");
@@ -142,7 +167,7 @@ async function main(): Promise<void> {
       organization.id === organizationA.id
         ? access
         : await repository.loadTenantAccess(
-            owner.id,
+            sectorOwner.id,
             {
               activeMembershipId: membership.id,
               activeOrganizationId: organization.id,

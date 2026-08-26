@@ -38,7 +38,8 @@ only and requires a qualified professional for medical diets or conditions.
 ## Local verification
 
 1. Run explicit migrations and the development seed with a local-only `DEV_SEED_PASSWORD`.
-2. Sign in as `owner@example.invalid` and switch to Development Gym C.
+2. Sign in as `gym-owner@example.invalid`; Development Gym C is selected automatically and no other
+   organization is offered.
 3. Choose Gym and verify the dashboard says Gym management portal.
 4. Open Trainees, create a Customer, then create the trainee profile.
 5. Add a workout plan/exercise and record performed sets, repetitions, and weight.

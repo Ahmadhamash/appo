@@ -51,6 +51,9 @@ export default async function DashboardLayout({
       membership.id === session.session.activeMembershipId ||
       membership.organization.id === session.session.activeOrganizationId,
   );
+  const availableMemberships = memberships.filter(
+    (membership) => membership.status === "ACTIVE" && membership.organization.status === "ACTIVE",
+  );
   const activeOrganizationName = activeMembership
     ? locale === "ar"
       ? activeMembership.organization.nameAr
@@ -189,7 +192,7 @@ export default async function DashboardLayout({
                 <input name="locale" type="hidden" value={locale} />
                 <SubmitButton tone="danger">{messages.endSupport}</SubmitButton>
               </form>
-            ) : (
+            ) : availableMemberships.length > 1 ? (
               <form action={switchOrganizationAction} className="switcher">
                 <input name="locale" type="hidden" value={locale} />
                 <label className="sr-only" htmlFor="membershipId">
@@ -222,7 +225,7 @@ export default async function DashboardLayout({
                 </select>
                 <SubmitButton tone="secondary">{messages.switchOrganization}</SubmitButton>
               </form>
-            )}
+            ) : null}
             <Link
               aria-label={messages.changeLanguage}
               className="locale-switch"

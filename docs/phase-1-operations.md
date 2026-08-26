@@ -14,23 +14,26 @@ Use local-only values; never reuse a production or personal password. The seed r
 5. Set a local `DEV_SEED_PASSWORD` of at least 12 characters, then run `pnpm db:seed`.
 6. Run `pnpm dev` and open `http://localhost:3000/en/login` or `http://localhost:3000/ar/login`.
 
-The seed creates `superadmin@example.invalid`, `owner@example.invalid`, `secretary@example.invalid`,
-and `provider@example.invalid`. All use the locally supplied seed password. The owner belongs to two
-organizations so the switcher can be exercised. Development Clinic A also receives an Amman branch,
-a configured service/provider, a local-only customer, and a sample appointment.
+The seed creates `superadmin@example.invalid`, `owner@example.invalid`,
+`beauty-owner@example.invalid`, `gym-owner@example.invalid`, `secretary@example.invalid`, and
+`provider@example.invalid`. All use the locally supplied seed password. Each development owner
+belongs to only its matching Clinic, Beauty Center, or Gym fixture. A single active membership is
+selected on the server after sign-in and the tenant switcher is hidden; it is shown only for a user
+who has been explicitly granted more than one active membership. Development Clinic A also receives
+an Amman branch, a configured service/provider, a local-only customer, and a sample appointment.
 
 ## Exact manual checks
 
-1. Sign in as `owner@example.invalid`. Confirm no tenant is selected automatically, choose
-   Development Clinic A, and press **Switch organization**.
+1. Sign in as `owner@example.invalid`. Confirm Development Clinic A is selected automatically and no
+   organization switch control is shown.
 2. Open Settings, Branches, Staff, Roles, and Services. Change the default locale/timezone, add a
    branch, create an invitation, create a custom role using only permissions the owner has, create a
    service, and save a different price/duration for one branch.
 3. Copy the invitation link shown in the action result into a private window. Create the invited
    account with a new local-only password. Confirm the same link cannot be accepted a second time.
-4. Sign in as `secretary@example.invalid`, select Development Clinic A, and manually navigate to
-   `/en/dashboard/settings`. Confirm the app returns to Overview with a forbidden message. Open
-   Roles and confirm role creation controls are absent.
+4. Sign in as `secretary@example.invalid` and manually navigate to `/en/dashboard/settings`. Confirm
+   the app returns to Overview with a forbidden message. Open Roles and confirm role creation
+   controls are absent.
 5. Sign in as `provider@example.invalid`. Confirm staff administration is inaccessible. Provider
    schedule self-scope and unrelated-provider denial are covered by the PostgreSQL integration suite
    until a schedule UI is introduced.

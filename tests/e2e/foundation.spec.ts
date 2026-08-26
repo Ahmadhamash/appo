@@ -26,7 +26,7 @@ test("blocks the public credential sign-up endpoint", async ({ request }) => {
   await expect(response.json()).resolves.toMatchObject({ code: "INVITATION_REQUIRED" });
 });
 
-test("logs in, explicitly selects an organization, and logs out", async ({ page }) => {
+test("an owner enters only their organization without a tenant switcher", async ({ page }) => {
   const seedPassword = process.env.DEV_SEED_PASSWORD;
   test.skip(!seedPassword, "DEV_SEED_PASSWORD is required for the authenticated browser test.");
   await page.goto("/en/login");
@@ -34,13 +34,11 @@ test("logs in, explicitly selects an organization, and logs out", async ({ page 
   await page.getByLabel("Password").fill(seedPassword ?? "");
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Overview" })).toBeVisible();
-  await page.getByLabel("Switch organization").selectOption({ label: "Development Clinic A" });
-  await page.getByRole("button", { name: "Switch organization" }).click();
   await expect(
     page.getByRole("heading", { level: 2, name: "Clinic portal: Development Clinic A" }),
   ).toBeVisible();
   await expect(page.locator(".workspace-context strong")).toHaveText("Development Clinic A");
-  await expect(page.getByLabel("Switch organization")).toHaveValue(/.+/);
+  await expect(page.getByLabel("Switch organization")).toHaveCount(0);
   await page.getByRole("button", { name: "Sign out" }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Sign in" })).toBeVisible();
 });
@@ -52,8 +50,7 @@ test("owner can use the Phase 2 customer and calendar screens", async ({ page })
   await page.getByLabel("Email address").fill("owner@example.invalid");
   await page.getByLabel("Password").fill(seedPassword ?? "");
   await page.getByRole("button", { name: "Sign in" }).click();
-  await page.getByLabel("Switch organization").selectOption({ label: "Development Clinic A" });
-  await page.getByRole("button", { name: "Switch organization" }).click();
+  await expect(page).toHaveURL(/\/en\/dashboard$/u);
   await page.goto("/en/dashboard/customers");
   await expect(page.getByRole("heading", { level: 1, name: "Customers" })).toBeVisible();
   await page.getByLabel("Full name").fill(`E2E Customer ${Date.now()}`);
@@ -73,14 +70,13 @@ test("owner can use the sector-specific gym trainee workflow in English and Arab
   test.skip(!seedPassword, "DEV_SEED_PASSWORD is required for the authenticated browser test.");
   const traineeName = `Gym E2E Trainee ${Date.now()}`;
   await page.goto("/en/login");
-  await page.getByLabel("Email address").fill("owner@example.invalid");
+  await page.getByLabel("Email address").fill("gym-owner@example.invalid");
   await page.getByLabel("Password").fill(seedPassword ?? "");
   await page.getByRole("button", { name: "Sign in" }).click();
-  await page.getByLabel("Switch organization").selectOption({ label: "Development Gym C" });
-  await page.getByRole("button", { name: "Switch organization" }).click();
   await expect(
     page.getByRole("heading", { level: 2, name: "Gym management portal: Development Gym C" }),
   ).toBeVisible();
+  await expect(page.getByLabel("Switch organization")).toHaveCount(0);
 
   await page.goto("/en/dashboard/customers");
   await page.getByLabel("Full name").fill(traineeName);
@@ -108,8 +104,7 @@ test("owner can use Phase 3 resource and waitlist screens in English and Arabic 
   await page.getByLabel("Email address").fill("owner@example.invalid");
   await page.getByLabel("Password").fill(seedPassword ?? "");
   await page.getByRole("button", { name: "Sign in" }).click();
-  await page.getByLabel("Switch organization").selectOption({ label: "Development Clinic A" });
-  await page.getByRole("button", { name: "Switch organization" }).click();
+  await expect(page).toHaveURL(/\/en\/dashboard$/u);
 
   await page.goto("/en/dashboard/resources");
   await expect(page.getByRole("heading", { level: 1, name: "Resources" })).toBeVisible();
@@ -132,8 +127,7 @@ test("owner can use the Phase 4 inbox and queue a consented mock message", async
   await page.getByLabel("Email address").fill("owner@example.invalid");
   await page.getByLabel("Password").fill(seedPassword ?? "");
   await page.getByRole("button", { name: "Sign in" }).click();
-  await page.getByLabel("Switch organization").selectOption({ label: "Development Clinic A" });
-  await page.getByRole("button", { name: "Switch organization" }).click();
+  await expect(page).toHaveURL(/\/en\/dashboard$/u);
 
   await page.goto("/en/dashboard/communications");
   await expect(page.getByRole("heading", { level: 1, name: "Communications" })).toBeVisible();
@@ -158,8 +152,7 @@ test("owner can manage Phase 5A/5B AI in English and Arabic RTL", async ({ page 
   await page.getByLabel("Email address").fill("owner@example.invalid");
   await page.getByLabel("Password").fill(seedPassword ?? "");
   await page.getByRole("button", { name: "Sign in" }).click();
-  await page.getByLabel("Switch organization").selectOption({ label: "Development Clinic A" });
-  await page.getByRole("button", { name: "Switch organization" }).click();
+  await expect(page).toHaveURL(/\/en\/dashboard$/u);
 
   await page.goto("/en/dashboard/knowledge");
   await expect(page.getByRole("heading", { level: 1, name: "Knowledge base" })).toBeVisible();
@@ -256,8 +249,7 @@ test("owner can generate evidence-linked Phase 6 Copilot insights in English and
   await page.getByLabel("Email address").fill("owner@example.invalid");
   await page.getByLabel("Password").fill(seedPassword ?? "");
   await page.getByRole("button", { name: "Sign in" }).click();
-  await page.getByLabel("Switch organization").selectOption({ label: "Development Clinic A" });
-  await page.getByRole("button", { name: "Switch organization" }).click();
+  await expect(page).toHaveURL(/\/en\/dashboard$/u);
 
   await page.goto("/en/dashboard/copilot");
   await expect(page.getByRole("heading", { level: 1, name: "Staff Copilot" })).toBeVisible();
@@ -295,8 +287,7 @@ test("owner can dry-run Phase 7 imports and view reports, exports, audit and Ara
   await page.getByLabel("Email address").fill("owner@example.invalid");
   await page.getByLabel("Password").fill(seedPassword ?? "");
   await page.getByRole("button", { name: "Sign in" }).click();
-  await page.getByLabel("Switch organization").selectOption({ label: "Development Clinic A" });
-  await page.getByRole("button", { name: "Switch organization" }).click();
+  await expect(page).toHaveURL(/\/en\/dashboard$/u);
 
   await page.goto("/en/dashboard/imports");
   await expect(page.getByRole("heading", { level: 1, name: "Safe imports" })).toBeVisible();
@@ -340,21 +331,27 @@ test("owner can inspect and queue the advisory Phase 8 predictive layer in Engli
   await page.getByLabel("Email address").fill("owner@example.invalid");
   await page.getByLabel("Password").fill(seedPassword ?? "");
   await page.getByRole("button", { name: "Sign in" }).click();
-  await page.getByLabel("Switch organization").selectOption({ label: "Development Clinic A" });
-  await page.getByRole("button", { name: "Switch organization" }).click();
+  await expect(page).toHaveURL(/\/en\/dashboard$/u);
 
   await page.goto("/en/dashboard/predictions");
   await expect(
     page.getByRole("heading", { level: 1, name: "Predictive intelligence" }),
   ).toBeVisible();
-  await expect(page.getByRole("heading", { level: 3, name: "No-show prediction" })).toBeVisible();
-  await expect(page.getByRole("heading", { level: 3, name: "Demand forecasting" })).toBeVisible();
-  await expect(page.getByRole("heading", { level: 3, name: "Staffing suggestions" })).toBeVisible();
+  const readinessRegion = page.getByLabel("Historical data readiness");
   await expect(
-    page.getByRole("heading", { level: 3, name: "Advanced schedule reflow" }),
+    readinessRegion.getByRole("heading", { level: 3, name: "No-show prediction" }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", {
+    readinessRegion.getByRole("heading", { level: 3, name: "Demand forecasting" }),
+  ).toBeVisible();
+  await expect(
+    readinessRegion.getByRole("heading", { level: 3, name: "Staffing suggestions" }),
+  ).toBeVisible();
+  await expect(
+    readinessRegion.getByRole("heading", { level: 3, name: "Advanced schedule reflow" }),
+  ).toBeVisible();
+  await expect(
+    readinessRegion.getByRole("heading", {
       level: 3,
       name: "Service, provider and slot recommendations",
     }),
@@ -370,5 +367,9 @@ test("owner can inspect and queue the advisory Phase 8 predictive layer in Engli
   await page.goto("/ar/dashboard/predictions");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   await expect(page.getByRole("heading", { level: 1, name: "الذكاء التنبؤي" })).toBeVisible();
-  await expect(page.getByRole("heading", { level: 3, name: "توقع عدم الحضور" })).toBeVisible();
+  await expect(
+    page
+      .getByLabel("جاهزية البيانات التاريخية")
+      .getByRole("heading", { level: 3, name: "توقع عدم الحضور" }),
+  ).toBeVisible();
 });
