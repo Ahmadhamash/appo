@@ -51,6 +51,7 @@ async function createActiveOrganization(
   label: string,
 ) {
   const created = await repository.createOrganization(superAdminId, {
+    businessSector: "CLINIC",
     nameAr: `${label} العربية`,
     nameEn: `${label} English`,
     ownerEmail: owner.email,

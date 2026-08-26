@@ -62,6 +62,8 @@ const en = {
   nutritionSafety:
     "Plans are operational guidance only. Allergies, medical conditions and clinical diets require a qualified professional.",
   perceivedEffort: "Effort (1–10)",
+  platformSectorDescription:
+    "JorMall selects the operating sector when the account is created. The owner receives the matching workspace automatically.",
   profileNotes: "Coach notes",
   progress: "Progress tracking",
   protein: "Protein (g)",
@@ -71,7 +73,9 @@ const en = {
   repsMaximum: "Maximum reps",
   repsMinimum: "Minimum reps",
   restSeconds: "Rest (seconds)",
-  sectorCanChange: "The owner can change the sector later from organization settings.",
+  sectorCanChange: "The operating sector is assigned by JorMall when the organization is created.",
+  sectorLockedDescription:
+    "This workspace was provisioned by JorMall for the selected sector. Contact JorMall support if the organization was classified incorrectly.",
   sectorSettings: "Business sector",
   selectCustomer: "Select customer",
   selectTrainer: "Select trainer",
@@ -151,6 +155,8 @@ const ar: typeof en = {
   nutritionSafety:
     "الخطط إرشاد تشغيلي فقط. الحساسية والحالات الطبية والحميات العلاجية تحتاج مختصًا مؤهلًا.",
   perceivedEffort: "شدة الجهد (1–10)",
+  platformSectorDescription:
+    "يحدد مدير JorMall قطاع النشاط عند إنشاء الحساب، ويحصل المالك تلقائياً على مساحة العمل المناسبة.",
   profileNotes: "ملاحظات المدرب",
   progress: "متابعة التقدم",
   protein: "البروتين (غ)",
@@ -160,7 +166,9 @@ const ar: typeof en = {
   repsMaximum: "أعلى تكرارات",
   repsMinimum: "أقل تكرارات",
   restSeconds: "الراحة (ثانية)",
-  sectorCanChange: "يستطيع المالك تغيير القطاع لاحقًا من إعدادات المؤسسة.",
+  sectorCanChange: "يُحدد قطاع النشاط بواسطة JorMall عند إنشاء المؤسسة.",
+  sectorLockedDescription:
+    "تمت تهيئة مساحة العمل بواسطة JorMall للقطاع المحدد. تواصل مع دعم JorMall إذا صُنفت المؤسسة بشكل غير صحيح.",
   sectorSettings: "قطاع النشاط",
   selectCustomer: "اختر العميل",
   selectTrainer: "اختر المدرب",

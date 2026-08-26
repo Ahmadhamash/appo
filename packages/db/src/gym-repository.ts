@@ -245,8 +245,14 @@ export class GymRepository {
             take: 1,
             where: { status: "ACTIVE" },
           },
+          portalAccess: { select: { status: true } },
           progressEntries: { orderBy: { measuredAt: "desc" }, take: 1 },
           trainer: { select: { displayNameAr: true, displayNameEn: true, id: true } },
+          workoutLogs: {
+            include: { exercise: { select: { repsMax: true } } },
+            orderBy: { performedAt: "desc" },
+            take: 3,
+          },
           workoutPlans: {
             orderBy: { startsOn: "desc" },
             take: 1,

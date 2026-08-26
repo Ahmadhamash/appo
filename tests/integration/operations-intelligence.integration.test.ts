@@ -32,6 +32,7 @@ async function organization(
   label: string,
 ) {
   const created = await identity.createOrganization(superAdminId, {
+    businessSector: "CLINIC",
     nameAr: `${label} عربي`,
     nameEn: label,
     ownerEmail: owner.email,

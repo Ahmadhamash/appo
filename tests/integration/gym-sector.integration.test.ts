@@ -52,6 +52,7 @@ async function createOrganization(
   label: string,
 ): Promise<ActiveOrganization> {
   const created = await identityRepository.createOrganization(superAdminId, {
+    businessSector: BusinessSector.GYM,
     nameAr: `${label} العربية`,
     nameEn: `${label} English`,
     ownerEmail: owner.email,
@@ -75,7 +76,6 @@ async function createOrganization(
     },
     {},
   );
-  await identityRepository.setBusinessSector(access, BusinessSector.GYM);
   return { access, organizationId: accepted.organizationId };
 }
 
@@ -146,12 +146,17 @@ afterAll(async () => {
 });
 
 describe("sector selection and gym operations", () => {
-  it("allows only organization settings managers to select the audited sector", async () => {
+  it("provisions the selected sector at creation and limits reclassification to Super Admin", async () => {
     await expect(identityRepository.getBusinessSector(organizationA.access)).resolves.toBe(
       BusinessSector.GYM,
     );
     await expect(
-      identityRepository.setBusinessSector(secretaryAccess, BusinessSector.CLINIC),
+      identityRepository.reclassifyOrganizationBusinessSector(
+        secretaryAccess.actorUserId,
+        organizationA.organizationId,
+        BusinessSector.CLINIC,
+        "Unauthorized sector change attempt",
+      ),
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
     const audit = await runInTenant(
       client,
@@ -159,12 +164,12 @@ describe("sector selection and gym operations", () => {
       (transaction) =>
         transaction.auditEvent.findFirst({
           where: {
-            action: "ORGANIZATION_BUSINESS_SECTOR_UPDATED",
+            action: "ORGANIZATION_CREATED",
             organizationId: organizationA.organizationId,
           },
         }),
     );
-    expect(audit).not.toBeNull();
+    expect(audit?.metadata).toMatchObject({ businessSector: BusinessSector.GYM });
   });
 
   it("enforces tenant isolation and trainer self scope for trainee profiles", async () => {

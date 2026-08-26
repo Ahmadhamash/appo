@@ -12,11 +12,17 @@ or untyped JSON.
 
 ## Decision
 
-`OrganizationSettings.businessSector` is the authoritative typed sector selection. It is initially
-nullable so a newly created organization receives an explicit three-choice onboarding screen.
-Changing it requires `organization.settings.manage`, runs in the active tenant context, and appends
-an audit event. A sector choice changes navigation, labels, dashboard actions, and availability of
-sector modules; it never changes or weakens tenant authorization.
+`OrganizationSettings.businessSector` is the authoritative typed sector selection. JorMall Super
+Admin must select it while creating the organization. The Organization, settings, default roles and
+permissions, infrastructure defaults, owner invitation, and creation audit commit atomically. An
+ordinary owner cannot reclassify the tenant. Exceptional correction uses a separate Super Admin
+repository path, requires a reason, and appends an immutable tenant audit event. The database column
+remains nullable only for pre-decision rows; new creation contracts require a value.
+
+A sector choice changes navigation, labels, dashboard actions, and availability of sector modules;
+it never changes or weakens tenant authorization. Gym owners receive a data-backed command center.
+Its deterministic attention policy separates recorded facts from advisory next steps and never
+changes a plan automatically.
 
 The shared `Customer` aggregate remains the organization-local person record. In a gym, a
 `GymTraineeProfile` adds trainer assignment, goal, experience, measurements, and budget. A trainer
@@ -44,7 +50,7 @@ must use their own reviewed domain modules rather than adding nullable columns t
 
 ## Consequences
 
-- Sector selection is explicit, reversible by the owner, and audited.
+- Sector selection is explicit at platform provisioning and audited; tenant owners cannot change it.
 - URL identifier changes cannot cross tenant or trainer-self boundaries because repositories derive
   Organization and trainer context from authenticated access.
 - The gym module can evolve independently while continuing to reuse scheduling and communications.

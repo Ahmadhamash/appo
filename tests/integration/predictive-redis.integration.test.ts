@@ -42,6 +42,7 @@ async function createFixture() {
     }),
   ]);
   const created = await identity.createOrganization(admin.id, {
+    businessSector: "CLINIC",
     nameAr: `عامل تنبؤ ${suffix}`,
     nameEn: `Predictive worker ${suffix}`,
     ownerEmail: owner.email,

@@ -41,6 +41,7 @@ async function gymOrganization(
   label: string,
 ) {
   const created = await identity.createOrganization(superAdminId, {
+    businessSector: "GYM",
     nameAr: `${label} العربية`,
     nameEn: `${label} English`,
     ownerEmail: owner.email,
@@ -57,7 +58,6 @@ async function gymOrganization(
     { activeMembershipId: accepted.membershipId, activeOrganizationId: accepted.organizationId },
     {},
   );
-  await identity.setBusinessSector(access, "GYM");
   return { access, organizationId: accepted.organizationId };
 }
 

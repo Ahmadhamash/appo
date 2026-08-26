@@ -77,6 +77,9 @@ test("owner can use the sector-specific gym trainee workflow in English and Arab
   await expect(
     page.getByRole("heading", { level: 2, name: "Gym management portal: Development Gym C" }),
   ).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "Gym command center" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 3, name: "Needs attention" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 3, name: "Safe coaching loop" })).toBeVisible();
   await expect(page.getByLabel("Switch organization")).toHaveCount(0);
 
   await page.goto("/en/dashboard/customers");
@@ -119,8 +122,13 @@ test("every primary gym owner workspace is organized, localized and mobile-safe"
   ] as const;
 
   for (const [path] of workspaces) {
-    await expect(page.locator(`main a[href="${path}"]`)).toHaveCount(1);
+    await expect(page.locator(`main a[href="${path}"]`).first()).toBeVisible();
   }
+  await expect(page.getByRole("heading", { level: 2, name: "مركز قيادة النادي" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 3, name: "يحتاجون انتباهك" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 3, name: "حلقة متابعة آمنة بالذكاء الاصطناعي" }),
+  ).toBeVisible();
 
   await page.setViewportSize({ height: 844, width: 390 });
   for (const [path, heading] of workspaces) {
@@ -139,6 +147,10 @@ test("every primary gym owner workspace is organized, localized and mobile-safe"
 
   await page.goto("/ar/dashboard/reports");
   await expect(page.locator("pre.code-block")).toHaveCount(0);
+
+  await page.goto("/ar/dashboard/settings");
+  await expect(page.locator('select[name="businessSector"]')).toHaveCount(0);
+  await expect(page.getByText("يُحدد قطاع النشاط بواسطة JorMall عند إنشاء المؤسسة.")).toBeVisible();
 });
 
 test("trainee login opens the private mobile-ready training portal without staff controls", async ({

@@ -1,6 +1,5 @@
 import { canAccessResource } from "@jormall/auth/tenant-policy";
 import { isSupportedLocale } from "@jormall/contracts/locales";
-import { BusinessSector } from "@jormall/db/generated/enums";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -11,7 +10,7 @@ import { ownerWorkspaceMessages } from "../../../../messages/owner-workspace";
 import { phaseOneMessages } from "../../../../messages/phase-one";
 import { sectorMessages, sectorValueLabel } from "../../../../messages/sectors";
 import { identityRepository, requirePagePermission } from "../../../../server/identity";
-import { setBusinessSectorAction, updateSettingsAction } from "../../actions";
+import { updateSettingsAction } from "../../actions";
 
 export default async function SettingsPage({
   params,
@@ -172,39 +171,10 @@ export default async function SettingsPage({
         </aside>
       </div>
 
-      <details className="panel action-disclosure advanced-workspace sector-change-disclosure">
-        <summary>{workspace.advancedSector}</summary>
-        <div className="disclosure-heading">
-          <h2>{workspace.advancedSector}</h2>
-          <p>{workspace.advancedSectorDescription}</p>
-        </div>
-        <form action={setBusinessSectorAction} className="form-grid workspace-form">
-          <input name="locale" type="hidden" value={locale} />
-          <input name="returnTo" type="hidden" value={`/${locale}/dashboard/settings`} />
-          <label className="field field-span">
-            <span className="field-label">{sectors.sectorSettings}</span>
-            <select
-              className="select"
-              defaultValue={settings.businessSector ?? ""}
-              name="businessSector"
-              required
-            >
-              <option disabled value="">
-                {sectors.chooseSectorTitle}
-              </option>
-              {Object.values(BusinessSector).map((sector) => (
-                <option key={sector} value={sector}>
-                  {sectorValueLabel(locale, sector)}
-                </option>
-              ))}
-            </select>
-            <small className="field-hint">{sectors.sectorCanChange}</small>
-          </label>
-          <div className="form-actions field-span">
-            <SubmitButton>{sectors.chooseSector}</SubmitButton>
-          </div>
-        </form>
-      </details>
+      <aside className="panel sector-lock-note" aria-label={sectors.sectorSettings}>
+        <strong>{sectors.sectorCanChange}</strong>
+        <p>{sectors.sectorLockedDescription}</p>
+      </aside>
     </section>
   );
 }

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  assessGymTraineeAttention,
   assertExercisePrescription,
   assertGymAvatarAppearance,
   assertGymTraineeMetrics,
@@ -65,5 +66,66 @@ describe("gym operating rules", () => {
       }),
     ).toThrowError(/nutrition/);
     expect(() => assertGymAvatarAppearance({ shirtColor: "gold" })).toThrowError(/hexadecimal/);
+  });
+
+  it("turns authorized workout facts into a deterministic review suggestion without mutation", () => {
+    const now = new Date("2026-08-26T12:00:00.000Z");
+    const result = assessGymTraineeAttention(
+      {
+        hasActiveNutritionPlan: true,
+        hasActivePortalAccess: true,
+        hasActiveWorkoutPlan: true,
+        hasTrainer: true,
+        latestMeasurementAt: new Date("2026-08-20T12:00:00.000Z"),
+        recentWorkoutLogs: [1, 2, 3].map((day) => ({
+          actualReps: 12,
+          perceivedEffort: 5,
+          performedAt: new Date(`2026-08-2${day}T12:00:00.000Z`),
+          prescribedRepsMaximum: 12,
+        })),
+      },
+      now,
+    );
+
+    expect(result).toEqual({
+      level: "PROGRESSION_REVIEW",
+      reasons: ["READY_FOR_PROGRESSION_REVIEW"],
+    });
+  });
+
+  it("prioritizes incomplete onboarding and stale follow-up evidence", () => {
+    const now = new Date("2026-08-26T12:00:00.000Z");
+    expect(
+      assessGymTraineeAttention(
+        {
+          hasActiveNutritionPlan: false,
+          hasActivePortalAccess: false,
+          hasActiveWorkoutPlan: false,
+          hasTrainer: false,
+          recentWorkoutLogs: [],
+        },
+        now,
+      ).level,
+    ).toBe("ONBOARDING");
+    expect(
+      assessGymTraineeAttention(
+        {
+          hasActiveNutritionPlan: true,
+          hasActivePortalAccess: true,
+          hasActiveWorkoutPlan: true,
+          hasTrainer: true,
+          latestMeasurementAt: new Date("2026-08-01T12:00:00.000Z"),
+          recentWorkoutLogs: [
+            {
+              actualReps: 8,
+              perceivedEffort: 8,
+              performedAt: new Date("2026-08-01T12:00:00.000Z"),
+              prescribedRepsMaximum: 12,
+            },
+          ],
+        },
+        now,
+      ).level,
+    ).toBe("FOLLOW_UP");
   });
 });

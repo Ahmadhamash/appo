@@ -94,10 +94,12 @@ for the requested purpose and channel.
 | GymNutritionMeal       | Tenant-owned | Bilingual meal option, timing, estimated minor-unit cost and macro breakdown            |
 | GymProgressEntry       | Tenant-owned | Timestamped trainee measurements and notes                                              |
 
-`OrganizationSettings.businessSector` is the typed, audited portal selector. Gym tables use
-composite organization-aware foreign keys and forced RLS. `GymTraineePortalAccess` is the reviewed
-independent-login boundary: tenant/profile context is resolved from the authenticated User link,
-never from a browser identifier. See ADR 0016.
+`OrganizationSettings.businessSector` is the typed, audited portal selector required by the Super
+Admin organization-creation contract. Organization creation persists the sector with roles,
+defaults, owner invitation, and audit in one transaction; tenant owners cannot reclassify it. Gym
+tables use composite organization-aware foreign keys and forced RLS. `GymTraineePortalAccess` is the
+reviewed independent-login boundary: tenant/profile context is resolved from the authenticated User
+link, never from a browser identifier. See ADR 0016.
 
 ### Scheduling
 

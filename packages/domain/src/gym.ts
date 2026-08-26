@@ -18,6 +18,100 @@ export type GymAvatarFrameValue = (typeof gymAvatarFrames)[number];
 export const gymAvatarHairStyles = ["SHORT", "CURLY", "COVERED", "BALD"] as const;
 export type GymAvatarHairStyleValue = (typeof gymAvatarHairStyles)[number];
 
+export const gymTraineeAttentionLevels = [
+  "ONBOARDING",
+  "FOLLOW_UP",
+  "PROGRESSION_REVIEW",
+  "ON_TRACK",
+] as const;
+export type GymTraineeAttentionLevel = (typeof gymTraineeAttentionLevels)[number];
+
+export const gymTraineeAttentionReasons = [
+  "NO_TRAINER",
+  "NO_PORTAL_ACCESS",
+  "NO_WORKOUT_PLAN",
+  "NO_NUTRITION_PLAN",
+  "NO_RECENT_WORKOUT",
+  "NO_RECENT_MEASUREMENT",
+  "READY_FOR_PROGRESSION_REVIEW",
+] as const;
+export type GymTraineeAttentionReason = (typeof gymTraineeAttentionReasons)[number];
+
+export type GymTraineeAttentionInput = Readonly<{
+  hasActiveNutritionPlan: boolean;
+  hasActivePortalAccess: boolean;
+  hasActiveWorkoutPlan: boolean;
+  hasTrainer: boolean;
+  latestMeasurementAt?: Date | undefined;
+  recentWorkoutLogs: readonly Readonly<{
+    actualReps: number;
+    perceivedEffort?: number | undefined;
+    performedAt: Date;
+    prescribedRepsMaximum: number;
+  }>[];
+}>;
+
+export type GymTraineeAttention = Readonly<{
+  level: GymTraineeAttentionLevel;
+  reasons: readonly GymTraineeAttentionReason[];
+}>;
+
+const dayInMilliseconds = 24 * 60 * 60 * 1000;
+
+export function assessGymTraineeAttention(
+  input: GymTraineeAttentionInput,
+  now: Date,
+): GymTraineeAttention {
+  const reasons: GymTraineeAttentionReason[] = [];
+  if (!input.hasTrainer) reasons.push("NO_TRAINER");
+  if (!input.hasActivePortalAccess) reasons.push("NO_PORTAL_ACCESS");
+  if (!input.hasActiveWorkoutPlan) reasons.push("NO_WORKOUT_PLAN");
+  if (!input.hasActiveNutritionPlan) reasons.push("NO_NUTRITION_PLAN");
+  const latestWorkout = input.recentWorkoutLogs[0];
+  if (
+    !latestWorkout ||
+    now.getTime() - latestWorkout.performedAt.getTime() > 7 * dayInMilliseconds
+  ) {
+    reasons.push("NO_RECENT_WORKOUT");
+  }
+  if (
+    !input.latestMeasurementAt ||
+    now.getTime() - input.latestMeasurementAt.getTime() > 14 * dayInMilliseconds
+  ) {
+    reasons.push("NO_RECENT_MEASUREMENT");
+  }
+  if (
+    input.recentWorkoutLogs.length >= 3 &&
+    input.recentWorkoutLogs
+      .slice(0, 3)
+      .every(
+        (log) =>
+          log.perceivedEffort !== undefined &&
+          log.perceivedEffort <= 6 &&
+          log.actualReps >= log.prescribedRepsMaximum,
+      )
+  ) {
+    reasons.push("READY_FOR_PROGRESSION_REVIEW");
+  }
+
+  const onboardingReasons: readonly GymTraineeAttentionReason[] = [
+    "NO_TRAINER",
+    "NO_PORTAL_ACCESS",
+    "NO_WORKOUT_PLAN",
+    "NO_NUTRITION_PLAN",
+  ];
+  if (reasons.some((reason) => onboardingReasons.includes(reason))) {
+    return { level: "ONBOARDING", reasons };
+  }
+  if (reasons.includes("NO_RECENT_WORKOUT") || reasons.includes("NO_RECENT_MEASUREMENT")) {
+    return { level: "FOLLOW_UP", reasons };
+  }
+  if (reasons.includes("READY_FOR_PROGRESSION_REVIEW")) {
+    return { level: "PROGRESSION_REVIEW", reasons };
+  }
+  return { level: "ON_TRACK", reasons: [] };
+}
+
 export function assertGymAvatarAppearance(input: Readonly<{ shirtColor: string }>): void {
   if (!/^#[0-9A-Fa-f]{6}$/.test(input.shirtColor)) {
     throw new DomainError({

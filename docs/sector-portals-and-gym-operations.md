@@ -4,15 +4,23 @@ Status: implemented with a deep gym operational module and shared clinic/beauty 
 
 ## Owner flow
 
-After selecting an active organization with no sector, the dashboard presents Gym, Clinic, and
-Beauty center. The choice is persisted in `OrganizationSettings`, audited, and can be changed by an
-Organization Owner from Organization settings. It specializes navigation and terminology; all
-server-side authorization and tenant isolation remain unchanged.
+JorMall Super Admin selects Gym, Clinic, or Beauty center in the platform organization-creation
+form. Organization, typed `OrganizationSettings.businessSector`, system roles, role grants,
+provider-neutral defaults, the owner invitation, and the reason-bearing creation audit are committed
+in one database transaction. The invited owner therefore opens the correct workspace immediately;
+ordinary tenant settings cannot reclassify the organization. An exceptional reclassification is a
+separate Super Admin-only, reason-bearing audited repository path.
 
 Gym enables the Trainees workspace. An authorized owner or manager first creates a Customer, then
 adds a gym profile with trainer, goal, experience, measurements, and food budget. Authorized owners,
 managers, or the assigned provider can create workout/nutrition plans and record progress. Provider
 `SELF` scope returns only assigned trainees and treats an unrelated or foreign ID as not found.
+
+The Gym owner dashboard is a data-backed command center. It counts visible trainees, active
+workout/nutrition readiness, active trainee portal access, and a deterministic follow-up queue. The
+queue uses only authorized facts: trainer assignment, active plans, portal state, recent workout
+logs, effort/repetition evidence, and recent measurements. A progression result is an advisory
+review suggestion; it never mutates a workout or nutrition plan.
 
 ## Stored gym records
 
@@ -48,7 +56,8 @@ diets or conditions.
 1. Run explicit migrations and the development seed with a local-only `DEV_SEED_PASSWORD`.
 2. Sign in as `gym-owner@example.invalid`; Development Gym C is selected automatically and no other
    organization is offered.
-3. Choose Gym and verify the dashboard says Gym management portal.
+3. Verify the owner immediately sees Gym management portal and Gym command center without choosing a
+   sector.
 4. Open Trainees, create a Customer, then create the trainee profile.
 5. Add a workout plan/exercise and record performed sets, repetitions, and weight.
 6. Add progress measurements.

@@ -1569,6 +1569,350 @@ tbody tr:last-child td {
 .business-portal {
   display: grid;
 }
+.sector-create-fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.sector-create-fieldset .field-hint {
+  display: block;
+  margin-block: 0.35rem 0.8rem;
+}
+.sector-create-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+.sector-create-option {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding: 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: var(--info-soft);
+  cursor: pointer;
+}
+.sector-create-option:has(input:checked) {
+  border-color: #c79938;
+  background: rgb(199 153 56 / 12%);
+  box-shadow: 0 0 0 2px rgb(199 153 56 / 18%);
+}
+.sector-create-option input {
+  margin-block-start: 0.25rem;
+  accent-color: #b78422;
+}
+.sector-create-option span,
+.sector-create-option small {
+  display: grid;
+  min-width: 0;
+  gap: 0.25rem;
+}
+.sector-create-option small {
+  color: var(--muted);
+  line-height: 1.55;
+}
+.organization-sector {
+  width: fit-content;
+  margin-block: 0.6rem 0;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  background: rgb(199 153 56 / 14%);
+  color: #9b6c16;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+.sector-lock-note {
+  border-inline-start: 4px solid #c79938;
+}
+.sector-lock-note p {
+  max-width: 60rem;
+  margin-block-end: 0;
+  color: var(--muted);
+}
+.gym-command-center {
+  display: grid;
+  gap: 1rem;
+  margin-block-end: 1.25rem;
+}
+.gym-shortcuts-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-block: 0.25rem 0.9rem;
+  padding: 1rem 1.15rem;
+  border-block-end: 1px solid var(--line);
+}
+.gym-shortcuts-heading h2 {
+  margin-block: 0.2rem;
+  font-size: clamp(1.2rem, 2vw, 1.55rem);
+}
+.gym-shortcuts-heading p:last-child {
+  margin: 0;
+  color: var(--muted);
+}
+.gym-shortcut-summary {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.45rem;
+  margin: 0;
+}
+.gym-shortcut-summary div {
+  display: grid;
+  min-width: 5.2rem;
+  gap: 0.15rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 0.75rem;
+  background: var(--info-soft);
+}
+.gym-shortcut-summary dt {
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+.gym-shortcut-summary dd {
+  margin: 0;
+  color: #e5bd62;
+  font-weight: 900;
+}
+.portal-action-grid.gym-action-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  width: 100%;
+  margin: 0;
+}
+.gym-action-grid .portal-action-card {
+  min-height: 10rem;
+}
+.gym-command-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.35rem;
+  border: 1px solid #2b3a50;
+  border-radius: 1.25rem;
+  background: linear-gradient(145deg, #101a29, #172235);
+}
+.gym-command-heading h2 {
+  margin-block: 0.2rem 0.25rem;
+  color: #fff;
+  font-size: clamp(1.65rem, 3vw, 2.35rem);
+}
+.gym-command-heading p:last-child {
+  margin: 0;
+  color: #aeb9c9;
+}
+.gym-command-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+}
+.gym-command-metrics > div {
+  display: flex;
+  min-height: 6rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+  padding: 1rem 1.15rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: var(--surface);
+}
+.gym-command-metrics dt {
+  color: var(--muted);
+  font-weight: 750;
+}
+.gym-command-metrics dd {
+  margin: 0;
+  color: #b78422;
+  font-size: 2rem;
+  font-weight: 900;
+}
+.gym-command-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(18rem, 0.8fr);
+  gap: 1rem;
+}
+.gym-attention-panel,
+.gym-ai-loop,
+.gym-role-workspaces {
+  padding: 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: 1.2rem;
+  background: var(--surface);
+}
+.gym-attention-panel > header,
+.gym-role-workspaces > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.gym-attention-panel h3,
+.gym-role-workspaces h3,
+.gym-ai-loop h3 {
+  margin-block: 0 0.25rem;
+}
+.gym-attention-panel header p,
+.gym-role-workspaces header p,
+.gym-ai-loop > p {
+  margin: 0;
+  color: var(--muted);
+}
+.gym-count-badge {
+  display: grid;
+  min-width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border-radius: 999px;
+  background: #f3e5c5;
+  color: #8d6217;
+  font-weight: 900;
+}
+.gym-attention-list {
+  display: grid;
+  gap: 0.7rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.gym-attention-list > li {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+  background: var(--info-soft);
+}
+.gym-trainee-row-heading,
+.gym-suggestion-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+.gym-trainee-row-heading > div {
+  display: grid;
+  gap: 0.12rem;
+}
+.gym-trainee-row-heading small,
+.gym-attention-list p,
+.gym-suggestion-row span {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+.gym-attention-list p {
+  margin: 0;
+  line-height: 1.55;
+}
+.gym-attention-status {
+  flex: 0 0 auto;
+  padding: 0.3rem 0.55rem;
+  border-radius: 999px;
+  background: #f3e5c5;
+  color: #79530f;
+  font-size: 0.75rem;
+  font-weight: 850;
+}
+.gym-attention-follow_up {
+  background: #fee7dd;
+  color: #943f22;
+}
+.gym-attention-progression_review {
+  background: #e2f3e9;
+  color: #216a43;
+}
+.gym-suggestion-row a {
+  flex: 0 0 auto;
+  color: #9b6c16;
+  font-weight: 850;
+}
+.gym-empty-note {
+  margin-block: 1rem 0;
+  padding: 1rem;
+  border-radius: 0.8rem;
+  background: var(--info-soft);
+  color: var(--muted);
+}
+.gym-ai-loop {
+  overflow: hidden;
+  background: linear-gradient(160deg, #111b2a, #17263b);
+  color: #fff;
+}
+.gym-ai-loop > p,
+.gym-ai-loop > small {
+  color: #b9c4d3;
+}
+.gym-ai-mark {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  margin-block-end: 0.8rem;
+  place-items: center;
+  border-radius: 0.8rem;
+  background: #d6a63c;
+  color: #101825;
+  font-weight: 950;
+}
+.gym-ai-loop ol {
+  display: grid;
+  gap: 0.65rem;
+  margin-block: 1rem;
+  padding: 0;
+  list-style: none;
+}
+.gym-ai-loop li {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.87rem;
+  line-height: 1.45;
+}
+.gym-ai-loop li span {
+  display: grid;
+  width: 1.6rem;
+  height: 1.6rem;
+  flex: 0 0 1.6rem;
+  place-items: center;
+  border: 1px solid #8c7441;
+  border-radius: 999px;
+  color: #f4d792;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+.gym-role-workspaces > div {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-block-start: 1rem;
+}
+.gym-role-workspaces article {
+  min-width: 0;
+  padding: 0.9rem;
+  border-radius: 0.9rem;
+  background: var(--info-soft);
+}
+.gym-role-workspaces article > span {
+  display: grid;
+  width: 2.2rem;
+  height: 2.2rem;
+  place-items: center;
+  border-radius: 0.65rem;
+  background: #f3e5c5;
+  color: #986914;
+  font-weight: 900;
+}
+.gym-role-workspaces h4 {
+  margin-block: 0.65rem 0.3rem;
+}
+.gym-role-workspaces article p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
 .sector-onboarding {
   display: grid;
   gap: 1.5rem;
@@ -1994,6 +2338,15 @@ tbody tr:last-child td {
   .portal-action-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+  .portal-action-grid.gym-action-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .gym-command-grid {
+    grid-template-columns: 1fr;
+  }
+  .gym-role-workspaces > div {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
   .profile-metric-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -2073,6 +2426,33 @@ tbody tr:last-child td {
     min-height: 10.8rem;
     padding: 1rem 0.7rem;
   }
+  .sector-create-options,
+  .gym-command-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .gym-command-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .gym-shortcuts-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .gym-shortcut-summary {
+    width: 100%;
+  }
+  .gym-shortcut-summary div {
+    min-width: 0;
+    flex: 1;
+  }
+  .portal-action-grid.gym-action-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    margin: 0;
+  }
+  .gym-command-heading .button {
+    width: 100%;
+  }
   .portal-action-card small {
     min-height: 2.4rem;
     font-size: 0.65rem;
@@ -2133,6 +2513,16 @@ tbody tr:last-child td {
   }
   .portal-action-card strong {
     font-size: 0.9rem;
+  }
+  .sector-create-options,
+  .gym-command-metrics,
+  .gym-role-workspaces > div {
+    grid-template-columns: 1fr;
+  }
+  .gym-trainee-row-heading,
+  .gym-suggestion-row {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 

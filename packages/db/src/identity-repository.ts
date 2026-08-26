@@ -118,6 +118,7 @@ export type RequestAuditDetails = Readonly<{
 }>;
 
 export type OrganizationCreation = Readonly<{
+  businessSector: BusinessSector;
   nameAr: string;
   nameEn: string;
   ownerEmail: string;
@@ -308,6 +309,7 @@ export class IdentityRepository {
         id: true,
         nameAr: true,
         nameEn: true,
+        settings: { select: { businessSector: true } },
         slug: true,
         status: true,
         suspendedAt: true,
@@ -335,7 +337,7 @@ export class IdentityRepository {
           id: organizationId,
           nameAr: input.nameAr,
           nameEn: input.nameEn,
-          settings: { create: {} },
+          settings: { create: { businessSector: input.businessSector } },
           slug: input.slug,
         },
       });
@@ -404,6 +406,7 @@ export class IdentityRepository {
         data: {
           action: "ORGANIZATION_CREATED",
           actorUserId,
+          metadata: { businessSector: input.businessSector },
           organizationId,
           targetId: organizationId,
           targetType: "Organization",
@@ -789,23 +792,31 @@ export class IdentityRepository {
     });
   }
 
-  async setBusinessSector(
-    access: TenantAccessSnapshot,
+  async reclassifyOrganizationBusinessSector(
+    actorUserId: string,
+    organizationId: string,
     businessSector: BusinessSector,
+    reason: string,
   ): Promise<void> {
-    requireAccessPermission(access, "organization.settings.manage");
-    await this.runWithAccess(access, async (transaction) => {
+    await this.assertSuperAdmin(actorUserId);
+    if (reason.trim().length < 10) {
+      throw new DomainError({
+        code: "VALIDATION_FAILED",
+        message: "A reclassification reason of at least 10 characters is required.",
+      });
+    }
+    await runInTenant(this.client, { actorUserId, organizationId }, async (transaction) => {
       await transaction.organizationSettings.update({
         data: { businessSector },
-        where: { organizationId: access.organizationId },
+        where: { organizationId },
       });
       await createAuditEvent(transaction, {
         action: "ORGANIZATION_BUSINESS_SECTOR_UPDATED",
-        actorUserId: access.actorUserId,
+        actorUserId,
         metadata: { businessSector },
-        organizationId: access.organizationId,
-        supportAccessId: access.supportAccessId,
-        targetId: access.organizationId,
+        organizationId,
+        reason: reason.trim(),
+        targetId: organizationId,
         targetType: "Organization",
       });
     });

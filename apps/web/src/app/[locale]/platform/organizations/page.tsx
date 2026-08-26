@@ -8,6 +8,7 @@ import { OrganizationCreationForm } from "../../../../components/organization-cr
 import { SubmitButton } from "../../../../components/submit-button";
 import { phaseOneMessages, phaseOneValueLabel } from "../../../../messages/phase-one";
 import { phaseFourMessages } from "../../../../messages/phase-four";
+import { sectorValueLabel } from "../../../../messages/sectors";
 import { communicationRepository, identityRepository } from "../../../../server/identity";
 import { requireSession } from "../../../../server/session";
 import { logoutAction, setOrganizationStatusAction, startSupportAccessAction } from "../../actions";
@@ -109,6 +110,13 @@ export default async function OrganizationsPage({
                   <h2>{locale === "ar" ? organization.nameAr : organization.nameEn}</h2>
                   <p className="muted" dir="ltr">
                     {organization.slug}
+                  </p>
+                  <p className="organization-sector">
+                    {organization.settings?.businessSector
+                      ? sectorValueLabel(locale, organization.settings.businessSector)
+                      : locale === "ar"
+                        ? "غير مصنفة"
+                        : "Unclassified"}
                   </p>
                   {organization.suspensionReason ? <p>{organization.suspensionReason}</p> : null}
                 </div>

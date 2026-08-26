@@ -72,7 +72,12 @@ async function ensureUser(email: string, name: string) {
 async function ensureOrganization(
   superAdminId: string,
   owner: Readonly<{ email: string; id: string }>,
-  input: Readonly<{ nameAr: string; nameEn: string; slug: string }>,
+  input: Readonly<{
+    businessSector: BusinessSector;
+    nameAr: string;
+    nameEn: string;
+    slug: string;
+  }>,
 ) {
   const existing = await prisma.organization.findUnique({ where: { slug: input.slug } });
   if (existing) {
@@ -133,16 +138,19 @@ async function main(): Promise<void> {
     where: { id: superAdmin.id },
   });
   const organizationA = await ensureOrganization(superAdmin.id, owner, {
+    businessSector: BusinessSector.CLINIC,
     nameAr: "عيادة التطوير أ",
     nameEn: "Development Clinic A",
     slug: "development-clinic-a",
   });
   const organizationB = await ensureOrganization(superAdmin.id, beautyOwner, {
+    businessSector: BusinessSector.BEAUTY_CENTER,
     nameAr: "صالون التطوير ب",
     nameEn: "Development Salon B",
     slug: "development-salon-b",
   });
   const organizationC = await ensureOrganization(superAdmin.id, gymOwner, {
+    businessSector: BusinessSector.GYM,
     nameAr: "نادي التطوير ج",
     nameEn: "Development Gym C",
     slug: "development-gym-c",
@@ -180,7 +188,12 @@ async function main(): Promise<void> {
             {},
           );
     if ((await repository.getBusinessSector(sectorAccess)) !== businessSector) {
-      await repository.setBusinessSector(sectorAccess, businessSector);
+      await repository.reclassifyOrganizationBusinessSector(
+        superAdmin.id,
+        organization.id,
+        businessSector,
+        "Development fixture sector synchronization",
+      );
     }
   }
 
